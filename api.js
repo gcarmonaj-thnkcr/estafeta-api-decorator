@@ -13,7 +13,7 @@ exports.handler = async (event, context) => {
         // Return an error response if there was an issue processing the request
         return {
           statusCode: 500,
-          body: JSON.stringify({ error: 'Failed to process GET request' }),
+          body: JSON.stringify({ error: `Failed to process GET request ${error}` }),
         };
       }
     }
