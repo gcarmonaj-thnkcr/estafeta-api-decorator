@@ -7,7 +7,7 @@ exports.handler = async (event, context) => {
         // Return the data as the response
         return {
           statusCode: 200,
-          body: JSON.stringify(data.items),
+          body: JSON.stringify(data),
         };
       } catch (error) {
         // Return an error response if there was an issue processing the request
