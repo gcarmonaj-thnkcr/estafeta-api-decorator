@@ -9,14 +9,16 @@ app.use(cors());
 let port = process.env.PORT || 9000;
 const router = express.Router();
 
-router.get("/lifetimes", function(req, res){
+router.get("/lifetimes/:client_id", function(req, res){
+    console.log(req.params.client_id)
     res.json ({
         statusCode: 200,
         body: data.items,
       });
 });
 
-router.get("/pdv-service", function(req, res){
+router.get("/pdv-services", function(req, res){
+    console.log(req.query.qr)
     res.json ({
         statusCode: 200,
         body: data.pdvService,
