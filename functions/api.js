@@ -9,11 +9,11 @@ let port = process.env.PORT || 5000;
 const router = express.Router();
 
 router.get("/lifetimes", function(req, res){
-    res.json({message: "Hello from server"});
+    res.json({message: "Hello lifetimes from server"});
 });
 
 router.get("/pdv-service", function(req, res){
-    res.json({message: "Hello from server"});
+    res.json({message: "Hello pdv-service from server"});
 });
 
 app.use('/.netlify/functions/api', router);
