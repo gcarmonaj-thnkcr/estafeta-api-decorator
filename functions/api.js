@@ -6,20 +6,20 @@ import data from './mock_values.json' assert { type: 'json'}
 let app = express();
 app.use(cors());
 
-let port = process.env.PORT || 5000;
+let port = process.env.PORT || 9000;
 const router = express.Router();
 
 router.get("/lifetimes", function(req, res){
     res.json ({
         statusCode: 200,
-        body: JSON.stringify(data.items),
+        body: data.items,
       });
 });
 
 router.get("/pdv-service", function(req, res){
     res.json ({
         statusCode: 200,
-        body: JSON.stringify(data.pdvService),
+        body: data.pdvService,
       });
 });
 
