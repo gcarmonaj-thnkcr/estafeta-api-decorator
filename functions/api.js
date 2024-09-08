@@ -7,13 +7,20 @@ app.use(cors());
 
 let port = process.env.PORT || 5000;
 const router = express.Router();
+const data = require('./db.json');
 
 router.get("/lifetimes", function(req, res){
-    res.json({message: "Hello lifetimes from server"});
+    res.json ({
+        statusCode: 200,
+        body: JSON.stringify(data.items),
+      });
 });
 
 router.get("/pdv-service", function(req, res){
-    res.json({message: "Hello pdv-service from server"});
+    res.json ({
+        statusCode: 200,
+        body: JSON.stringify(data.pdvService),
+      });
 });
 
 app.use('/.netlify/functions/api', router);
