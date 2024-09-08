@@ -7,7 +7,7 @@ app.use(cors());
 
 let port = process.env.PORT || 5000;
 const router = express.Router();
-const data = require('./db.json');
+const data = require('./mock_values.json');
 
 router.get("/lifetimes", function(req, res){
     res.json ({
