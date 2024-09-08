@@ -1,13 +1,14 @@
 import express from "express";
 import cors from "cors";
 import serverless from "serverless-http";
+import * as fs from 'fs';
 
 let app = express();
 app.use(cors());
 
 let port = process.env.PORT || 5000;
 const router = express.Router();
-const data = require('mock_values.json');
+const data = JSON.parse(fs.readFileSync('./mock_values.json'));
 
 router.get("/lifetimes", function(req, res){
     res.json ({
