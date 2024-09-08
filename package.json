@@ -11,6 +11,7 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
+    "@commercetools/frontend-sdk": "^1.13.2",
     "cors": "2.8.5",
     "express": "^4.17.1",
     "serverless-http": "^3.2.0"
