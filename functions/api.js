@@ -2,12 +2,17 @@ import express from "express";
 import cors from "cors";
 import serverless from "serverless-http";
 import data from './mock_values.json' assert { type: 'json'}
+import { apiRoot } from "./bCommercetools/client.js";
 
-let app = express();
+const app = express();
 app.use(cors());
 
-let port = process.env.PORT || 9000;
+const port = process.env.PORT || 9000;
 const router = express.Router();
+
+router.get("/", function(_, res) {
+  res.sendStatus(200)
+})
 
 router.get("/lifetimes/:client_id", function(req, res){
     console.log(req.params.client_id)
@@ -17,14 +22,30 @@ router.get("/lifetimes/:client_id", function(req, res){
       });
 });
 
-router.get("/pdv-services", function(req, res){
-    console.log(req.query.qr)
+router.get("/pdv-services/:qr", async function(req, res){
+    const qr = req.params.qr
+    const order = await apiRoot.orders().search().post({
+      body: {
+        query: {
+          fullText: {
+            field: "custom.services",
+            value: qr,
+            customType: "StringType"
+          }
+        }
+      }
+    }).execute()
+    
+    if(order.body.hits.length <= 0) return res.sendStatus(404)
     res.json ({
         statusCode: 200,
-        body: data.pdvService,
+        body: order.body.hits[0].id,
       });
 });
 
 app.use('/.netlify/functions/api', router);
 export const handler = serverless(app);
-app.listen(port)
+
+app.listen(port, () => {
+  console.log("Server listenning on port" + port)
+})

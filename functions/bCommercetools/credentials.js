@@ -1,0 +1,6 @@
+export const CTP_PROJECT_KEY="estafeta-dev-001"
+export const CTP_CLIENT_SECRET="LQ7WXOLQ7IMxKP15-mS3f46oQCMZc9t3"
+export const CTP_CLIENT_ID="zTbSAzn5VslhXJ_BtJ0AFSs2"
+export const CTP_AUTH_URL="https://auth.us-central1.gcp.commercetools.com"
+export const CTP_API_URL="https://api.us-central1.gcp.commercetools.com"
+export const CTP_SCOPES="manage_project:estafeta-dev-001 view_audit_log:estafeta-dev-001"
