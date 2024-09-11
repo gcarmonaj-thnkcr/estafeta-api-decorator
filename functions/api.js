@@ -14,7 +14,7 @@ router.get("/", function(_, res) {
   res.sendStatus(200)
 })
 
-router.get("/lifetimes/:client_id", function(req, res){
+router.get("/lifetimes", function(req, res){
     console.log(req.params.client_id)
     res.json ({
         statusCode: 200,
@@ -37,10 +37,10 @@ router.get("/pdv-services/:qr", async function(req, res){
       }
     }).execute()
     
-    if(order.body.hits.length <= 0) return res.sendStatus(404)
+    // if(order.body.hits.length <= 0) return res.sendStatus(404)
     res.json ({
         statusCode: 200,
-        body: order.body.hits[0].id,
+        body: data.pdvService, //order.body.hits[0].id,
       });
 });
 
