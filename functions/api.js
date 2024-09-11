@@ -22,24 +22,25 @@ router.get("/lifetimes", function(req, res){
       });
 });
 
-router.get("/pdv-services/:qr", async function(req, res){
-    const qr = req.params.qr
-    const order = await apiRoot.orders().search().post({
-      body: {
-        query: {
-          fullText: {
-            field: "custom.services",
-            value: qr,
-            customType: "StringType"
-          }
-        }
-      }
-    }).execute()
+router.get("/pdv-services", async function(req, res){
+    // const qr = req.params.qr
+    // const qrh = req.headers.qr
+    // const order = await apiRoot.orders().search().post({
+    //   body: {
+    //     query: {
+    //       fullText: {
+    //         field: "custom.services",
+    //         value: qr,
+    //         customType: "StringType"
+    //       }
+    //     }
+    //   }
+    // }).execute()
     
-    if(order.body.hits.length <= 0) return res.sendStatus(404)
+    // if(order.body.hits.length <= 0) return res.sendStatus(404)
     res.json ({
         statusCode: 200,
-        body: order.body.hits[0].id,
+        body: data.pdvService, //order.body.hits[0].id,
       });
 });
 
