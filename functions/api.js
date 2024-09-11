@@ -14,7 +14,7 @@ router.get("/", function(_, res) {
   res.sendStatus(200)
 })
 
-router.get("/lifetimes/:client_id", function(req, res){
+router.get("/lifetimes", function(req, res){
     console.log(req.params.client_id)
     res.json ({
         statusCode: 200,
