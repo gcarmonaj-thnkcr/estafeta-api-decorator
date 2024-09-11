@@ -3,8 +3,8 @@
         {
             "emailClient": "gerardo.carmonaj.ext@estafeta.com",
             "name": "Gerardo Carmona",
-            "qtyItemCode": 1,
-            "expireDays": 90
+            "qtyItemCode": "(8) Dos días, (2) día siguiente",
+            "expireDays": "07 de septiembre del 2025"
         },
         {
             "emailClient": "gcj@thinkcares.com",
