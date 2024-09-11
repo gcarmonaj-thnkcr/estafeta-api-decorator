@@ -24,6 +24,7 @@ router.get("/lifetimes/:client_id", function(req, res){
 
 router.get("/pdv-services/:qr", async function(req, res){
     const qr = req.params.qr
+    console.log(qr)
     const order = await apiRoot.orders().search().post({
       body: {
         query: {
