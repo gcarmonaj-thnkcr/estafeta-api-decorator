@@ -37,11 +37,11 @@ router.get("/pdv-services/:qr", async function(req, res){
       }
     }).execute()
     
-    // if(order.body.hits.length <= 0) return res.sendStatus(404)
-    res.json ({
-        statusCode: 200,
-        body: data.pdvService, //order.body.hits[0].id,
-      });
+    if(order.body.hits.length <= 0) return res.sendStatus(404)
+      res.json ({
+          statusCode: 200,
+          body: order.body.hits[0].id,
+        });
 });
 
 app.use('/.netlify/functions/api', router);
