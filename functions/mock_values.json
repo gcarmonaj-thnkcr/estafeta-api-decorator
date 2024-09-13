@@ -4,13 +4,15 @@
             "emailClient": "gerardo.carmonaj.ext@estafeta.com",
             "clientName": "Gerardo Carmona",
             "folios": "(8) Dos días, (10) Terrestre, ...",
-            "expirationDate": "24 de noviembre del 2025"
+            "expirationDate": "24 de noviembre del 2025",
+            "expirationDays": 90
         },
         {
             "emailClient": "gcj@thinkcares.com",
             "clientName": "Gerardo Carmona",
             "folios": "(8) Dos días, (10) Terrestre, ...",
-            "expirationDate": "24 de noviembre del 2025"
+            "expirationDate": "24 de noviembre del 2025",
+            "expirationDays": 1
         }
     ],
     "pdvService": {
