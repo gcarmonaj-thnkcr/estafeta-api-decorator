@@ -2,15 +2,15 @@
     "items": [
         {
             "emailClient": "gerardo.carmonaj.ext@estafeta.com",
-            "name": "Gerardo Carmona",
-            "qtyItemCode": 1,
-            "expireDays": 90
+            "clientName": "Gerardo Carmona",
+            "folios": "(8) Dos días, (10) Terrestre, ...",
+            "expirationDate": "24 de noviembre del 2025"
         },
         {
             "emailClient": "gcj@thinkcares.com",
-            "name": "Gerardo Carmona",
-            "qtyItemCode": 4,
-            "expireDays": 90
+            "clientName": "Gerardo Carmona",
+            "folios": "(8) Dos días, (10) Terrestre, ...",
+            "expirationDate": "24 de noviembre del 2025"
         }
     ],
     "pdvService": {
