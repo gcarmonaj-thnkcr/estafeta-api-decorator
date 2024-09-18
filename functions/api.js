@@ -16,11 +16,12 @@ router.get("/", function(_, res) {
   res.sendStatus(200)
 })
 
-const addObject = async (index, order) => {
+const addObject = async (index, order, days) => {
   if(!orderstoNotify[index]){
     orderstoNotify[index] = []
   }
   try{ 
+    console.log(order.customerId)
     const customer = await apiRoot.customers().withId({ID: order.customerId}).get().execute()
     if(!customer.statusCode || customer.statusCode >= 300) return
 
@@ -28,13 +29,23 @@ const addObject = async (index, order) => {
     for(const item of order.lineItems){
       products.push(`(${item.quantity})${item.name["es-MX"]}`) 
     }
+    const date = new Date(order.createdAt)
+    date.setDate(date.getDate() + 426)
+    
+    const opciones = { year: 'numeric', month: 'long', day: 'numeric' };
 
+    // Formatear la fecha 
+    const fechaFormateada = date.toLocaleDateString('es-ES', opciones);
+    
     orderstoNotify[index].push({
       emailClient: customer.body.email,
-      name: customer.body.firstName + customer.body.lastName + customer.body.middleName,
-      qtyItemCode: products.join(",")
+      clientName: customer.body.firstName + customer.body.lastName + customer.body.middleName,
+      folios: products.join(","),
+      expirationDate: fechaFormateada,
+      expirationDays: days
     });
   } catch(err){
+    console.log(err.message)
     return 
   }
 }
@@ -61,28 +72,27 @@ router.get("/lifetimes", async function(req, res){
     }).execute()
     
     if(orders.body.results.length <= 0) return res.sendStatus(204)
+
     
     const ordersCombo = orders.body.results.filter(order => order.lineItems.some(item => item.variant.attributes.some(attr => attr.name == "tipo-paquete" && attr.value["label"] == "UNIZONA")))
     
-
     for(const order of ordersCombo) {
       const daysDif = checkDate(order.createdAt)
       switch(daysDif) {
-        case 90: 
-          
-          await addObject(daysDif, order)          
+        case 365: 
+          await addObject(daysDif, order, 90)          
         break;
-        case 30: 
-          await addObject(daysDif, order)          
+        case 395: 
+          await addObject(daysDif, order, 30)          
         break;
-        case 15: 
-          await addObject(daysDif, order)          
+        case 411: 
+          await addObject(daysDif, 15)          
         break; 
-        case 7: 
-          await addObject(daysDif, order)          
+        case 417: 
+          await addObject(daysDif, order, 7)          
         break;
-        case 1: 
-          await addObject(daysDif, order)          
+        case 424: 
+          await addObject(daysDif, order, 1)          
         break;
       }
     }    
