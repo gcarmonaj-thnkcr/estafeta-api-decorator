@@ -1,9 +1,11 @@
 import express from "express";
 import cors from "cors";
 import serverless from "serverless-http";
-import data from './mock_values.json' assert { type: 'json'}
-import { apiRoot } from "./bCommercetools/client.js";
+//import data from './mock_values.json' assert { type: 'json'}
+import { apiRoot } from "../commercetools/client.js";
+import { checkDate } from "./validateDate/validate.js";
 
+const orderstoNotify = {}
 const app = express();
 app.use(cors());
 
@@ -14,9 +16,32 @@ router.get("/", function(_, res) {
   res.sendStatus(200)
 })
 
+const addObject = async (index, order) => {
+  if(!orderstoNotify[index]){
+    orderstoNotify[index] = []
+  }
+  try{ 
+    const customer = await apiRoot.customers().withId({ID: order.customerId}).get().execute()
+    if(!customer.statusCode || customer.statusCode >= 300) return
+
+    const products = []
+    for(const item of order.lineItems){
+      products.push(`(${item.quantity})${item.name["es-MX"]}`) 
+    }
+
+    orderstoNotify[index].push({
+      emailClient: customer.body.email,
+      name: customer.body.firstName + customer.body.lastName + customer.body.middleName,
+      qtyItemCode: products.join(",")
+    });
+  } catch(err){
+    return 
+  }
+}
+
 /// authenticacion por AUTH 2.0
 
-router.get("/lifetimes", function(req, res){
+router.get("/lifetimes", async function(req, res){
     console.log(req.params.client_id)
     /// Traer ordenes de tipo Combo
     /// Verificar que ordenes caen en los periodos de notificación:
@@ -27,10 +52,44 @@ router.get("/lifetimes", function(req, res){
     /// 5. 1 día antiguedad de la orden sea de 13M y 29d
     /// Obtener datos del cliente
     /// armas la estructura de coleccion (data.items)
+  //
+    const orders = await apiRoot.orders().get({
+      queryArgs: {
+        limit: 500,
+        sort: "createdAt desc"
+      }
+    }).execute()
+    
+    if(orders.body.results.length <= 0) return res.sendStatus(204)
+    
+    const ordersCombo = orders.body.results.filter(order => order.lineItems.some(item => item.variant.attributes.some(attr => attr.name == "tipo-paquete" && attr.value["label"] == "UNIZONA")))
+    
+
+    for(const order of ordersCombo) {
+      const daysDif = checkDate(order.createdAt)
+      switch(daysDif) {
+        case 90: 
+          
+          await addObject(daysDif, order)          
+        break;
+        case 30: 
+          await addObject(daysDif, order)          
+        break;
+        case 15: 
+          await addObject(daysDif, order)          
+        break; 
+        case 7: 
+          await addObject(daysDif, order)          
+        break;
+        case 1: 
+          await addObject(daysDif, order)          
+        break;
+      }
+    }    
 
     res.json ({
         statusCode: 200,
-        body: data.items,
+        body: orderstoNotify,
       });
 });
 
