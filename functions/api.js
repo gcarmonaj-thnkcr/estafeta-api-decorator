@@ -242,7 +242,7 @@ router.post("/login", async function(req, res) {
     return res.status(401).send({ message: 'Por favor provee credenciales validos para su autenticacion' });
   }
 
-  if (clientId != "wjg14gn3zqm34q8srm2htj" || clientSecret != "wjg14gn3zqm34q8srm2htj") {
+  if (clientId != "wjg14gn3zqm34q8srm2htj" || clientSecret != "gu1vr46nc4pl87") {
     return res.status(401).send({ message: "Credenciales no validas" })
   }
   
