@@ -32,9 +32,9 @@
         "itemWeight": "20",
         "isItemWeightExceeded": "0",
         "statusServiceOrder": "Registrado",
-        "QRCode": "1233412444563452342134214323414", // Vacio
+        "QRCode": "1233412444563452342134214323414",
         "QRCodeMD5": "1233412444563452342134214323414",
-        "consultaId": "99999999", /// Revisarlo con Memo
+        "consultaId": "99999999",
         "createdDate": "2021-02-24",
         "availabledDate": "2021-03-01/2021-03-06",
         "sender": {
