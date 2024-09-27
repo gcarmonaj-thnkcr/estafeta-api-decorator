@@ -105,5 +105,21 @@
                 "IsActive": "True"
             }
         }
+    },
+    "WaybillService": {
+        "resultCode": "0",
+        "resultDescription": "Proceso completo",
+        "ResultWaybill": "101200128587D620489206"
+    },
+    "WaybillStatusChanged": {
+        "resultCode": 0,
+        "resultDescription": "Proceso satisfactorio.",
+        "resultAsignWaybill": [
+            {
+                "resultCode": 0,
+                "resultDescription": "Registro actualizado",
+                "resultFolioOrder": "TDA-00805"
+            }
+        ]
     }
 }
