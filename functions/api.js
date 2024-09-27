@@ -50,10 +50,6 @@ const addObject = async (index, order, days) => {
 }
 
 const validateWaybillRequest = (waybillService) => {
-  if (!waybillService || !Array.isArray(waybillService) || waybillService.length === 0) {
-    return res.status(400).send({ message: 'WaybillService must be a non-empty array.' });
-  }
-
   const isValid = waybillService.every(service => 
     typeof service.storePortalOrder === 'string' &&
     typeof service.storeFolioOrder === 'string' &&
