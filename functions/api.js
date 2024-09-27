@@ -261,9 +261,9 @@ router.post("/waybills", async function(req, res){
 });
 
 router.put("/waybills", async function(req, res){
-  const { WaybillService } = req.body;
+  const { AsignWaybillOrder } = req.body;
   
-  const isValid = validateWaybillRequest(WaybillService);
+  const isValid = validateWaybillRequest(AsignWaybillOrder);
 
   if (!isValid) {
     return res.status(400).send({ message: 'Invalid WaybillService format.' });
