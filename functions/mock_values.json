@@ -31,10 +31,10 @@
         "isItemDimensionsExceeded": "0",
         "itemWeight": "20",
         "isItemWeightExceeded": "0",
-        "statusServiceOrder": "Registrado/Usado/Cancelado/Expirado",
-        "QRCode": "1233412444563452342134214323414",
+        "statusServiceOrder": "Registrado",
+        "QRCode": "1233412444563452342134214323414", // Vacio
         "QRCodeMD5": "1233412444563452342134214323414",
-        "consultaId": "99999999",
+        "consultaId": "99999999", /// Revisarlo con Memo
         "createdDate": "2021-02-24",
         "availabledDate": "2021-03-01/2021-03-06",
         "sender": {
@@ -107,5 +107,21 @@
                 "IsActive": "True"
             }
         }
+    },
+    "WaybillService": {
+        "resultCode": "0",
+        "resultDescription": "Proceso completo",
+        "ResultWaybill": "101200128587D620489206"
+    },
+    "WaybillStatusChanged": {
+        "resultCode": 0,
+        "resultDescription": "Proceso satisfactorio.",
+        "resultAsignWaybill": [
+            {
+                "resultCode": 0,
+                "resultDescription": "Registro actualizado",
+                "resultFolioOrder": "TDA-00805"
+            }
+        ]
     }
 }
