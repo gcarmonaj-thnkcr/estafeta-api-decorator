@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import serverless from "serverless-http";
-//import data from './mock_values.json' assert { type: 'json'}
+import data from './mock_values.json' assert { type: 'json'}
 import { apiRoot } from "../commercetools/client.js";
 import { checkDate } from "./validateDate/validate.js";
 import { generateToken, validateToken } from "../jsonToken/token.js";
@@ -47,6 +47,26 @@ const addObject = async (index, order, days) => {
   } catch(err){
     return 
   }
+}
+
+const validateWaybillRequest = (waybillService) => {
+  if (!waybillService || !Array.isArray(waybillService) || waybillService.length === 0) {
+    return res.status(400).send({ message: 'WaybillService must be a non-empty array.' });
+  }
+
+  const isValid = waybillService.every(service => 
+    typeof service.storePortalOrder === 'string' &&
+    typeof service.storeFolioOrder === 'string' &&
+    typeof service.eMailClient === 'string' &&
+    typeof service.serviceWarranty === 'string' &&
+    typeof service.serviceModality === 'string' &&
+    typeof service.waybill === 'string' &&
+    typeof service.statusFolioOrder === 'string' &&
+    typeof service.usedDate === 'string' &&
+    typeof service.IsGenerator === 'boolean'
+  );
+
+  return isValid;
 }
 
 /// authenticacion por AUTH 2.0
@@ -221,11 +241,42 @@ router.get("/pdv-services", async function(req, res){
       }
     }
 
-
     res.json ({
       statusCode: 200,
       body: responseObject,
     });
+});
+
+router.post("/waybills", async function(req, res){
+  const { WaybillService } = req.body;
+  
+  const isValid = validateWaybillRequest(WaybillService);
+
+  if (!isValid) {
+    return res.status(400).send({ message: 'Invalid WaybillService format.' });
+  }
+  
+  /// Extraer la guia disponible de las ordenes de combo
+  /// Asignarla a la orden de servicio conservando la info de la orden de donde se extrajo
+  /// Crear la estructura de data.WaybillService
+
+  res.json (data.WaybillService);
+});
+
+router.put("/waybills", async function(req, res){
+  const { WaybillService } = req.body;
+  
+  const isValid = validateWaybillRequest(WaybillService);
+
+  if (!isValid) {
+    return res.status(400).send({ message: 'Invalid WaybillService format.' });
+  }
+
+  /// Cambiar el estado de la guia 
+  /// Devolverla a la orden original
+  /// Crear la estructura de data.WaybillStatusChanged
+
+  res.json (data.WaybillStatusChanged);
 });
 
 router.post("/login", async function(req, res) {
