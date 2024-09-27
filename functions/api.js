@@ -299,7 +299,10 @@ router.post("/login", async function(req, res) {
   
   const token = generateToken(clientId, clientSecret)
 
-  return res.status(201).send({token})
+  return res.status(201).send({
+    access_token: token,
+    token
+  })
 })
 
 app.use('/.netlify/functions/api', router);
