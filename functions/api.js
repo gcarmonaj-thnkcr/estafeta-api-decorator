@@ -9,6 +9,7 @@ import { generateToken, validateToken } from "../jsonToken/token.js";
 const orderstoNotify = {}
 const app = express();
 app.use(cors());
+app.use(express.json())
 
 const port = process.env.PORT || 9000;
 const router = express.Router();
@@ -296,7 +297,7 @@ router.post("/login", async function(req, res) {
   const token = generateToken(clientId, clientSecret)
 
   return res.status(201).send({
-    access_token: token,
+    access_token: token,  
     token
   })
 })
