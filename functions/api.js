@@ -5,6 +5,7 @@ import data from './mock_values.json' assert { type: 'json'}
 import { apiRoot } from "../commercetools/client.js";
 import { checkDate } from "./validateDate/validate.js";
 import { generateToken, validateToken } from "../jsonToken/token.js";
+import { FormaterDate } from "../utils/formaterDate.js";
 
 const orderstoNotify = {}
 const app = express();
@@ -119,13 +120,12 @@ router.get("/lifetimes", validateToken, async function(req, res){
       });
 });
 
-router.get("/pdv-services", async function(req, res){
+router.get("/pdv-services", validateToken, async function(req, res){
     const qr = req.headers.qr
     /// Obtener el QR de una variable en el header
     /// Obtener orden de CT con query de QR
     /// Generar la estructura de data.pdvService
-
-    console.log(qr)
+    if(!qr || qr == '') return res.sendStatus(404)
     const order = await apiRoot.orders().search().post({
       body: {
         query: {
@@ -141,30 +141,33 @@ router.get("/pdv-services", async function(req, res){
     if(order.body.hits.length <= 0) return res.sendStatus(404)
     
     const searchOrder = await apiRoot.orders().withId({ID: order.body.hits[0].id}).get().execute()
+    const customObject = JSON.parse(searchOrder.body.custom.fields["services"])
+    const servicesFind = customObject[searchOrder.body.lineItems[0].id].find(item => item.QR == qr)
+    console.log(servicesFind)    
     
     const responseObject = {
       "pdvService": {
         "storeServiceOrder": "999-999999",
-        "PurchaseOrder": searchOrder.body.orderNumber,
-        "waybill": "1234567890123456789012",
+        "PurchaseOrder": searchOrder.body.orderNumber ?? searchOrder.body.custom.fields["pickupNumber"],
+        "waybill": servicesFind?.guide ?? "",
         "idcaStoreClient": 1234567890,
         "idcaServiceWarranty": "123",
         "idcaServiceModality": "123",
-        "isPudo": "0",
-        "isPackage": "0",
-        "itemLength": "50",
-        "itemHeight": "50",
-        "itemWidth": "50",
-        "itemVolumen": "50",
-        "isItemDimensionsExceeded": "0",
-        "itemWeight": "20",
-        "isItemWeightExceeded": "0",
+        "isPudo": servicesFind.isPudo ? "1" : "0",
+        "isPackage": servicesFind.isPackage? "1" : "0",
+        "itemLength": servicesFind?.itemLength ?? "",
+        "itemHeight": servicesFind?.itemHeight ?? "",
+        "itemWidth": servicesFind?.itemWidth ?? "",
+        "itemVolumen": servicesFind?.itemVolumen ?? "",
+        "isItemDimensionsExceeded": servicesFind.isItemDimensionsExceeded ? "1" : "0",
+        "itemWeight": servicesFind?.itemWeight ?? "",
+        "isItemWeightExceeded": servicesFind.isItemWeightExceeded ? "1" : "0",
         "statusServiceOrder": "Registrado",
-        "QRCode": "1233412444563452342134214323414", // Vacio
-        "QRCodeMD5": "1233412444563452342134214323414",
+        "QRCode": "", // Vacio
+        "QRCodeMD5": servicesFind.QR,
         "consultaId": "99999999", /// Revisarlo con Memo
-        "createdDate": "2021-02-24",
-        "availabledDate": "2021-03-01/2021-03-06",
+        "createdDate": FormaterDate(searchOrder.body.createdAt, false),
+        "availabledDate": `${FormaterDate(searchOrder.body.createdAt)} - ${FormaterDate(searchOrder.body.createdAt)}`,
         "sender": {
             "eMailClient": "guillermo.valerio@estafeta.com",
             "isPudo": "0",
@@ -200,14 +203,14 @@ router.get("/pdv-services", async function(req, res){
             "Longitude": 99999.99,
             "IsActive": "True",
             "recipient": {
-                "eMailClient": "guillermo.valerio@estafeta.com",
-                "isPudo": "0",
+                "eMailClient": searchOrder.body.shippingAddress.email,
+                "isPudo": servicesFind.isPudo,
                 "EquivalentCode": "123",
                 "TyoeLocationName": "Nombre del Pudo",
                 "SpaceOwnerName": "Tipo de pudo",
                 "isSender": "0",
-                "CompleteName": "JUAN FRANCISCO VALERIO GONZÁLEZ",
-                "zipCode": "99999",
+                "CompleteName": searchOrder.body?.shippingAddress?.firstName ?? ""+" "+searchOrder.body?.shippingAddress?.lastName ?? "",
+                "zipCode": searchOrder.body.shippingAddress.postalCode,
                 "roadTypeCode": "9999",
                 "roadTypeName": "Avenida",
                 "street": "Margarita Maza de Juárez",
@@ -227,8 +230,8 @@ router.get("/pdv-services", async function(req, res){
                 "betweenRoadName2": "y calzada vallejo",
                 "AddressReference": "Esta entre el Edificio 97 y 102",
                 "CountryCodePhone": "999",
-                "LandlinePhone": "5555555555",
-                "CellPhone": "5555555555",
+                "LandlinePhone": searchOrder.body?.shippingAddress?.phone ?? "",
+                "CellPhone": searchOrder.body?.shippingAddress?.mobile ?? "",
                 "ContacteMail": "micorreopersonal@dominio.com",
                 "Latitude": 99999.99,
                 "Longitude": 99999.99,
