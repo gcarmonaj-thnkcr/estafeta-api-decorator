@@ -8,7 +8,7 @@ export const generateToken = (clientId, clientSecret) => {
     clientSecret
   } 
 
-  const token = jwt.sign(payload, seed, { expiresIn: '1h' })
+  const token = jwt.sign(payload, seed, { expiresIn: '24h' })
 
   return token
 }
