@@ -97,6 +97,18 @@ router.get("/lifetimes", validateToken, async function(req, res){
       const daysDif = checkDate(order.createdAt)
       switch(daysDif) {
         case 365: 
+          await apiRoot.orders().withId({ ID: order.id}).post({
+            body: {
+              version: order.version,
+              actions: [
+                {
+                  action: 'setCustomField',
+                  name: 'isExpired',
+                  value: true,
+                } 
+              ]
+            }
+          }).execute()
           await addObject(daysDif, order, 90)          
         break;
         case 395: 
@@ -279,6 +291,21 @@ router.put("/waybills", async function(req, res){
 
   res.json (data.WaybillStatusChanged);
 });
+
+router.get("/ordersExpired/:idCustomer", async function(req, res) {
+  const idCustomer = req.params.idCustomer
+  if(!idCustomer) return res.status(400).send({ message: 'idCustomer is required' })
+  const orders = await apiRoot.orders().get({
+    queryArgs: {
+      where: `custom(fields(isExpired=true)) and customerId in ("${idCustomer}")`
+    }
+  }).execute()
+  if(!orders.statusCode || orders.statusCode >= 300) return res.sendStatus(404)
+  return res.status(200).send({
+    message: '',
+    ordersToExpired: orders.body?.total ?? 0
+  })
+})
 
 router.post("/login", async function(req, res) {
   const authHeader = req.headers['authorization']
