@@ -178,6 +178,7 @@ router.get("/pdv-services", validateToken, async function(req, res){
         "statusServiceOrder": "Registrado",
         "QRCode": "", // Vacio
         "QRCodeMD5": servicesFind.QR,
+        "TarriffFractionCode": "0",
         "consultaId": "99999999", /// Revisarlo con Memo
         "createdDate": FormaterDate(searchOrder.body.createdAt, false),
         "availabledDate": `${FormaterDate(searchOrder.body.createdAt)} - ${FormaterDate(searchOrder.body.createdAt)}`,
@@ -188,6 +189,8 @@ router.get("/pdv-services", validateToken, async function(req, res){
             "TyoeLocationName": "Nombre del Pudo",
             "SpaceOwnerName": "Tipo de pudo",
             "isSender": "0",
+            "Alias": "",
+            "TaxPayer": "",
             "CompleteName": origin.firstName+" " + origin.lastName+ " " + origin?.middleName ?? "",
             "zipCode": origin.postalCode,
             "roadTypeCode": "9999",
@@ -197,6 +200,7 @@ router.get("/pdv-services", validateToken, async function(req, res){
             "indoreInformation": origin?.interiorNumber ?? "",
             "settlementTypeCode": "999",
             "settlementTypeName": origin.settlement,
+            "SettlementTypeAbbName": "---TBD---",
             "settlementName": "La Patera Vallejo",
             "twnshipCode": "999",
             "twnshipName": "Gustavo A Madero",
@@ -222,6 +226,8 @@ router.get("/pdv-services", validateToken, async function(req, res){
               "TyoeLocationName": "Nombre del Pudo",
               "SpaceOwnerName": "Tipo de pudo",
               "isSender": "0",
+              "Alias": "",
+              "TaxPayer": "",
               "CompleteName": destination.firstName+" " + destination.lastName+ " " + destination?.middleName ?? "",
               "zipCode": destination.postalCode,
               "roadTypeCode": "9999",
@@ -231,6 +237,7 @@ router.get("/pdv-services", validateToken, async function(req, res){
               "indoreInformation": destination?.interiorNumber ?? "",
               "settlementTypeCode": "999",
               "settlementTypeName": destination.settlement,
+              "SettlementTypeAbbName": "---TBD---",
               "settlementName": "La Patera Vallejo",
               "twnshipCode": "999",
               "twnshipName": "Gustavo A Madero",
@@ -256,6 +263,8 @@ router.get("/pdv-services", validateToken, async function(req, res){
 
     res.json ({
       statusCode: 200,
+      resultCode: 0,
+      resultDescription: "",
       body: responseObject,
     });
 });
