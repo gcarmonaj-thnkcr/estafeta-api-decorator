@@ -319,6 +319,11 @@ router.get("/ordersExpired/:idCustomer", async function(req, res) {
   })
 })
 
+router.get("/payment/webhook", async function(req, res){
+  console.log(req.body)
+  return res.sendStatus(200)
+})
+
 router.post("/login", async function(req, res) {
   const authHeader = req.headers['authorization']
 
