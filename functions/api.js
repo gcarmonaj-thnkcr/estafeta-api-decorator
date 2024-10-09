@@ -166,11 +166,7 @@ router.get("/pdv-services", validateToken, async function(req, res){
         "PurchaseOrder": searchOrder.body.orderNumber ?? searchOrder.body.custom.fields["pickupNumber"],
         "waybill": servicesFind?.guide ?? "",
         "idcaStoreClient": 1234567890,
-<<<<<<< Updated upstream
-        "eMailClient": "", // email del custommer
-=======
         "eMailClient": customer.body.email,
->>>>>>> Stashed changes
         "idcaServiceWarranty": "123",
         "idcaServiceModality": "123",
         "isPudo": servicesFind.isPudo ? "1" : "0",
