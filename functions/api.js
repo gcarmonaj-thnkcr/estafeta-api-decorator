@@ -153,10 +153,12 @@ router.get("/pdv-services", validateToken, async function(req, res){
     if(order.body.hits.length <= 0) return res.sendStatus(404)
     
     const searchOrder = await apiRoot.orders().withId({ID: order.body.hits[0].id}).get().execute()
+    if(!searchOrder.statusCode || searchOrder.statusCode >= 300) return res.sendStatus(404)
+    const customer = await apiRoot.customers().withId({ID: searchOrder.body.customerId}).get().execute()
     const customObject = JSON.parse(searchOrder.body.custom.fields["services"])
     const servicesFind = customObject[searchOrder.body.lineItems[0].id].find(item => item.QR == qr)
     console.log(servicesFind)    
-    const { origin, destination, recoleccion } = servicesFind.address
+    const { origin, destination } = servicesFind.address
     
     const responseObject = {
       "pdvService": {
@@ -164,7 +166,11 @@ router.get("/pdv-services", validateToken, async function(req, res){
         "PurchaseOrder": searchOrder.body.orderNumber ?? searchOrder.body.custom.fields["pickupNumber"],
         "waybill": servicesFind?.guide ?? "",
         "idcaStoreClient": 1234567890,
+<<<<<<< Updated upstream
         "eMailClient": "", // email del custommer
+=======
+        "eMailClient": customer.body.email,
+>>>>>>> Stashed changes
         "idcaServiceWarranty": "123",
         "idcaServiceModality": "123",
         "isPudo": servicesFind.isPudo ? "1" : "0",
