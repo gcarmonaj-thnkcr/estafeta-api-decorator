@@ -319,7 +319,7 @@ router.get("/ordersExpired/:idCustomer", async function(req, res) {
   })
 })
 
-router.get("/payment/webhook", async function(req, res){
+router.post("/payment/webhook", async function(req, res){
   console.log(req.body)
   return res.sendStatus(200)
 })
