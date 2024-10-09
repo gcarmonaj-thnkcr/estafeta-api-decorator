@@ -164,7 +164,7 @@ router.get("/pdv-services", validateToken, async function(req, res){
         "PurchaseOrder": searchOrder.body.orderNumber ?? searchOrder.body.custom.fields["pickupNumber"],
         "waybill": servicesFind?.guide ?? "",
         "idcaStoreClient": 1234567890,
-        "eMailClient": "",
+        "eMailClient": "", // email del custommer
         "idcaServiceWarranty": "123",
         "idcaServiceModality": "123",
         "isPudo": servicesFind.isPudo ? "1" : "0",
@@ -184,7 +184,7 @@ router.get("/pdv-services", validateToken, async function(req, res){
         "createdDate": FormaterDate(searchOrder.body.createdAt, false),
         "availabledDate": `${FormaterDate(searchOrder.body.createdAt)} - ${FormaterDate(searchOrder.body.createdAt)}`,
         "sender": {
-            "eMailClient": origin.email,
+            "eMailClient": origin.email, //email del remitente
             "isPudo": "0",
             "EquivalentCode": "123",
             "TyoeLocationName": "Nombre del Pudo",
@@ -221,7 +221,7 @@ router.get("/pdv-services", validateToken, async function(req, res){
             "Longitude": 99999.99,
             "IsActive": "True",
             "recipient": {
-              "eMailClient": destination.email,
+              "eMailClient": destination.email, //email del destinatario
               "isPudo": "0",
               "EquivalentCode": "123",
               "TyoeLocationName": "Nombre del Pudo",
