@@ -176,7 +176,7 @@ router.get("/pdv-services", validateToken, async function(req, res){
         "isItemDimensionsExceeded": servicesFind.isItemDimensionsExceeded ? "1" : "0",
         "itemWeight": servicesFind?.itemWeight ?? "",
         "isItemWeightExceeded": servicesFind.isItemWeightExceeded ? "1" : "0",
-        "statusServiceOrder": "Registrado",
+        "statusServiceOrder": servicesFind?.status ?? "",
         "QRCode": "", // Vacio
         "QRCodeMD5": servicesFind.QR,
         "TarriffFractionCode": "0",
