@@ -303,21 +303,17 @@ router.post("/waybills", async function(req, res){
       servicesFind.status = "EN PROCESO"
     } else {
       resulWaylBill.push({
-      "WaybillService": {
         "resultCode": "1",
         "resultDescription": "Proceso no completado",
-        "ResultWaybill": servicesFind.guide
-        },
+        "ResultWaybill": servicesFind.guide,
       })
       continue;
     }
     console.log("Response", customObject)
     resulWaylBill.push({
-      "WaybillService": {
         "resultCode": "0",
         "resultDescription": "Proceso completo",
-        "ResultWaybill": servicesFind.guide
-      },
+        "ResultWaybill": servicesFind.guide,
     }) 
     await apiRoot.orders().withId({ID: searchOrder.body.id}).post({
       body: {
@@ -387,7 +383,6 @@ router.put("/waybills", async function(req, res){
       }
     }
     resulWaylBill.push({
-      "WaybillStatusChanged": {
         "resultCode": 0,
         "resultDescription": "Proceso satisfactorio.",
         "resultAsignWaybill": [
@@ -397,7 +392,6 @@ router.put("/waybills", async function(req, res){
                 "resultWayBill": servicesFind.guide, 
             }
         ]
-    }
     }) 
     await apiRoot.orders().withId({ID: searchOrder.body.id}).post({
       body: {
