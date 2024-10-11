@@ -158,6 +158,8 @@ router.get("/pdv-services", validateToken, async function(req, res){
     const servicesFind = customObject[searchOrder.body.lineItems[0].id].find(item => item.QR == qr)
     const { origin, destination } = servicesFind.address
     
+    //Disponible y cancelado no se muestra el waybill
+
     const responseObject = {
       "pdvService": {
         "storeServiceOrder": "999-999999",
@@ -278,16 +280,71 @@ router.post("/waybills", async function(req, res){
   if (!isValid) {
     return res.status(400).send({ message: 'Invalid WaybillService format.' });
   }
+  let resulWaylBill = [] 
+  for(const wayBillItem of WaybillService) {
+
+    const order = await apiRoot.orders().search().post({
+      body: {
+        query: {
+          fullText: {
+            field: "custom.services",
+            value: wayBillItem.qr,
+            customType: "StringType"
+          }
+        }
+      }
+    }).execute() 
+    const searchOrder = await apiRoot.orders().withId({ID: order.body.hits[0].id}).get().execute()
+    if(!searchOrder.statusCode || searchOrder.statusCode >= 300) return res.sendStatus(404)
+    const customObject = JSON.parse(searchOrder.body.custom.fields["services"])
+    console.log(customObject)
+    const servicesFind = customObject[searchOrder.body.lineItems[0].id].find(item => item.QR == wayBillItem.qr)
+    if(!servicesFind.status){
+      servicesFind.status = "EN PROCESO"
+    } else {
+      resulWaylBill.push({
+      "WaybillService": {
+        "resultCode": "1",
+        "resultDescription": "Proceso no completado",
+        "ResultWaybill": servicesFind.guide
+        },
+      })
+      continue;
+    }
+    console.log("Response", customObject)
+    resulWaylBill.push({
+      "WaybillService": {
+        "resultCode": "0",
+        "resultDescription": "Proceso completo",
+        "ResultWaybill": servicesFind.guide
+      },
+    }) 
+    await apiRoot.orders().withId({ID: searchOrder.body.id}).post({
+      body: {
+        version: searchOrder.body.version,
+        actions: [
+          {
+            action: "setCustomField",
+            name: "services",
+            value: JSON.stringify(customObject)
+          }
+        ]
+      }
+    }).execute()
+  }
+
+  //Si esta disonible cambiar a enproceso y retornar datos del waybill
   
   /// Extraer la guia disponible de las ordenes de combo
   /// Asignarla a la orden de servicio conservando la info de la orden de donde se extrajo
   /// Crear la estructura de data.WaybillService
 
-  res.json (data.WaybillService);
+  res.status(200).json(resulWaylBill);
 });
 
 router.put("/waybills", async function(req, res){
   const { AsignWaybillOrder } = req.body;
+  console.log("PUT")
   
   const isValid = validateWaybillRequest(AsignWaybillOrder);
 
@@ -295,11 +352,72 @@ router.put("/waybills", async function(req, res){
     return res.status(400).send({ message: 'Invalid WaybillService format.' });
   }
 
+  let resulWaylBill = [] 
+  for(const wayBillItem of AsignWaybillOrder) {
+
+    const order = await apiRoot.orders().search().post({
+      body: {
+        query: {
+          fullText: {
+            field: "custom.services",
+            value: wayBillItem.qr,
+            customType: "StringType"
+          }
+        }
+      }
+    }).execute() 
+    const searchOrder = await apiRoot.orders().withId({ID: order.body.hits[0].id}).get().execute()
+    if(!searchOrder.statusCode || searchOrder.statusCode >= 300) return res.sendStatus(404)
+    const customObject = JSON.parse(searchOrder.body.custom.fields["services"])
+    const servicesFind = customObject[searchOrder.body.lineItems[0].id].find(item => item.QR == wayBillItem.qr)
+    if(servicesFind.status){
+      switch (wayBillItem.statusFolioOrder) {
+        case "UTIL":
+          servicesFind.status = "UTILIZADO"
+        break;
+        case "DISP":
+          servicesFind.status = "DISPONIBLE"
+        break
+        case "CANC":
+          servicesFind.status = "CANCELADO"
+        break;
+        case "ENPR":
+          servicesFind.status = "EN PROCESO"
+        break;
+      }
+    }
+    resulWaylBill.push({
+      "WaybillStatusChanged": {
+        "resultCode": 0,
+        "resultDescription": "Proceso satisfactorio.",
+        "resultAsignWaybill": [
+            {
+                "resultCode": 0,
+                "resultDescription": "Registro actualizado",
+                "resultWayBill": servicesFind.guide, 
+            }
+        ]
+    }
+    }) 
+    await apiRoot.orders().withId({ID: searchOrder.body.id}).post({
+      body: {
+        version: searchOrder.body.version,
+        actions: [
+          {
+            action: "setCustomField",
+            name: "services",
+            value: JSON.stringify(customObject)
+          }
+        ]
+      }
+    }).execute()
+  }
+
   /// Cambiar el estado de la guia 
   /// Devolverla a la orden original
   /// Crear la estructura de data.WaybillStatusChanged
 
-  res.json (data.WaybillStatusChanged);
+  res.status(200).json(resulWaylBill);
 });
 
 router.get("/ordersExpired/:idCustomer", async function(req, res) {
