@@ -164,7 +164,7 @@ router.get("/pdv-services", validateToken, async function(req, res){
       "pdvService": {
         "storeServiceOrder": "999-999999",
         "PurchaseOrder": searchOrder.body.orderNumber ?? searchOrder.body.custom.fields["pickupNumber"],
-        "waybill": servicesFind?.guide ?? "",
+        "waybill": !servicesFind.status || servicesFind.status == "CANCELADO" ? "" : servicesFind?.guide,
         "idcaStoreClient": 1234567890,
         "eMailClient": customer.body.email,
         "idcaServiceWarranty": "123",
