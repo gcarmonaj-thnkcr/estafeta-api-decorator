@@ -70,7 +70,7 @@ const validateWaybillRequest = (waybillService) => {
 /// authenticacion por AUTH 2.0
 
 router.get("/lifetimes", validateToken, async function(req, res){
-    console.log(req.params.client_id)
+    const endDate = req.headers.date
     /// Traer ordenes de tipo Combo
     /// Verificar que ordenes caen en los periodos de notificación:
     /// 1. 3 meses - antiguedad de la orden sea de 12M
@@ -89,12 +89,11 @@ router.get("/lifetimes", validateToken, async function(req, res){
     }).execute()
     
     if(orders.body.results.length <= 0) return res.sendStatus(204)
-
     
     const ordersCombo = orders.body.results.filter(order => order.lineItems.some(item => item.variant.attributes.some(attr => attr.name == "tipo-paquete" && attr.value["label"] == "UNIZONA")))
     
     for(const order of ordersCombo) {
-      const daysDif = checkDate(order.createdAt)
+      const daysDif = checkDate(order.createdAt, endDate)
       switch(daysDif) {
         case 365: 
           await apiRoot.orders().withId({ ID: order.id}).post({
@@ -157,7 +156,6 @@ router.get("/pdv-services", validateToken, async function(req, res){
     const customer = await apiRoot.customers().withId({ID: searchOrder.body.customerId}).get().execute()
     const customObject = JSON.parse(searchOrder.body.custom.fields["services"])
     const servicesFind = customObject[searchOrder.body.lineItems[0].id].find(item => item.QR == qr)
-    console.log(servicesFind)    
     const { origin, destination } = servicesFind.address
     
     const responseObject = {
