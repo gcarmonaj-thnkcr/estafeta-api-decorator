@@ -335,7 +335,7 @@ router.post("/waybills", async function(req, res){
   /// Asignarla a la orden de servicio conservando la info de la orden de donde se extrajo
   /// Crear la estructura de data.WaybillService
 
-  res.status(200).json(resulWaylBill);
+  res.status(200).json(resulWaylBill[0]);
 });
 
 router.put("/waybills", async function(req, res){
@@ -411,7 +411,7 @@ router.put("/waybills", async function(req, res){
   /// Devolverla a la orden original
   /// Crear la estructura de data.WaybillStatusChanged
 
-  res.status(200).json(resulWaylBill);
+  res.status(200).json(resulWaylBill[0]);
 });
 
 router.get("/ordersExpired/:idCustomer", async function(req, res) {
