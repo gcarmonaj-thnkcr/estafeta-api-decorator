@@ -84,6 +84,7 @@ router.get("/lifetimes", validateToken, async function(req, res){
     const orders = await apiRoot.orders().get({
       queryArgs: {
         limit: 500,
+        where: 'custom(fields(type-order="service"))',
         sort: "createdAt desc"
       }
     }).execute()
