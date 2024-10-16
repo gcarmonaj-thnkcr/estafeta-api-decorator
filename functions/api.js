@@ -161,7 +161,7 @@ router.get("/pdv-services", validateToken, async function(req, res){
     } catch(err) {
       servicesFind = customObject[searchOrder.body.lineItems[0].id].guides.find(item => item.QR == qr)
     }
-    
+    console.log(servicesFind) 
     const { origin, destination } = servicesFind.address
     
     //Disponible y cancelado no se muestra el waybill
