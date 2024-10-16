@@ -84,6 +84,7 @@ router.get("/lifetimes", validateToken, async function(req, res){
     const orders = await apiRoot.orders().get({
       queryArgs: {
         limit: 500,
+        where: 'custom(fields(type-order="service"))',
         sort: "createdAt desc"
       }
     }).execute()
@@ -155,7 +156,13 @@ router.get("/pdv-services", validateToken, async function(req, res){
     if(!searchOrder.statusCode || searchOrder.statusCode >= 300) return res.sendStatus(404)
     const customer = await apiRoot.customers().withId({ID: searchOrder.body.customerId}).get().execute()
     const customObject = JSON.parse(searchOrder.body.custom.fields["services"])
-    const servicesFind = customObject[searchOrder.body.lineItems[0].id].find(item => item.QR == qr)
+    let servicesFind;
+    try{
+      servicesFind = customObject[searchOrder.body.lineItems[0].id].find(item => item.QR == qr)
+    } catch(err) {
+      servicesFind = customObject[searchOrder.body.lineItems[0].id].guides.find(item => item.QR == qr)
+    }
+    console.log(servicesFind) 
     const { origin, destination } = servicesFind.address
     
     //Disponible y cancelado no se muestra el waybill
@@ -303,21 +310,17 @@ router.post("/waybills", async function(req, res){
       servicesFind.status = "EN PROCESO"
     } else {
       resulWaylBill.push({
-      "WaybillService": {
         "resultCode": "1",
         "resultDescription": "Proceso no completado",
-        "ResultWaybill": servicesFind.guide
-        },
+        "ResultWaybill": servicesFind.guide,
       })
       continue;
     }
     console.log("Response", customObject)
     resulWaylBill.push({
-      "WaybillService": {
         "resultCode": "0",
         "resultDescription": "Proceso completo",
-        "ResultWaybill": servicesFind.guide
-      },
+        "ResultWaybill": servicesFind.guide,
     }) 
     await apiRoot.orders().withId({ID: searchOrder.body.id}).post({
       body: {
@@ -339,7 +342,7 @@ router.post("/waybills", async function(req, res){
   /// Asignarla a la orden de servicio conservando la info de la orden de donde se extrajo
   /// Crear la estructura de data.WaybillService
 
-  res.status(200).json(resulWaylBill);
+  res.status(200).json(resulWaylBill[0]);
 });
 
 router.put("/waybills", async function(req, res){
@@ -387,7 +390,6 @@ router.put("/waybills", async function(req, res){
       }
     }
     resulWaylBill.push({
-      "WaybillStatusChanged": {
         "resultCode": 0,
         "resultDescription": "Proceso satisfactorio.",
         "resultAsignWaybill": [
@@ -397,7 +399,6 @@ router.put("/waybills", async function(req, res){
                 "resultWayBill": servicesFind.guide, 
             }
         ]
-    }
     }) 
     await apiRoot.orders().withId({ID: searchOrder.body.id}).post({
       body: {
@@ -417,7 +418,7 @@ router.put("/waybills", async function(req, res){
   /// Devolverla a la orden original
   /// Crear la estructura de data.WaybillStatusChanged
 
-  res.status(200).json(resulWaylBill);
+  res.status(200).json(resulWaylBill[0]);
 });
 
 router.get("/ordersExpired/:idCustomer", async function(req, res) {
