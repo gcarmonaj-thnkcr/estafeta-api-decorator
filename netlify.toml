@@ -1,2 +1,3 @@
 [build]
-    src = "src"
+  command = "npm run build"
+  publish = "dist"
