@@ -155,7 +155,13 @@ router.get("/pdv-services", validateToken, async function(req, res){
     if(!searchOrder.statusCode || searchOrder.statusCode >= 300) return res.sendStatus(404)
     const customer = await apiRoot.customers().withId({ID: searchOrder.body.customerId}).get().execute()
     const customObject = JSON.parse(searchOrder.body.custom.fields["services"])
-    const servicesFind = customObject[searchOrder.body.lineItems[0].id].find(item => item.QR == qr)
+    let servicesFind;
+    try{
+      servicesFind = customObject[searchOrder.body.lineItems[0].id].find(item => item.QR == qr)
+    } catch(err) {
+      servicesFind = customObject[searchOrder.body.lineItems[0].id].guides.find(item => item.QR == qr)
+    }
+    
     const { origin, destination } = servicesFind.address
     
     //Disponible y cancelado no se muestra el waybill
