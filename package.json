@@ -4,16 +4,16 @@
   "description": "API PoC to deploy API a decorator for Commercetools",
   "main": "functions/api.js",
   "scripts": {
-    "dev": "nodemon --watch \"src/**/*.ts\" --exec \"ts-node\" src/server.ts",
+    "dev": "tsc --build tsconfig.json --watch",
     "build": "tsc && netlify deploy --prod",
-    "start": "node functions/api.js"
+    "start": "tsc && node dist/server.js"
   },
   "author": "",
   "license": "ISC",
-  "type": "module",
   "dependencies": {
     "@commercetools/platform-sdk": "^7.17.0",
     "@commercetools/sdk-client-v2": "^2.5.0",
+    "@types/jsonwebtoken": "^9.0.7",
     "cors": "2.8.5",
     "express": "^4.17.1",
     "jsonwebtoken": "^9.0.2",

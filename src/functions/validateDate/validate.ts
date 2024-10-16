@@ -1,4 +1,4 @@
-export function checkDate(date, endDate) {
+export function checkDate(date: string, endDate: string) {
   const dateOrder = new Date(date)
   let dateNow;
   if(endDate){

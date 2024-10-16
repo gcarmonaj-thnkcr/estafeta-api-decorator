@@ -1,4 +1,4 @@
-export const FormaterDate = (date, withTime) => {
+export const FormaterDate = (date: string, withTime: boolean) => {
   if (!date || date == '') return '';
   const newDate = new Date(date);
 
@@ -13,7 +13,7 @@ export const FormaterDate = (date, withTime) => {
     minute: '2-digit',
     second: '2-digit',
   };
-
+  //@ts-ignore
   const formattedDate = newDate.toLocaleDateString('es-ES', {
     ...configDate,
     ...(withTime ? configTime : {}),

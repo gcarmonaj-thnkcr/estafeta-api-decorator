@@ -1,8 +1,9 @@
+import { Request, Response, NextFunction } from 'express'
 import jwt from 'jsonwebtoken'
 
 const seed = "Thinkcare24"
 
-export const generateToken = (clientId, clientSecret) => {
+export const generateToken = (clientId: string, clientSecret: string) => {
   const payload = {
     clientId,
     clientSecret
@@ -13,7 +14,7 @@ export const generateToken = (clientId, clientSecret) => {
   return token
 }
 
-export const validateToken = (req, res, next) => {
+export const validateToken = (req: Request, res: Response, next: NextFunction): any => {
   const authHeader = req.headers['authorization'];
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -22,7 +23,7 @@ export const validateToken = (req, res, next) => {
 
   const token = authHeader.split(' ')[1];
 
-  jwt.verify(token, seed, (err, decoded) => {
+  jwt.verify(token, seed, (err: any, decoded: any) => {
     if (err) {
       return res.status(401).json({ message: 'Token inválido.' });
     }

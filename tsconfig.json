@@ -1,14 +1,18 @@
 {
-  "compilerOptions": {
-    "target": "es6",
-    "module": "commonjs",  // O "ESNext" si lo prefieres
-    "moduleResolution": "node", // Asegúrate de que sea "node"
-    "rootDir": "./src",
-    "outDir": "./dist",
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true // Esto puede ayudar a evitar problemas de tipos con bibliotecas de terceros
-  },
-  "include": ["src/**/*.ts"],
-  "exclude": ["node_modules"]
+ "compilerOptions": {
+  "target": "es5",
+   "module": "commonjs",
+   "outDir": "./dist",
+   "rootDir": "./src",
+   "strict": true,
+   "noImplicitAny": true,
+   "strictNullChecks": false,
+   "esModuleInterop": true,
+   "skipLibCheck": true,
+   "forceConsistentCasingInFileNames": true
+},
+ "exclude": [
+   "node_modules",
+   "**/*.spec.ts"
+  ]
 }

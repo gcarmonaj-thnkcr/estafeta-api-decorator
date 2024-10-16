@@ -25,9 +25,9 @@ const app = express();
 app.use(cors());
 app.use(express.json())
 
+const router = Router()
 
-
-app.get("/", function(_, res) {
+router.get("/", function(_, res) {
   res.sendStatus(200)
 })
 
@@ -81,7 +81,7 @@ const validateWaybillRequest = (waybillService: any) => {
 //
 
 
-app.get("/lifetimes", validateToken, async (req: Request, res: Response): Promise<any> => {
+router.get("/lifetimes", validateToken, async (req: Request, res: Response): Promise<any> => {
     const endDate = req.headers.date
     /// Traer ordenes de tipo Combo
     /// Verificar que ordenes caen en los periodos de notificación:
@@ -96,7 +96,8 @@ app.get("/lifetimes", validateToken, async (req: Request, res: Response): Promis
     const orders = await apiRoot.orders().get({
       queryArgs: {
         limit: 500,
-        sort: "createdAt desc"
+        sort: "createdAt desc",
+        where: 'custom(fields(type-order="service"))',
       }
     }).execute()
     
@@ -144,7 +145,7 @@ app.get("/lifetimes", validateToken, async (req: Request, res: Response): Promis
     });
 });
 
-app.get("/pdv-services", validateToken, async (req: Request, res: Response): Promise<any> =>{
+router.get("/pdv-services", validateToken, async (req: Request, res: Response): Promise<any> =>{
     const qr = req.headers.qr
     /// Obtener el QR de una variable en el header
     /// Obtener orden de CT con query de QR
@@ -166,13 +167,13 @@ app.get("/pdv-services", validateToken, async (req: Request, res: Response): Pro
     
     const searchOrder = await apiRoot.orders().withId({ID: order.body.hits[0].id}).get().execute()
     if(!searchOrder.statusCode || searchOrder.statusCode >= 300) return res.sendStatus(404)
-    const customer = await apiRoot.customers().withId({ID: searchOrder.body.customerId}).get().execute()
-    const customObject = JSON.parse(searchOrder.body.custom.fields["services"])
+    const customer = await apiRoot.customers().withId({ID: searchOrder.body?.customerId ?? ""}).get().execute()
+    const customObject = searchOrder.body.custom?.fields["services"] && JSON.parse(searchOrder.body.custom.fields["services"])
     let servicesFind;
     try{
-      servicesFind = customObject[searchOrder.body.lineItems[0].id].find(item => item.QR == qr)
+      servicesFind = customObject[searchOrder.body.lineItems[0].id].find((item: any) => item.QR == qr)
     } catch(err) {
-      servicesFind = customObject[searchOrder.body.lineItems[0].id].guides.find(item => item.QR == qr)
+      servicesFind = customObject[searchOrder.body.lineItems[0].id].guides.find((item: any) => item.QR == qr)
     }
     console.log(servicesFind) 
     const { origin, destination } = servicesFind.address
@@ -182,7 +183,7 @@ app.get("/pdv-services", validateToken, async (req: Request, res: Response): Pro
     const responseObject = {
       "pdvService": {
         "storeServiceOrder": "999-999999",
-        "PurchaseOrder": searchOrder.body.orderNumber ?? searchOrder.body.custom.fields["pickupNumber"],
+        "PurchaseOrder": searchOrder.body.orderNumber ?? searchOrder.body.custom?.fields?.["pickupNumber"] ?? "",
         "waybill": !servicesFind.status || servicesFind.status == "CANCELADO" ? "" : servicesFind?.guide,
         "idcaStoreClient": 1234567890,
         "eMailClient": customer.body.email,
@@ -203,7 +204,7 @@ app.get("/pdv-services", validateToken, async (req: Request, res: Response): Pro
         "TarriffFractionCode": "0",
         "consultaId": "99999999", /// Revisarlo con Memo
         "createdDate": FormaterDate(searchOrder.body.createdAt, false),
-        "availabledDate": `${FormaterDate(searchOrder.body.createdAt)} - ${FormaterDate(searchOrder.body.createdAt)}`,
+        "availabledDate": `${FormaterDate(searchOrder.body.createdAt, false)} - ${FormaterDate(searchOrder.body.createdAt,false)}`,
         "sender": {
             "eMailClient": origin.email, //email del remitente
             "isPudo": "0",
@@ -213,7 +214,7 @@ app.get("/pdv-services", validateToken, async (req: Request, res: Response): Pro
             "isSender": "0",
             "Alias": "",
             "TaxPayer": "",
-            "CompleteName": origin.firstName+" " + origin.lastName+ " " + origin?.middleName ?? "",
+            "CompleteName": origin?.firstName ?? "" +" " + origin?.lastName ?? ""+ " " + origin?.middleName ?? "",
             "zipCode": origin.postalCode,
             "roadTypeCode": "9999",
             "roadTypeName": origin.road,
@@ -232,7 +233,7 @@ app.get("/pdv-services", validateToken, async (req: Request, res: Response): Pro
             "countryCodeAlfa3": "MEX",
             "countryName": origin.country,
             "betweenRoadName1": origin?.optionalAddress1 ?? "",
-            "betweenRoadName2": "y"+" "+origin?.optionalAddress2 ?? "",
+            "betweenRoadName2": "y"+" "+origin?.optionalAddress2,
             "AddressReference": origin?.reference ?? "",
             "CountryCodePhone": "999",
             "LandlinePhone": origin.phone1,
@@ -250,7 +251,7 @@ app.get("/pdv-services", validateToken, async (req: Request, res: Response): Pro
               "isSender": "0",
               "Alias": "",
               "TaxPayer": "",
-              "CompleteName": destination.firstName+" " + destination.lastName+ " " + destination?.middleName ?? "",
+              "CompleteName": destination?.firstName ?? ""+" " + destination?.lastName?? ""+ " " + destination?.middleName ?? "",
               "zipCode": destination.postalCode,
               "roadTypeCode": "9999",
               "roadTypeName": destination.road,
@@ -269,7 +270,7 @@ app.get("/pdv-services", validateToken, async (req: Request, res: Response): Pro
               "countryCodeAlfa3": "MEX",
               "countryName": destination.country,
               "betweenRoadName1": destination?.optionalAddress1 ?? "",
-              "betweenRoadName2": "y"+" "+destination?.optionalAddress2 ?? "",
+              "betweenRoadName2": "y"+" "+destination?.optionalAddress2,
               "AddressReference": destination?.reference ?? "",
               "CountryCodePhone": "999",
               "LandlinePhone": destination.phone1,
@@ -291,7 +292,7 @@ app.get("/pdv-services", validateToken, async (req: Request, res: Response): Pro
     });
 });
 
-app.post("/waybills", async (req: Request, res: Response): Promise<any> =>{
+router.post("/waybills", async (req: Request, res: Response): Promise<any> =>{
   const { WaybillService } = req.body;
   
   const isValid = validateWaybillRequest(WaybillService);
@@ -315,9 +316,9 @@ app.post("/waybills", async (req: Request, res: Response): Promise<any> =>{
     }).execute() 
     const searchOrder = await apiRoot.orders().withId({ID: order.body.hits[0].id}).get().execute()
     if(!searchOrder.statusCode || searchOrder.statusCode >= 300) return res.sendStatus(404)
-    const customObject = JSON.parse(searchOrder.body.custom.fields["services"])
+    const customObject = searchOrder.body.custom?.fields["services"] && JSON.parse(searchOrder.body.custom.fields["services"])
     console.log(customObject)
-    const servicesFind = customObject[searchOrder.body.lineItems[0].id].find(item => item.QR == wayBillItem.qr)
+    const servicesFind = customObject[searchOrder.body.lineItems[0].id].find((item: any) => item.QR == wayBillItem.qr)
     if(!servicesFind.status){
       servicesFind.status = "EN PROCESO"
     } else {
@@ -357,7 +358,7 @@ app.post("/waybills", async (req: Request, res: Response): Promise<any> =>{
   res.status(200).json(resulWaylBill[0]);
 });
 
-app.put("/waybills", async (req: Request, res: Response): Promise<any> =>{
+router.put("/waybills", async (req: Request, res: Response): Promise<any> =>{
   const { AsignWaybillOrder } = req.body;
   console.log("PUT")
   
@@ -383,8 +384,8 @@ app.put("/waybills", async (req: Request, res: Response): Promise<any> =>{
     }).execute() 
     const searchOrder = await apiRoot.orders().withId({ID: order.body.hits[0].id}).get().execute()
     if(!searchOrder.statusCode || searchOrder.statusCode >= 300) return res.sendStatus(404)
-    const customObject = JSON.parse(searchOrder.body.custom.fields["services"])
-    const servicesFind = customObject[searchOrder.body.lineItems[0].id].find(item => item.QR == wayBillItem.qr)
+    const customObject = searchOrder.body.custom?.fields["services"] && JSON.parse(searchOrder.body.custom.fields["services"])
+    const servicesFind = customObject[searchOrder.body.lineItems[0].id].find((item: any) => item.QR == wayBillItem.qr)
     if(servicesFind.status){
       switch (wayBillItem.statusFolioOrder) {
         case "UTIL":
@@ -433,7 +434,7 @@ app.put("/waybills", async (req: Request, res: Response): Promise<any> =>{
   res.status(200).json(resulWaylBill[0]);
 });
 
-app.get("/ordersExpired/:idCustomer", async (req: Request, res: Response): Promise<any> => {
+router.get("/ordersExpired/:idCustomer", async (req: Request, res: Response): Promise<any> => {
   const idCustomer = req.params.idCustomer
   if(!idCustomer) return res.status(400).send({ message: 'idCustomer is required' })
   const orders = await apiRoot.orders().get({
@@ -448,12 +449,12 @@ app.get("/ordersExpired/:idCustomer", async (req: Request, res: Response): Promi
   })
 })
 
-app.post("/payment/webhook", async (req: Request, res: Response): Promise<any> => {
+router.post("/payment/webhook", async (req: Request, res: Response): Promise<any> => {
   console.log(req.body)
   return res.sendStatus(200)
 })
 
-app.post("/login", async (req: Request, res: Response): Promise<any> => {
+router.post("/login", async (req: Request, res: Response): Promise<any> => {
   const authHeader = req.headers['authorization']
 
   if (!authHeader || !authHeader.startsWith('Basic ')) {
@@ -479,7 +480,7 @@ app.post("/login", async (req: Request, res: Response): Promise<any> => {
   })
 })
 
-app.use('/.netlify/functions/api', app);
+app.use('/.netlify/functions/api', router);
 export const handler = serverless(app);
 
 export default app
