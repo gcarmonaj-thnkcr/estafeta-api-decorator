@@ -1,4 +1,5 @@
 import express, { Request, Response } from "express";
+import serverless from "serverless-http";
 import cors from "cors";
 // import data from './mock_values.json' assert { type: 'json'}
 import { apiRoot } from "./commercetools/client";
@@ -481,7 +482,13 @@ router.post("/login", async (req: Request, res: Response): Promise<any> => {
 
 app.use('/.netlify/functions/api', router);
 
+const port = process.env.PORT || 9000;
 
-export default app
+export const handler = serverless(app);
+
+app.listen(port, () => {
+  console.log("Server listenning on port" + port)
+})
+
 
 

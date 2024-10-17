@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "tsc --build tsconfig.json --watch",
     "build": "tsc",
-    "start": "tsc && node dist/server.js"
+    "start": "tsc && node dist/index.js"
   },
   "author": "",
   "license": "ISC",
