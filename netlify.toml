@@ -1,5 +1,2 @@
 [build]
-  command = "npm run build"
-  directory = "functions" 
-  publish = "functions"      
-  functions = "functions"   
+  functions = "functions"

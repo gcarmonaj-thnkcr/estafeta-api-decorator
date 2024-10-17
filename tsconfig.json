@@ -2,8 +2,8 @@
  "compilerOptions": {
   "target": "es5",
    "module": "commonjs",
-   "outDir": "./functions/functions",
-   "rootDir": "./src",
+   "outDir": "./functions",
+   "rootDir": "./functions",
    "strict": true,
    "noImplicitAny": true,
    "strictNullChecks": false,
@@ -11,7 +11,7 @@
    "skipLibCheck": true,
    "forceConsistentCasingInFileNames": true
 },
-"include": ["src/**/*"],
+"include": ["functions/**/*"],
  "exclude": [
    "node_modules",
    "**/*.spec.ts"
