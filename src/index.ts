@@ -3,7 +3,7 @@ import serverless from "serverless-http";
 import cors from "cors";
 // import data from './mock_values.json' assert { type: 'json'}
 import { apiRoot } from "./commercetools/client";
-import { checkDate } from "./functions/validateDate/validate";
+import { checkDate } from "./validateDate/validate";
 import { generateToken, validateToken } from "./jsonToken/token";
 import { FormaterDate } from "./utils/formaterDate";
 import { Order } from "@commercetools/platform-sdk";
