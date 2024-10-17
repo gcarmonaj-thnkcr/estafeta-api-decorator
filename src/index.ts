@@ -6,7 +6,6 @@ import { apiRoot } from "./commercetools/client";
 import { checkDate } from "./functions/validateDate/validate";
 import { generateToken, validateToken } from "./jsonToken/token";
 import { FormaterDate } from "./utils/formaterDate";
-import { Router } from "express";
 import { Order } from "@commercetools/platform-sdk";
 
 interface IorderstoNotify {
@@ -25,7 +24,7 @@ const app = express();
 app.use(cors());
 app.use(express.json())
 
-const router = Router()
+const router = express.Router()
 
 router.get("/", function(_, res) {
   res.sendStatus(200)
