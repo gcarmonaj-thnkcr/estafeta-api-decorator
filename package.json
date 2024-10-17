@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "tsc --build tsconfig.json --watch",
     "build": "netlify deploy --prod",
-    "start": "tsc && node dist/index.js"
+    "start": "tsc && node functions/api.js"
   },
   "author": "",
   "license": "ISC",

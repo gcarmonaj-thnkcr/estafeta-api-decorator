@@ -15,7 +15,7 @@ interface IorderstoNotify {
     folios: string;
     expirationDate: string,
     expirationDays: number
-  }[]
+  }
 }
 
 const orderstoNotify: IorderstoNotify = {}
@@ -26,7 +26,7 @@ app.use(express.json())
 
 const router = express.Router()
 
-router.get("/", function(_, res) {
+router.get("/", function(req: Request, res: Response) {
   res.sendStatus(200)
 })
 
@@ -48,14 +48,15 @@ const addObject = async (index: any, order: Order, days: number) => {
     // @ts-ignore
     const fechaFormateada = date.toLocaleDateString('es-ES', opciones);
     
-    orderstoNotify[index].push({
+    orderstoNotify[index] = {
       emailClient: customer.body.email,
       clientName: customer.body?.firstName ?? "" + customer.body?.lastName ?? "" + customer.body?.middleName ?? "",
       folios: products.join(","),
       expirationDate: fechaFormateada,
       expirationDays: days
-    });
-  } catch(err){
+    };
+  } catch(err: any){
+    console.log(err.message)
     return 
   }
 }
@@ -102,14 +103,17 @@ router.get("/lifetimes", validateToken, async (req: Request, res: Response): Pro
     
     if(orders.body.results.length <= 0) return res.sendStatus(204)
 
+
     //@ts-ignore
     const ordersCombo = orders.body.results.filter(order => order.lineItems.some(item => item.variant?.attributes.some(attr => attr.name == "tipo-paquete" && attr.value["label"] == "UNIZONA")))
+
     
     for(const order of ordersCombo) {
       const daysDif = checkDate(order.createdAt, endDate)
+      console.log(daysDif)
       switch(daysDif) {
         case 365: 
-          await apiRoot.orders().withId({ ID: order.id}).post({
+          const orders = await apiRoot.orders().withId({ ID: order.id}).post({
             body: {
               version: order.version,
               actions: [
