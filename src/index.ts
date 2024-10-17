@@ -1,6 +1,5 @@
 import express, { Request, Response } from "express";
 import cors from "cors";
-import serverless from "serverless-http";
 // import data from './mock_values.json' assert { type: 'json'}
 import { apiRoot } from "./commercetools/client";
 import { checkDate } from "./functions/validateDate/validate";
@@ -481,7 +480,7 @@ router.post("/login", async (req: Request, res: Response): Promise<any> => {
 })
 
 app.use('/.netlify/functions/api', router);
-export const handler = serverless(app);
+
 
 export default app
 
