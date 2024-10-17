@@ -1,4 +1,4 @@
 [build]
-  functions = "dist"  # O donde estén tus funciones
-  publish = "dist"         # Carpeta que Netlify debe desplegar
+  functions = "functions"  # O donde estén tus funciones
+  publish = "functions"         # Carpeta que Netlify debe desplegar
   command = "npm run build" # Comando para compilar el TypeScript
