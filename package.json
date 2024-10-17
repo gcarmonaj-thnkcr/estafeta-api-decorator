@@ -5,7 +5,7 @@
   "main": "functions/api.js",
   "scripts": {
     "dev": "tsc --build tsconfig.json --watch",
-    "build": "tsc && netlify deploy --prod",
+    "build": "tsc && npx netlify deploy --prod",
     "start": "tsc && node dist/server.js"
   },
   "author": "",
