@@ -305,7 +305,13 @@ router.post("/waybills", (req, res) => __awaiter(void 0, void 0, void 0, functio
             return res.sendStatus(404);
         const customObject = ((_a = searchOrder.body.custom) === null || _a === void 0 ? void 0 : _a.fields["services"]) && JSON.parse(searchOrder.body.custom.fields["services"]);
         console.log(customObject);
-        const servicesFind = customObject[searchOrder.body.lineItems[0].id].guides.find((item) => item.QR == wayBillItem.qr);
+        let servicesFind;
+        try {
+            servicesFind = customObject[searchOrder.body.lineItems[0].id].find((item) => item.QR == wayBillItem.qr);
+        }
+        catch (err) {
+            servicesFind = customObject[searchOrder.body.lineItems[0].id].guides.find((item) => item.QR == wayBillItem.qr);
+        }
         if (!servicesFind.status) {
             servicesFind.status = "EN PROCESO";
         }
@@ -367,7 +373,13 @@ router.put("/waybills", (req, res) => __awaiter(void 0, void 0, void 0, function
         if (!searchOrder.statusCode || searchOrder.statusCode >= 300)
             return res.sendStatus(404);
         const customObject = ((_a = searchOrder.body.custom) === null || _a === void 0 ? void 0 : _a.fields["services"]) && JSON.parse(searchOrder.body.custom.fields["services"]);
-        const servicesFind = customObject[searchOrder.body.lineItems[0].id].guides.find((item) => item.QR == wayBillItem.qr);
+        let servicesFind;
+        try {
+            servicesFind = customObject[searchOrder.body.lineItems[0].id].find((item) => item.QR == wayBillItem.qr);
+        }
+        catch (err) {
+            servicesFind = customObject[searchOrder.body.lineItems[0].id].guides.find((item) => item.QR == wayBillItem.qr);
+        }
         if (servicesFind.status) {
             switch (wayBillItem.statusFolioOrder) {
                 case "UTIL":
