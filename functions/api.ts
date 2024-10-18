@@ -165,6 +165,8 @@ router.get("/pdv-services", validateToken, async (req: Request, res: Response): 
         }
       }
     }).execute()
+
+    console.log(order.body.hits)
     
     if(order.body.hits.length <= 0) return res.sendStatus(404)
     
@@ -321,7 +323,12 @@ router.post("/waybills", async (req: Request, res: Response): Promise<any> =>{
     if(!searchOrder.statusCode || searchOrder.statusCode >= 300) return res.sendStatus(404)
     const customObject = searchOrder.body.custom?.fields["services"] && JSON.parse(searchOrder.body.custom.fields["services"])
     console.log(customObject)
-    const servicesFind = customObject[searchOrder.body.lineItems[0].id].guides.find((item: any) => item.QR == wayBillItem.qr)
+    let servicesFind
+    try{
+      servicesFind = customObject[searchOrder.body.lineItems[0].id].find((item: any) => item.QR == wayBillItem.qr)
+    } catch(err) {
+      servicesFind = customObject[searchOrder.body.lineItems[0].id].guides.find((item: any) => item.QR == wayBillItem.qr)
+    }
     if(!servicesFind.status){
       servicesFind.status = "EN PROCESO"
     } else {
@@ -388,7 +395,12 @@ router.put("/waybills", async (req: Request, res: Response): Promise<any> =>{
     const searchOrder = await apiRoot.orders().withId({ID: order.body.hits[0].id}).get().execute()
     if(!searchOrder.statusCode || searchOrder.statusCode >= 300) return res.sendStatus(404)
     const customObject = searchOrder.body.custom?.fields["services"] && JSON.parse(searchOrder.body.custom.fields["services"])
-    const servicesFind = customObject[searchOrder.body.lineItems[0].id].guides.find((item: any) => item.QR == wayBillItem.qr)
+    let servicesFind
+    try{
+      servicesFind = customObject[searchOrder.body.lineItems[0].id].find((item: any) => item.QR == wayBillItem.qr)
+    } catch(err) {
+      servicesFind = customObject[searchOrder.body.lineItems[0].id].guides.find((item: any) => item.QR == wayBillItem.qr)
+    }
     if(servicesFind.status){
       switch (wayBillItem.statusFolioOrder) {
         case "UTIL":

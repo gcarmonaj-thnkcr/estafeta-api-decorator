@@ -152,6 +152,7 @@ router.get("/pdv-services", token_1.validateToken, (req, res) => __awaiter(void 
             }
         }
     }).execute();
+    console.log(order.body.hits);
     if (order.body.hits.length <= 0)
         return res.sendStatus(404);
     const searchOrder = yield client_1.apiRoot.orders().withId({ ID: order.body.hits[0].id }).get().execute();
@@ -366,7 +367,7 @@ router.put("/waybills", (req, res) => __awaiter(void 0, void 0, void 0, function
         if (!searchOrder.statusCode || searchOrder.statusCode >= 300)
             return res.sendStatus(404);
         const customObject = ((_a = searchOrder.body.custom) === null || _a === void 0 ? void 0 : _a.fields["services"]) && JSON.parse(searchOrder.body.custom.fields["services"]);
-        const servicesFind = customObject[searchOrder.body.lineItems[0].id].find((item) => item.QR == wayBillItem.qr);
+        const servicesFind = customObject[searchOrder.body.lineItems[0].id].guides.find((item) => item.QR == wayBillItem.qr);
         if (servicesFind.status) {
             switch (wayBillItem.statusFolioOrder) {
                 case "UTIL":
