@@ -26,7 +26,6 @@ const validateToken = (req, res, next) => {
             return res.status(401).json({ message: 'Token inválido.' });
         }
         const { clientId, clientSecret } = decoded;
-        console.log(clientId, clientSecret);
         next();
     });
 };

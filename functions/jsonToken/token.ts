@@ -29,7 +29,6 @@ export const validateToken = (req: Request, res: Response, next: NextFunction): 
     }
     
     const { clientId, clientSecret } = decoded
-    console.log(clientId, clientSecret)
 
     next();
   });
