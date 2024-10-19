@@ -8,6 +8,7 @@ import lifetTimeRouter from './controllers/lifetimes/index'
 import waybillRouter from './controllers/waybills/index'
 import ordersRouter from './controllers/orders/index'
 import loginRouter from './controllers/login/index'
+import webhookRouter from './controllers/webhook/index'
 
 const app = express();
 
@@ -20,6 +21,7 @@ app.use("/.netlify/functions/api", lifetTimeRouter)
 app.use("/.netlify/functions/api", waybillRouter)
 app.use("/.netlify/functions/api", ordersRouter)
 app.use("/.netlify/functions/api", loginRouter)
+app.use("/.netlify/functions/api", webhookRouter)
 
 const port = process.env.PORT || 9000;
 
