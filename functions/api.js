@@ -74,16 +74,6 @@ const validateWaybillRequest = (waybillService) => {
 //
 router.get("/lifetimes", token_1.validateToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const endDate = req.headers.date;
-    /// Traer ordenes de tipo Combo
-    /// Verificar que ordenes caen en los periodos de notificación:
-    /// 1. 3 meses - antiguedad de la orden sea de 12M
-    /// 2. 1 mese - antiguedad de la orden sea de 13M
-    /// 3. 15 días - antiguedad de la orden sea de 13M y 15d
-    /// 4. 7 días - antiguedad de la orden sea de 13M y 21d
-    /// 5. 1 día antiguedad de la orden sea de 13M y 29d
-    /// Obtener datos del cliente
-    /// armas la estructura de coleccion (data.items)
-    //
     const orders = yield client_1.apiRoot.orders().get({
         queryArgs: {
             limit: 500,
@@ -136,9 +126,6 @@ router.get("/lifetimes", token_1.validateToken, (req, res) => __awaiter(void 0, 
 router.get("/pdv-services", token_1.validateToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _0, _1, _2;
     const qr = req.headers.qr;
-    /// Obtener el QR de una variable en el header
-    /// Obtener orden de CT con query de QR
-    /// Generar la estructura de data.pdvService
     if (!qr || qr == '')
         return res.sendStatus(404);
     const order = yield client_1.apiRoot.orders().search().post({
@@ -169,16 +156,15 @@ router.get("/pdv-services", token_1.validateToken, (req, res) => __awaiter(void 
     }
     console.log(servicesFind);
     const { origin, destination } = servicesFind.address;
-    //Disponible y cancelado no se muestra el waybill
     const responseObject = {
         "pdvService": {
-            "storeServiceOrder": "999-999999",
+            "storeServiceOrder": searchOrder.body.id,
             "PurchaseOrder": (_g = (_d = searchOrder.body.orderNumber) !== null && _d !== void 0 ? _d : (_f = (_e = searchOrder.body.custom) === null || _e === void 0 ? void 0 : _e.fields) === null || _f === void 0 ? void 0 : _f["pickupNumber"]) !== null && _g !== void 0 ? _g : "",
             "waybill": !servicesFind.status || servicesFind.status == "CANCELADO" ? "" : servicesFind === null || servicesFind === void 0 ? void 0 : servicesFind.guide,
-            "idcaStoreClient": 1234567890,
+            "idcaStoreClient": searchOrder.body.customerId,
             "eMailClient": customer.body.email,
-            "idcaServiceWarranty": "123",
-            "idcaServiceModality": "123",
+            "idcaServiceWarranty": servicesFind.guide[13],
+            "idcaServiceModality": servicesFind.guide[14],
             "isPudo": servicesFind.isPudo ? "1" : "0",
             "isPackage": servicesFind.isPackage ? "1" : "0",
             "itemLength": (_h = servicesFind === null || servicesFind === void 0 ? void 0 : servicesFind.itemLength) !== null && _h !== void 0 ? _h : "",

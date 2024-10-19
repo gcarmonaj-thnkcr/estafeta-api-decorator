@@ -83,16 +83,6 @@ const validateWaybillRequest = (waybillService: any) => {
 
 router.get("/lifetimes", validateToken, async (req: Request, res: Response): Promise<any> => {
     const endDate = req.headers.date
-    /// Traer ordenes de tipo Combo
-    /// Verificar que ordenes caen en los periodos de notificación:
-    /// 1. 3 meses - antiguedad de la orden sea de 12M
-    /// 2. 1 mese - antiguedad de la orden sea de 13M
-    /// 3. 15 días - antiguedad de la orden sea de 13M y 15d
-    /// 4. 7 días - antiguedad de la orden sea de 13M y 21d
-    /// 5. 1 día antiguedad de la orden sea de 13M y 29d
-    /// Obtener datos del cliente
-    /// armas la estructura de coleccion (data.items)
-  //
     const orders = await apiRoot.orders().get({
       queryArgs: {
         limit: 500,
@@ -150,9 +140,6 @@ router.get("/lifetimes", validateToken, async (req: Request, res: Response): Pro
 
 router.get("/pdv-services", validateToken, async (req: Request, res: Response): Promise<any> =>{
     const qr = req.headers.qr
-    /// Obtener el QR de una variable en el header
-    /// Obtener orden de CT con query de QR
-    /// Generar la estructura de data.pdvService
     if(!qr || qr == '') return res.sendStatus(404)
     const order = await apiRoot.orders().search().post({
       body: {
@@ -182,18 +169,16 @@ router.get("/pdv-services", validateToken, async (req: Request, res: Response): 
     }
     console.log(servicesFind) 
     const { origin, destination } = servicesFind.address
-    
-    //Disponible y cancelado no se muestra el waybill
 
     const responseObject = {
       "pdvService": {
-        "storeServiceOrder": "999-999999",
+        "storeServiceOrder": searchOrder.body.id,
         "PurchaseOrder": searchOrder.body.orderNumber ?? searchOrder.body.custom?.fields?.["pickupNumber"] ?? "",
         "waybill": !servicesFind.status || servicesFind.status == "CANCELADO" ? "" : servicesFind?.guide,
-        "idcaStoreClient": 1234567890,
+        "idcaStoreClient": searchOrder.body.customerId,
         "eMailClient": customer.body.email,
-        "idcaServiceWarranty": "123",
-        "idcaServiceModality": "123",
+        "idcaServiceWarranty": servicesFind.guide[13],
+        "idcaServiceModality": servicesFind.guide[14],
         "isPudo": servicesFind.isPudo ? "1" : "0",
         "isPackage": servicesFind.isPackage? "1" : "0",
         "itemLength": servicesFind?.itemLength ?? "",
