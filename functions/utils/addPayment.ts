@@ -529,6 +529,10 @@ export const addPaymentToOrders = async (data: ITransactionEvent, order: Order, 
         {
           action: "changePaymentState",
           paymentState: "Paid"
+        },
+        {
+          action: "setOrderNumber",
+          orderNumber: newOrder
         }
       ]
     }
