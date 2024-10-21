@@ -56,8 +56,7 @@ router.post("/waybills", async (req: Request, res: Response): Promise<any> =>{
     } else {
       resulWaylBill.push({
         "resultCode": "1",
-        "resultDescription": "Proceso no completado",
-        "ResultWaybill": servicesFind.guide,
+        "resultDescription": "El estado actual de la guía es En proceso",
       })
       continue;
     }
