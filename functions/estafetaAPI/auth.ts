@@ -1,4 +1,7 @@
 import axios from "axios";
+import * as dotenv from 'dotenv'
+
+dotenv.config()
 
 interface IToken {
   access_token: string;
@@ -30,7 +33,7 @@ interface IKeys {
 const Keys: IKeys = {
   'purchaseOrder': {
     clientId: process.env.ClientIdPurchase ?? "",
-    clientSecret: process.env.ClientSecretPurchase!,
+    clientSecret: process.env.ClientSecretPurchase ?? "",
     url: urlMicrosoft,
     scope: "https://graph.microsoft.com/.default"
   },
@@ -52,6 +55,7 @@ const validateToken = async ({type}: ITypeToken)  => {
   const token = tokensCreateds.get(type)
   if (!token) {
     const { clientId, clientSecret, url, scope } = Keys[type]
+    console.log(clientId, clientSecret)
     const creationToken = await createToken(clientId, clientSecret, url, scope)
     tokensCreateds.set(type, creationToken)
     return creationToken.access_token

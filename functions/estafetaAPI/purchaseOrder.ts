@@ -78,9 +78,9 @@ export const WSPurchaseOrder = async ({ order, code, customer, idPaymentService,
       }
     ]
   }
-  console.log(data)
 
   const token = await authToken({ type: 'purchaseOrder' })
+  console.log(token)
   const config = {
     method: 'post',
     url: 'https://apimiddlewareinvoiceqa.estafeta.com/TiendaEstafetaAPI/rest/PurchasePortalOrder/Insert',

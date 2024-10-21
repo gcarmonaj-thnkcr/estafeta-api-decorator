@@ -17,13 +17,15 @@ dotenv.config()
 app.use(cors());
 app.use(express.json())
 
+console.log(process.env.ClientSecretPurchase)
 
+app.use("/.netlify/functions/api", webhookRouter)
 app.use("/.netlify/functions/api",pdvRouter)
 app.use("/.netlify/functions/api", lifetTimeRouter)
 app.use("/.netlify/functions/api", waybillRouter)
 app.use("/.netlify/functions/api", ordersRouter)
 app.use("/.netlify/functions/api", loginRouter)
-app.use("/.netlify/functions/api", webhookRouter)
+
 
 const port = process.env.PORT || 9000;
 

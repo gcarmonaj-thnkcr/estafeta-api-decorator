@@ -16,14 +16,14 @@ interface IResponse {
 export const addPaymentToOrder = async (body: ITransactionEvent): Promise<IResponse> => {
   const order = await apiRoot.orders().withId({ ID: body.transaction.order_id }).get().execute()
   
-  if(!order.statusCode || order.statusCode) return {
+  if(!order.statusCode || order.statusCode >= 300) return {
     message: "Error al encontrar la orden",
     response: undefined
   }
   
   const customer = await apiRoot.customers().withId({ID: order.body.customerId ?? ""}).get().execute()
 
-  if(!customer || customer.statusCode) return {
+  if(!customer.statusCode || customer.statusCode >= 300) return {
     message: "La orden no tiene asignado un customer",
     response: undefined
   }
