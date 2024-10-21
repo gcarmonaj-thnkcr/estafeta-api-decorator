@@ -14,7 +14,9 @@
     "@commercetools/platform-sdk": "^7.17.0",
     "@commercetools/sdk-client-v2": "^2.5.0",
     "@types/jsonwebtoken": "^9.0.7",
+    "axios": "^1.7.7",
     "cors": "2.8.5",
+    "dotenv": "^16.4.5",
     "express": "^4.17.1",
     "jsonwebtoken": "^9.0.2",
     "serverless-http": "^3.2.0"

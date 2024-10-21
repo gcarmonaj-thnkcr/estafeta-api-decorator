@@ -1,8 +1,8 @@
-import express, { Request, Response } from "express";
+import express from "express";
 import serverless from "serverless-http";
 import cors from "cors";
+import * as dotenv from 'dotenv'
 // import data from './mock_values.json' assert { type: 'json'}
-import { generateToken, validateToken } from "./jsonToken/token";
 import pdvRouter from './controllers/pdv/index'
 import lifetTimeRouter from './controllers/lifetimes/index'
 import waybillRouter from './controllers/waybills/index'
@@ -10,7 +10,9 @@ import ordersRouter from './controllers/orders/index'
 import loginRouter from './controllers/login/index'
 import webhookRouter from './controllers/webhook/index'
 
+
 const app = express();
+dotenv.config()
 
 app.use(cors());
 app.use(express.json())
