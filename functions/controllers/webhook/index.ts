@@ -9,7 +9,7 @@ router.post("/payment/webhook", async (req: Request, res: Response): Promise<any
     console.log("llegue")
     const paymentInfo: ITransactionEvent = req.body
     console.log(paymentInfo.transaction)
-    if(paymentInfo.transaction.status != "completed") return res.sendStatus(400)
+    if(paymentInfo.transaction.status != "completed") return res.sendStatus(200)
     const responsePayment = await addPaymentToOrder(paymentInfo)   
     if(responsePayment.message) {
       console.log(responsePayment)
