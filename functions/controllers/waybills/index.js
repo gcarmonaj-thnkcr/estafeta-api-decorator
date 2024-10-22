@@ -56,9 +56,11 @@ router.post("/waybills", (req, res) => __awaiter(void 0, void 0, void 0, functio
         catch (err) {
             servicesFind = customObject[searchOrder.body.lineItems[0].id].guides.find((item) => item.QR == wayBillItem.qr);
         }
-        console.log(servicesFind);
-        if (!servicesFind.status) {
+        console.log(servicesFind.status);
+        if (!servicesFind.status || servicesFind.status == "DISPONIBLE") {
+            console.log("Entre");
             servicesFind.status = "EN PROCESO";
+            return res.status(200);
         }
         else {
             resulWaylBill.push({
