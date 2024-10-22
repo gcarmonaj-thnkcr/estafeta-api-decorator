@@ -15,6 +15,7 @@ const validity_1 = require("./validity");
 const pickup_1 = require("../estafetaAPI/pickup");
 const purchaseOrder_1 = require("../estafetaAPI/purchaseOrder");
 const folios_1 = require("../estafetaAPI/folios");
+const asignarGuides_1 = require("./asignarGuides");
 const addPaymentToOrder = (body) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const order = yield client_1.apiRoot.orders().withId({ ID: body.transaction.order_id }).get().execute();
@@ -419,91 +420,143 @@ const addPaymentToOrders = (data, order, customer) => __awaiter(void 0, void 0, 
             versionCustomer = updateQuantityUser.body.version;
         }
     }
-    /*
+    const isZONA = order.lineItems.some(item => { var _a, _b; return ((_b = (_a = item.variant.attributes) === null || _a === void 0 ? void 0 : _a.find(attr => attr.name == "tipo-paquete")) === null || _b === void 0 ? void 0 : _b.value["label"]) == "ZONA"; });
+    const isUNIZONA = order.lineItems.some(item => { var _a, _b; return ((_b = (_a = item.variant.attributes) === null || _a === void 0 ? void 0 : _a.find(attr => attr.name == "tipo-paquete")) === null || _b === void 0 ? void 0 : _b.value["label"]) == "UNIZONA"; });
+    const isInternational = order.lineItems.some(item => { var _a, _b; return ((_b = (_a = item.variant.attributes) === null || _a === void 0 ? void 0 : _a.find(attr => attr.name == "tipo-paquete")) === null || _b === void 0 ? void 0 : _b.value["label"]) == "ZONA INTERNACIONAL"; });
     if (isUNIZONA || isZONA || isInternational) {
-      const mapToObject = (map: Map<any, any>) => {
-        const obj: any = {};
-        for (let [key, value] of map) {
-          obj[key] = value;
-        }
-        return obj;
-      };
-  
-      const plainObjectGuides = mapToObject(mapGuides);
-  
-      const createOrder = await apiRoot.orders().post({
-        body: {
-          version: versionCart,
-          id: cart.body.id,
-          orderNumber: newOrder,
-          custom: {
-            type: {
-              typeId: 'type',
-              key: "type-order"
-            },
-            fields: {
-              "type-order": "service",
-              "services": JSON.stringify(plainObjectGuides),
-              "ordenSap": codes[0].OrderSAP,
-              "invoice": "No Facturada"
+        const mapToObject = (map) => {
+            const obj = {};
+            for (let [key, value] of map) {
+                obj[key] = value;
             }
-          }
-        }
-      }).execute()
-  
-      order = createOrder.body
-    } else {
-      const asignarGuias = await asignGuideToOrder(customer, cart.body)
-      const createOrder = await apiRoot.orders().post({
-        body: {
-          version: versionCart,
-          id: cart.body.id,
-          orderNumber: newOrder,
-          custom: {
-            type: {
-              typeId: 'type',
-              key: "type-order"
-            },
-            fields: {
-              "services": JSON.stringify(asignarGuias),
-              "ordenSap": codes?.[0]?.OrderSAP ?? "",
-              "type-order": "bundle",
-              "invoice": "No Facturada"
-            }
-          }
-        }
-      }).execute()
-      order = createOrder.body
-    }
-    */
-    const addPaymentToOrder = yield client_1.apiRoot.orders().withId({ ID: order.id }).post({
-        body: {
-            version: order.version,
-            actions: [
-                {
-                    action: "addPayment",
-                    payment: {
-                        id: createPayment.body.id,
-                        typeId: "payment"
+            return obj;
+        };
+        const plainObjectGuides = mapToObject(mapGuides);
+        const addPaymentToOrder = yield client_1.apiRoot.orders().withId({ ID: order.id }).post({
+            body: {
+                version: order.version,
+                actions: [
+                    {
+                        action: "addPayment",
+                        payment: {
+                            id: createPayment.body.id,
+                            typeId: "payment"
+                        }
+                    },
+                    {
+                        action: "changePaymentState",
+                        paymentState: "Paid"
+                    },
+                    {
+                        action: "setCustomField",
+                        name: "services",
+                        value: JSON.stringify(plainObjectGuides)
+                    },
+                    {
+                        action: "setCustomField",
+                        name: "ordenSap",
+                        value: codes[0].OrderSAP,
+                    },
+                    {
+                        action: "setOrderNumber",
+                        orderNumber: newOrder
                     }
-                },
-                {
-                    action: "changePaymentState",
-                    paymentState: "Paid"
-                },
-                {
-                    action: "setOrderNumber",
-                    orderNumber: newOrder
-                }
-            ]
-        }
-    }).execute();
-    return {
-        orderId: addPaymentToOrder.body.id,
-        message: "",
-        isUso: false,
-        isRecoleccion: false,
-    };
+                ]
+            }
+        }).execute();
+        return {
+            orderId: addPaymentToOrder.body.id,
+            message: "",
+            isUso: false,
+            isRecoleccion: false,
+        };
+        /*
+        const createOrder = await apiRoot.orders().post({
+          body: {
+            version: versionCart,
+            id: cart.body.id,
+            orderNumber: newOrder,
+            custom: {
+              type: {
+                typeId: 'type',
+                key: "type-order"
+              },
+              fields: {
+                "type-order": "service",
+                "services": JSON.stringify(plainObjectGuides),
+                "ordenSap": codes[0].OrderSAP,
+                "invoice": "No Facturada"
+              }
+            }
+          }
+        }).execute()
+    
+        order = createOrder.body
+        */
+    }
+    else {
+        const asignarGuias = yield (0, asignarGuides_1.asignGuideToOrder)(customer, order);
+        const addPaymentToOrder = yield client_1.apiRoot.orders().withId({ ID: order.id }).post({
+            body: {
+                version: order.version,
+                actions: [
+                    {
+                        action: "addPayment",
+                        payment: {
+                            id: createPayment.body.id,
+                            typeId: "payment"
+                        }
+                    },
+                    {
+                        action: "changePaymentState",
+                        paymentState: "Paid"
+                    },
+                    {
+                        action: "setCustomField",
+                        name: "services",
+                        value: JSON.stringify(asignarGuias)
+                    },
+                    {
+                        action: "setCustomField",
+                        name: "ordenSap",
+                        value: codes[0].OrderSAP,
+                    },
+                    {
+                        action: "setOrderNumber",
+                        orderNumber: newOrder
+                    }
+                ]
+            }
+        }).execute();
+        return {
+            orderId: addPaymentToOrder.body.id,
+            message: "",
+            isUso: false,
+            isRecoleccion: false,
+        };
+        /*
+        const createOrder = await apiRoot.orders().post({
+          body: {
+            version: versionCart,
+            id: cart.body.id,
+            orderNumber: newOrder,
+            custom: {
+              type: {
+                typeId: 'type',
+                key: "type-order"
+              },
+              fields: {
+                "services": JSON.stringify(asignarGuias),
+                "ordenSap": codes?.[0]?.OrderSAP ?? "",
+                "type-order": "bundle",
+                "invoice": "No Facturada"
+              }
+            }
+          }
+        }).execute()
+        order = createOrder.body
+        */
+    }
 });
 exports.addPaymentToOrders = addPaymentToOrders;
 const createMapGuide = (guides, order, folios) => {

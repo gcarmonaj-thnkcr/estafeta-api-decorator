@@ -7,6 +7,7 @@ import { newPickUp } from "../estafetaAPI/pickup";
 import { WSPurchaseOrder } from "../estafetaAPI/purchaseOrder";
 import { CreateFolios } from "../estafetaAPI/folios";
 import { ILineGuide, PurchaseOrder } from "../interfaces/purchase";
+import { asignGuideToOrder } from "./asignarGuides";
 
 interface IResponse {
   message: string | undefined;
@@ -457,7 +458,10 @@ export const addPaymentToOrders = async (data: ITransactionEvent, order: Order, 
       versionCustomer = updateQuantityUser.body.version
     }
   }
-  /*
+  const isZONA = order.lineItems.some(item => item.variant.attributes?.find(attr => attr.name == "tipo-paquete")?.value["label"] == "ZONA")
+  const isUNIZONA = order.lineItems.some(item => item.variant.attributes?.find(attr => attr.name == "tipo-paquete")?.value["label"] == "UNIZONA")
+  const isInternational = order.lineItems.some(item => item.variant.attributes?.find(attr => attr.name == "tipo-paquete")?.value["label"] == "ZONA INTERNACIONAL")
+
   if (isUNIZONA || isZONA || isInternational) {
     const mapToObject = (map: Map<any, any>) => {
       const obj: any = {};
@@ -469,6 +473,48 @@ export const addPaymentToOrders = async (data: ITransactionEvent, order: Order, 
 
     const plainObjectGuides = mapToObject(mapGuides);
 
+    const addPaymentToOrder = await apiRoot.orders().withId({ ID: order.id }).post({
+    body: {
+      version: order.version,
+      actions: [
+        {
+          action: "addPayment",
+          payment: {
+            id: createPayment.body.id,
+            typeId: "payment"
+          }
+        },
+        {
+          action: "changePaymentState",
+          paymentState: "Paid"
+        },
+        {
+          action: "setCustomField",
+          name: "services",
+          value: JSON.stringify(plainObjectGuides)
+        },
+        {
+          action: "setCustomField",
+          name: "ordenSap",
+          value: codes[0].OrderSAP,
+        },
+        {
+          action: "setOrderNumber",
+          orderNumber: newOrder
+        }
+      ]
+    }
+  }).execute()
+  
+  return {
+    orderId: addPaymentToOrder.body.id,
+    message: "",
+    isUso: false,
+    isRecoleccion: false,
+  }
+
+    
+    /*
     const createOrder = await apiRoot.orders().post({
       body: {
         version: versionCart,
@@ -490,8 +536,49 @@ export const addPaymentToOrders = async (data: ITransactionEvent, order: Order, 
     }).execute()
 
     order = createOrder.body
+    */
   } else {
-    const asignarGuias = await asignGuideToOrder(customer, cart.body)
+    const asignarGuias = await asignGuideToOrder(customer, order)
+    const addPaymentToOrder = await apiRoot.orders().withId({ ID: order.id }).post({
+    body: {
+      version: order.version,
+      actions: [
+        {
+          action: "addPayment",
+          payment: {
+            id: createPayment.body.id,
+            typeId: "payment"
+          }
+        },
+        {
+          action: "changePaymentState",
+          paymentState: "Paid"
+        },
+        {
+          action: "setCustomField",
+          name: "services",
+          value: JSON.stringify(asignarGuias)
+        },
+        {
+          action: "setCustomField",
+          name: "ordenSap",
+          value: codes[0].OrderSAP,
+        },
+        {
+          action: "setOrderNumber",
+          orderNumber: newOrder
+        }
+      ]
+    }
+  }).execute()
+  
+  return {
+    orderId: addPaymentToOrder.body.id,
+    message: "",
+    isUso: false,
+    isRecoleccion: false,
+  }
+    /*
     const createOrder = await apiRoot.orders().post({
       body: {
         version: versionCart,
@@ -512,37 +599,7 @@ export const addPaymentToOrders = async (data: ITransactionEvent, order: Order, 
       }
     }).execute()
     order = createOrder.body
-  }
-  */
-
-  const addPaymentToOrder = await apiRoot.orders().withId({ ID: order.id }).post({
-    body: {
-      version: order.version,
-      actions: [
-        {
-          action: "addPayment",
-          payment: {
-            id: createPayment.body.id,
-            typeId: "payment"
-          }
-        },
-        {
-          action: "changePaymentState",
-          paymentState: "Paid"
-        },
-        {
-          action: "setOrderNumber",
-          orderNumber: newOrder
-        }
-      ]
-    }
-  }).execute()
-
-  return {
-    orderId: addPaymentToOrder.body.id,
-    message: "",
-    isUso: false,
-    isRecoleccion: false,
+    */
   }
 }
 
