@@ -56,14 +56,14 @@ router.post("/waybills", (req, res) => __awaiter(void 0, void 0, void 0, functio
         catch (err) {
             servicesFind = customObject[searchOrder.body.lineItems[0].id].guides.find((item) => item.QR == wayBillItem.qr);
         }
+        console.log(servicesFind);
         if (!servicesFind.status) {
             servicesFind.status = "EN PROCESO";
         }
         else {
             resulWaylBill.push({
                 "resultCode": "1",
-                "resultDescription": "Proceso no completado",
-                "ResultWaybill": servicesFind.guide,
+                "resultDescription": "El estado actual de la guía es En proceso",
             });
             continue;
         }
