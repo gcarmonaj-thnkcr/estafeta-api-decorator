@@ -60,7 +60,7 @@ router.post("/waybills", (req, res) => __awaiter(void 0, void 0, void 0, functio
         if (!servicesFind.status || servicesFind.status == "DISPONIBLE") {
             console.log("Entre");
             servicesFind.status = "EN PROCESO";
-            return res.status(200);
+            console.log("Cambio");
         }
         else {
             resulWaylBill.push({
