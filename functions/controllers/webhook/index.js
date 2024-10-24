@@ -18,7 +18,7 @@ router.post("/payment/webhook", (req, res) => __awaiter(void 0, void 0, void 0, 
         const paymentInfo = req.body;
         console.log(paymentInfo.transaction);
         if (paymentInfo.transaction.status != "completed")
-            return res.sendStatus(400);
+            return res.sendStatus(200);
         const responsePayment = yield (0, addPayment_1.addPaymentToOrder)(paymentInfo);
         if (responsePayment.message) {
             console.log(responsePayment);

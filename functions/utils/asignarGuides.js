@@ -146,7 +146,7 @@ const asignGuideToOrder = (customer, order) => __awaiter(void 0, void 0, void 0,
                 }
             }).execute();
             versionCustomer = updateQuantityUser.body.version;
-            guidesTerrestresAvailables = ((_6 = customer.custom) === null || _6 === void 0 ? void 0 : _6.fields['quantity-guides-terrestres-used']) + 1;
+            guidesTerrestresAvailables = ((_6 = customer.custom) === null || _6 === void 0 ? void 0 : _6.fields['quantity-guides-terrestres-used']) + line.quantity;
         }
         else if (attrService == "DOS DIAS") {
             const quantityGuideAvailables = (_7 = customer.custom) === null || _7 === void 0 ? void 0 : _7.fields["quantity-guides-dos-dias"];
@@ -164,7 +164,7 @@ const asignGuideToOrder = (customer, order) => __awaiter(void 0, void 0, void 0,
                 }
             }).execute();
             versionCustomer = updateQuantityUser.body.version;
-            guidesDosDiasAvailables = ((_8 = customer.custom) === null || _8 === void 0 ? void 0 : _8.fields['quantity-guides-dos-dias-used']) + 1;
+            guidesDosDiasAvailables = ((_8 = customer.custom) === null || _8 === void 0 ? void 0 : _8.fields['quantity-guides-dos-dias-used']) + line.quantity;
         }
         else if (attrService == "12:30") {
             const quantityGuideAvailables = (_9 = customer.custom) === null || _9 === void 0 ? void 0 : _9.fields["quantity-guides-doce-treinta"];
@@ -182,7 +182,7 @@ const asignGuideToOrder = (customer, order) => __awaiter(void 0, void 0, void 0,
                 }
             }).execute();
             versionCustomer = updateQuantityUser.body.version;
-            guidesDoceTreinteAvailables = ((_10 = customer.custom) === null || _10 === void 0 ? void 0 : _10.fields['quantity-guides-doce-treinta-used']) + 1;
+            guidesDoceTreinteAvailables = ((_10 = customer.custom) === null || _10 === void 0 ? void 0 : _10.fields['quantity-guides-doce-treinta-used']) + line.quantity;
         }
     }
     yield updateUserWithGuidesAvailables(customer.id, versionCustomer, guidesTerrestresAvailables, guidesDosDiasAvailables, guidesDiaSiguienteAvailables, guidesDoceTreinteAvailables);
