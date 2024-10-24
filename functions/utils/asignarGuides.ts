@@ -161,7 +161,7 @@ export const asignGuideToOrder = async (customer: Customer, order: Order): Promi
             }
           }).execute()
           versionCustomer = updateQuantityUser.body.version
-          guidesTerrestresAvailables = customer.custom?.fields['quantity-guides-terrestres-used'] + 1
+          guidesTerrestresAvailables = customer.custom?.fields['quantity-guides-terrestres-used'] + line.quantity
         }
         else if (attrService == "DOS DIAS") {
           const quantityGuideAvailables = customer.custom?.fields["quantity-guides-dos-dias"]
@@ -179,7 +179,7 @@ export const asignGuideToOrder = async (customer: Customer, order: Order): Promi
             }
           }).execute()
           versionCustomer = updateQuantityUser.body.version
-          guidesDosDiasAvailables = customer.custom?.fields['quantity-guides-dos-dias-used'] + 1
+          guidesDosDiasAvailables = customer.custom?.fields['quantity-guides-dos-dias-used'] + line.quantity
         }
   
         else if (attrService == "12:30") {
@@ -198,7 +198,7 @@ export const asignGuideToOrder = async (customer: Customer, order: Order): Promi
             }
           }).execute()
           versionCustomer = updateQuantityUser.body.version
-          guidesDoceTreinteAvailables = customer.custom?.fields['quantity-guides-doce-treinta-used'] + 1
+          guidesDoceTreinteAvailables = customer.custom?.fields['quantity-guides-doce-treinta-used'] + line.quantity 
         }
       }
 
