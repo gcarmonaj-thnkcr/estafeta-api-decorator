@@ -14,19 +14,37 @@ const quote_1 = require("../../estafetaAPI/quote");
 const router = (0, express_1.Router)();
 router.post("/quote", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let response;
-    console.log(req.body);
+    console.log(req.body.type);
     if (req.body.type == "nacional") {
         const services = yield (0, quote_1.handleCotizacion)(req.body);
         if (!req.body.IsRecoleccion) {
             for (const service of services.Quotation[0].Service) {
-                console.log(service.ListPrice);
-                console.log(service);
                 service.TotalAmount = parseFloat((service.ListPrice + service['FuelChargeListPrice ']).toFixed(2));
             }
         }
         response = services;
     }
     else if (req.body.type == "unizona") {
+        const services = yield (0, quote_1.handleCotizacion)(req.body);
+        if (req.body.IsRecoleccion) {
+            for (const service of services.Quotation[0].Service) {
+                console.log(service.ListPrice);
+                console.log(service);
+                service.TotalAmount = parseFloat(((service === null || service === void 0 ? void 0 : service.OverweightListPrice) + (service === null || service === void 0 ? void 0 : service.FuelChargeOverweightListPrice) + service.InsuredCost).toFixed(2));
+            }
+        }
+        else {
+            for (const service of services.Quotation[0].Service) {
+                service.FuelChargeOverweightListPrice = 0;
+                service.InsuredCost = 0;
+                service.OverweightListPrice = 0;
+                service.FuelChargeListPrice = 0;
+                service.ListPrice = 0;
+                service['FuelChargeListPrice '] = 0;
+                service.TotalAmount = 0;
+            }
+        }
+        response = services;
     }
     else if (req.body.type == "internacional") {
     }
