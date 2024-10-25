@@ -33,6 +33,7 @@ router.post("/quote", async(req: Request, res: Response): Promise<any> => {
         service.OverweightListPrice = 0
         service.FuelChargeListPrice = 0
         service.ListPrice = 0
+        service.VATApplied = 0
         service['FuelChargeListPrice '] = 0
         service.TotalAmount = 0;
       }
