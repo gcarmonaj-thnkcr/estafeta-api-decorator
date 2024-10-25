@@ -41,10 +41,16 @@ const axios_1 = __importDefault(require("axios"));
 const dotenv = __importStar(require("dotenv"));
 dotenv.config();
 let tokensCreateds = new Map();
+const urlEstafeta = "https://apiqa.estafeta.com:8443/auth/oauth/v2/token";
 const urlMicrosoft = "https://login.microsoftonline.com/2a3f6c70-006d-4bba-9bd9-2c200073ca62/oauth2/v2.0/token";
 const authToken = (_a) => __awaiter(void 0, [_a], void 0, function* ({ type }) { return yield validateToken({ type }); });
 exports.authToken = authToken;
 const Keys = {
+    'quote': {
+        clientId: "l7beefb34b43bc44ef8d318541258df87c",
+        clientSecret: "0377eef5fdbb4fe58b26ae810c4eed6c",
+        url: urlEstafeta,
+    },
     'purchaseOrder': {
         clientId: (_a = process.env.ClientIdPurchase) !== null && _a !== void 0 ? _a : "",
         clientSecret: (_b = process.env.ClientSecretPurchase) !== null && _b !== void 0 ? _b : "",

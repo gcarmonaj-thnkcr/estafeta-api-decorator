@@ -38,6 +38,7 @@ const index_3 = __importDefault(require("./controllers/waybills/index"));
 const index_4 = __importDefault(require("./controllers/orders/index"));
 const index_5 = __importDefault(require("./controllers/login/index"));
 const index_6 = __importDefault(require("./controllers/webhook/index"));
+const index_7 = __importDefault(require("./controllers/quote/index"));
 const app = (0, express_1.default)();
 dotenv.config();
 app.use((0, cors_1.default)());
@@ -49,6 +50,7 @@ app.use("/.netlify/functions/api", index_2.default);
 app.use("/.netlify/functions/api", index_3.default);
 app.use("/.netlify/functions/api", index_4.default);
 app.use("/.netlify/functions/api", index_5.default);
+app.use("/.netlify/functions/api", index_7.default);
 const port = process.env.PORT || 9000;
 exports.handler = (0, serverless_http_1.default)(app);
 app.listen(port, () => {
