@@ -12,7 +12,7 @@ interface IToken {
 }
 
 interface ITypeToken {
-  type: 'purchaseOrder' | 'newPickUp' | 'folios' | 'quote'
+  type: 'purchaseOrder' | 'newPickUp' | 'folios' | 'quote' | 'quoteInternacional'
 }
 
 let tokensCreateds = new Map<string, IToken>();
@@ -33,9 +33,15 @@ interface IKeys {
 
 const Keys: IKeys = {
   'quote': {
-    clientId: "l7beefb34b43bc44ef8d318541258df87c",
-    clientSecret: "0377eef5fdbb4fe58b26ae810c4eed6c",
+    clientId: process.env.ClientIdQuote ?? "",
+    clientSecret: process.env.ClientSecretQuote ?? "",
     url: urlEstafeta,
+  },
+  'quoteInternacional':{
+    clientId: process.env.ClientIdQuoteInternacional ?? "",
+    clientSecret: process.env.ClientSecretQuoteInternacional ?? "",
+    url: urlMicrosoft,
+    scope: "https://graph.microsoft.com/.default"
   },
   'purchaseOrder': {
     clientId: process.env.ClientIdPurchase ?? "",

@@ -13,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.handleCotizacion = handleCotizacion;
+exports.handleCotizacionInternacional = handleCotizacionInternacional;
 const axios_1 = __importDefault(require("axios"));
 const auth_1 = require("./auth");
 function handleCotizacion(body) {
@@ -38,6 +39,30 @@ function handleCotizacion(body) {
         catch (error) {
             console.error('Error: Cotizacion', error.response ? error.response.data : error.message);
             throw error;
+        }
+    });
+}
+function handleCotizacionInternacional(body) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const data = body;
+        const token = yield (0, auth_1.authToken)({ type: 'quoteInternacional' });
+        const config = {
+            method: 'post',
+            url: 'https://apimwscotizadorqa.estafeta.com/Cotizacion/rest/Cotizador/InternationalQuotation?SALES_ORGANIZATION&CUSTOMER',
+            headers: {
+                apikey: '782b4f8f93934ab28e4c4ab33ca2f833',
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`,
+            },
+            data: JSON.stringify(data),
+        };
+        try {
+            const response = yield axios_1.default.request(config);
+            return response.data;
+        }
+        catch (error) {
+            console.error('Error: Cotizacion', error.message);
+            return error.message;
         }
     });
 }

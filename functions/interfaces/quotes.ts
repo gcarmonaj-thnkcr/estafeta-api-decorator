@@ -32,3 +32,40 @@ interface Location {
     TownshipName: string;
     StateName: string;
 }
+
+//INTERNACIONAL
+//
+interface ServiceCost {
+    ListPrice: number;
+    VATApplied?: number; // Este campo es opcional, ya que no está en todos los servicios
+    FuelChargeListPrice: number;
+    ContingencyChargeListPrice: number;
+    SpecialHandlingListPrice: number;
+    InsuredCost: number;
+    TotalAmount: number;
+}
+
+interface Service {
+    ServiceCode: string;
+    ServiceName: string;
+    Modality: string;
+    ServiceCost: ServiceCost;
+    DeliveryZone: number;
+}
+
+interface Destination {
+    ZipCode: string;
+    TownshipName: string;
+    StateName: string;
+}
+
+interface ResponseItem {
+    Service: Service[];
+    DeliveryZone: number;
+    Destination: Destination;
+    Message: string;
+}
+
+export interface ApiResponse {
+    Response: ResponseItem[];
+}

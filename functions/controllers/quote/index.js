@@ -15,7 +15,6 @@ const router = (0, express_1.Router)();
 router.post("/quote", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b, _c;
     let response;
-    console.log(req.body.type);
     if (req.body.type == "nacional") {
         const services = yield (0, quote_1.handleCotizacion)(req.body);
         if (!req.body.IsRecoleccion) {
@@ -50,6 +49,15 @@ router.post("/quote", (req, res) => __awaiter(void 0, void 0, void 0, function* 
         response = services;
     }
     else if (req.body.type == "internacional") {
+        console.log(req.body);
+        const services = yield (0, quote_1.handleCotizacionInternacional)(req.body);
+        console.log("Respuesta", services);
+        if (!req.body.IsRecoleccion) {
+            for (const response of services.Response) {
+                response.Service[0].TotalAmount = parseFloat((response.Service[0].ListPrice + response.Service[0].FuelChargeListPrice).toFixed(2));
+            }
+        }
+        response = services;
     }
     else {
         return res.sendStatus(404);

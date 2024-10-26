@@ -1,12 +1,11 @@
 import { Router, type Request, type Response } from "express";
-import { handleCotizacion } from "../../estafetaAPI/quote";
-import { Quotation } from "../../interfaces/quotes";
+import { handleCotizacion, handleCotizacionInternacional } from "../../estafetaAPI/quote";
+import { ApiResponse, Quotation } from "../../interfaces/quotes";
 
 const router = Router()
 
 router.post("/quote", async(req: Request, res: Response): Promise<any> => {
   let response 
-  console.log(req.body.type)
   if(req.body.type == "nacional") {
     const services= await handleCotizacion(req.body)
     if(!req.body.IsRecoleccion) {
@@ -17,7 +16,7 @@ router.post("/quote", async(req: Request, res: Response): Promise<any> => {
     response = services
 
   } else if (req.body.type == "unizona"){
-    const services = await handleCotizacion(req.body)
+    const services= await handleCotizacion(req.body)
     if(req.body.IsRecoleccion) {
       for(const service of services.Quotation[0].Service) {
         service.OverweightListPrice = service.OverweightListPrice ?? 0 
@@ -40,7 +39,15 @@ router.post("/quote", async(req: Request, res: Response): Promise<any> => {
     }
     response = services
   } else if(req.body.type == "internacional") {
-
+    console.log(req.body)
+    const services: ApiResponse = await handleCotizacionInternacional(req.body)
+    console.log("Respuesta",services)
+    if(!req.body.IsRecoleccion) {
+      for(const response of services.Response){
+        response.Service[0].TotalAmount = parseFloat((response.Service[0].ListPrice + response.Service[0].FuelChargeListPrice).toFixed(2))
+      }
+    }
+    response = services
   } else {
     return res.sendStatus(404)
   }

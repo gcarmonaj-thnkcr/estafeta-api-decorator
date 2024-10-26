@@ -34,7 +34,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-var _a, _b, _c, _d, _e, _f;
+var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.authToken = void 0;
 const axios_1 = __importDefault(require("axios"));
@@ -47,25 +47,31 @@ const authToken = (_a) => __awaiter(void 0, [_a], void 0, function* ({ type }) {
 exports.authToken = authToken;
 const Keys = {
     'quote': {
-        clientId: "l7beefb34b43bc44ef8d318541258df87c",
-        clientSecret: "0377eef5fdbb4fe58b26ae810c4eed6c",
+        clientId: (_a = process.env.ClientIdQuote) !== null && _a !== void 0 ? _a : "",
+        clientSecret: (_b = process.env.ClientSecretQuote) !== null && _b !== void 0 ? _b : "",
         url: urlEstafeta,
     },
+    'quoteInternacional': {
+        clientId: (_c = process.env.ClientIdQuoteInternacional) !== null && _c !== void 0 ? _c : "",
+        clientSecret: (_d = process.env.ClientSecretQuoteInternacional) !== null && _d !== void 0 ? _d : "",
+        url: urlMicrosoft,
+        scope: "https://graph.microsoft.com/.default"
+    },
     'purchaseOrder': {
-        clientId: (_a = process.env.ClientIdPurchase) !== null && _a !== void 0 ? _a : "",
-        clientSecret: (_b = process.env.ClientSecretPurchase) !== null && _b !== void 0 ? _b : "",
+        clientId: (_e = process.env.ClientIdPurchase) !== null && _e !== void 0 ? _e : "",
+        clientSecret: (_f = process.env.ClientSecretPurchase) !== null && _f !== void 0 ? _f : "",
         url: urlMicrosoft,
         scope: "https://graph.microsoft.com/.default"
     },
     'newPickUp': {
-        clientId: (_c = process.env.ClientIdPickUp) !== null && _c !== void 0 ? _c : "",
-        clientSecret: (_d = process.env.ClientSecredPickUp) !== null && _d !== void 0 ? _d : "",
+        clientId: (_g = process.env.ClientIdPickUp) !== null && _g !== void 0 ? _g : "",
+        clientSecret: (_h = process.env.ClientSecredPickUp) !== null && _h !== void 0 ? _h : "",
         url: urlMicrosoft,
         scope: "https://graph.microsoft.com/.default"
     },
     'folios': {
-        clientId: (_e = process.env.ClientIdFolios) !== null && _e !== void 0 ? _e : "",
-        clientSecret: (_f = process.env.ClientSecretFolios) !== null && _f !== void 0 ? _f : "",
+        clientId: (_j = process.env.ClientIdFolios) !== null && _j !== void 0 ? _j : "",
+        clientSecret: (_k = process.env.ClientSecretFolios) !== null && _k !== void 0 ? _k : "",
         url: urlMicrosoft,
         scope: "https://graph.microsoft.com/.default"
     },
