@@ -43,6 +43,8 @@ interface ServiceCost {
     SpecialHandlingListPrice: number;
     InsuredCost: number;
     TotalAmount: number;
+    OverweightListPrice?: number;
+    FuelChargeOverweightListPrice?: number;
 }
 
 interface Service {
