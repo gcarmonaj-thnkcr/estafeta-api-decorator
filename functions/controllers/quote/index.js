@@ -19,6 +19,10 @@ router.post("/quote", (req, res) => __awaiter(void 0, void 0, void 0, function* 
         const services = yield (0, quote_1.handleCotizacion)(req.body);
         if (!req.body.IsRecoleccion) {
             for (const service of services.Quotation[0].Service) {
+                service.OverweightListPrice = 0;
+                service.VATApplied = 0;
+                service.InsuredCost = 0;
+                service.DeliveryZone = 0;
                 service.TotalAmount = parseFloat((service.ListPrice + service['FuelChargeListPrice ']).toFixed(2));
             }
         }
