@@ -1,6 +1,7 @@
 import { Router, type Request, type Response } from "express";
 import { handleCotizacion, handleCotizacionInternacional } from "../../estafetaAPI/quote";
 import { ApiResponse, Quotation } from "../../interfaces/quotes";
+import { argv0 } from "process";
 
 const router = Router()
 
@@ -10,6 +11,10 @@ router.post("/quote", async(req: Request, res: Response): Promise<any> => {
     const services= await handleCotizacion(req.body)
     if(!req.body.IsRecoleccion) {
       for(const service of services.Quotation[0].Service) {
+        service.OverweightListPrice = 0
+        service.VATApplied = 0
+        service.InsuredCost = 0
+        service.DeliveryZone = 0
         service.TotalAmount = parseFloat((service.ListPrice + service['FuelChargeListPrice ']).toFixed(2));
       }
     }
