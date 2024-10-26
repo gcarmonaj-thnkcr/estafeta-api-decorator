@@ -62,7 +62,9 @@ router.post("/quote", (req, res) => __awaiter(void 0, void 0, void 0, function* 
                 response.Service[0].ServiceCost.VATApplied = 0;
                 response.Service[0].ServiceCost.ContingencyChargeListPrice = 0;
                 response.Service[0].ServiceCost.SpecialHandlingListPrice = 0;
-                response.Service[0].TotalAmount = parseFloat((response.Service[0].ServiceCost.ListPrice + response.Service[0].ServiceCost.FuelChargeListPrice).toFixed(2));
+                response.Service[0].ServiceCost.OverweightListPrice = 0;
+                response.Service[0].ServiceCost.FuelChargeOverweightListPrice = 0;
+                response.Service[0].ServiceCost.TotalAmount = parseFloat((response.Service[0].ServiceCost.ListPrice + response.Service[0].ServiceCost["FuelChargeListPrice "]).toFixed(2));
             }
         }
         response = services;

@@ -45,7 +45,7 @@ router.post("/quote", async(req: Request, res: Response): Promise<any> => {
     response = services
   } else if(req.body.type == "internacional") {
     console.log(req.body)
-    const services: ApiResponse = await handleCotizacionInternacional(req.body)
+    const services = await handleCotizacionInternacional(req.body)
     console.log("Respuesta",services)
     if(!req.body.IsRecoleccion) {
       for(const response of services.Response){
@@ -55,7 +55,7 @@ router.post("/quote", async(req: Request, res: Response): Promise<any> => {
         response.Service[0].ServiceCost.SpecialHandlingListPrice = 0
         response.Service[0].ServiceCost.OverweightListPrice = 0
         response.Service[0].ServiceCost.FuelChargeOverweightListPrice = 0
-        response.Service[0].ServiceCost.TotalAmount = parseFloat((response.Service[0].ServiceCost.ListPrice + response.Service[0].ServiceCost.FuelChargeListPrice).toFixed(2))
+        response.Service[0].ServiceCost.TotalAmount = parseFloat((response.Service[0].ServiceCost.ListPrice + response.Service[0].ServiceCost["FuelChargeListPrice "]).toFixed(2))
       }
     }
     response = services
