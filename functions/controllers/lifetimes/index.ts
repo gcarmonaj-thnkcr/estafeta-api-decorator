@@ -33,6 +33,7 @@ const addObject = async (index: any, order: Order, days: number) => {
     // Formatear la fecha 
     // @ts-ignore
     const fechaFormateada = date.toLocaleDateString('es-ES', opciones);
+    console.log('Formated date: ',fechaFormateada)
     
     orderstoNotify.push({
       emailClient: customer.body.email,
@@ -58,7 +59,7 @@ router.get("/lifetimes", validateToken, async (req: Request, res: Response): Pro
     }).execute()
     
     if(orders.body.results.length <= 0) return res.sendStatus(204)
-
+    console.log('Orders: ', orders.body.results.length)
 
     //@ts-ignore
     const ordersCombo = orders.body.results.filter(order => order.lineItems.some(item => item.variant?.attributes.some(attr => attr.name == "tipo-paquete" && attr.value["label"] == "UNIZONA")))
@@ -66,10 +67,10 @@ router.get("/lifetimes", validateToken, async (req: Request, res: Response): Pro
     
     for(const order of ordersCombo) {
       const daysDif = checkDate(order.createdAt, endDate)
-      console.log(daysDif)
+      console.log('Days diference: ', daysDif)
       switch(daysDif) {
         case 365: 
-          const orders = await apiRoot.orders().withId({ ID: order.id}).post({
+          await apiRoot.orders().withId({ ID: order.id}).post({
             body: {
               version: order.version,
               actions: [
