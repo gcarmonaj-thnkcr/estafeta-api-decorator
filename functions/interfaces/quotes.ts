@@ -17,9 +17,10 @@ interface Service {
     Modality: string;
     ListPrice: number;
     VATApplied: number;
-    FuelChargeListPrice: number; // Eliminado espacio en el nombre
-    OverweightListPrice?: number; // Puede ser opcional si no siempre está presente
-    FuelChargeOverweightListPrice?: number; // Puede ser opcional
+    FuelChargeListPrice: number; 
+    OverweightListPrice?: number; 
+    FuelChargeOverweightListPrice?: number; 
+    ForwardingLevelCostListPrice?: number;
     InsuredCost: number;
     TotalAmount: number;
     CoversWarranty: string;
