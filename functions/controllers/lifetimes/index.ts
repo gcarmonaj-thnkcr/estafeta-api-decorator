@@ -6,17 +6,15 @@ import { checkDate } from "../../validateDate/validate";
 
 const router = Router()
 
-interface IorderstoNotify {
-  [index: number]: {
-    emailClient: string;
-    clientName: string;
-    folios: string;
-    expirationDate: string,
-    expirationDays: number
-  }
+interface IOrderToNotify {
+  emailClient: string;
+  clientName: string;
+  folios: string;
+  expirationDate: string;
+  expirationDays: number;
 }
 
-const orderstoNotify: IorderstoNotify = {}
+const orderstoNotify: IOrderToNotify[] = [];
 
 const addObject = async (index: any, order: Order, days: number) => {
   try{ 
@@ -36,13 +34,13 @@ const addObject = async (index: any, order: Order, days: number) => {
     // @ts-ignore
     const fechaFormateada = date.toLocaleDateString('es-ES', opciones);
     
-    orderstoNotify[index] = {
+    orderstoNotify.push({
       emailClient: customer.body.email,
-      clientName: customer.body?.firstName ?? "" + customer.body?.lastName ?? "" + customer.body?.middleName ?? "",
+      clientName: (customer.body?.firstName ?? "") + (customer.body?.lastName ?? "") + (customer.body?.middleName ?? ""),
       folios: products.join(","),
       expirationDate: fechaFormateada,
       expirationDays: days
-    };
+    });
   } catch(err: any){
     console.log(err.message)
     return 
