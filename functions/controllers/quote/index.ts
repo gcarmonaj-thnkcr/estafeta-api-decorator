@@ -49,6 +49,10 @@ router.post("/quote", async(req: Request, res: Response): Promise<any> => {
     console.log("Respuesta",services)
     if(!req.body.IsRecoleccion) {
       for(const response of services.Response){
+        response.Service[0].FuelChargeOverweightListPrice = 0
+        response.Service[0].DeliveryZone = 0
+        response.Service[0].InsuredCost = 0
+        response.Service[0].ForwardingLevelCostListPrice = 0
         response.Service[0].TotalAmount = parseFloat((response.Service[0].ListPrice + response.Service[0].FuelChargeListPrice).toFixed(2))
       }
     }
