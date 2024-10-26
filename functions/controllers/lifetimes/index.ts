@@ -50,20 +50,37 @@ const addObject = async (index: any, order: Order, days: number) => {
 
 router.get("/lifetimes", validateToken, async (req: Request, res: Response): Promise<any> => {
   console.log("Lifetimes called")
+  let orders: Order[] = []
   const endDate = req.headers.date
-  const orders = await apiRoot.orders().get({
+  const orders_bundle = await apiRoot.orders().get({
     queryArgs: {
       limit: 500,
       sort: "createdAt desc",
-      where: 'custom(fields(type-order="service"))',
+      where: 'custom(fields(type-order="service")) and createdAt >= "2022-10-26T00:00:00Z"',
     }
   }).execute()
+  orders = orders_bundle.body.results
 
-  if (orders.body.results.length <= 0) return res.sendStatus(204)
-  console.log("Orders: ", orders.body.results.length)
+  if (orders_bundle.body.results.length <= 0) return res.sendStatus(204)
+   
+  const order_count = (orders_bundle.body.total ?? 0) - 500
 
+  for (let i = 1; i < order_count; i += 500) {
+    const orders_bundle = await apiRoot.orders().get({
+      queryArgs: {
+        limit: 500,
+        offset: (i*500)+1,
+        sort: "createdAt desc",
+        where: 'custom(fields(type-order="service"))',
+      }
+    }).execute()
+    if (orders_bundle.body.results.length <= 0) return res.sendStatus(204)
+    orders = [...orders, ...orders_bundle.body.results]
+  }
+
+  console.log("Orders: ", orders.length)
   //@ts-ignore
-  const ordersCombo = orders.body.results.filter(order => order.lineItems.some(item => item.variant?.attributes.some(attr => attr.name == "tipo-paquete" && attr.value["label"] == "UNIZONA")))
+  const ordersCombo = orders.filter(order => order.lineItems.some(item => item.variant?.attributes.some(attr => attr.name == "tipo-paquete" && attr.value["label"] == "UNIZONA")))
   console.log("Combo Orders: ", ordersCombo.length)
 
 
