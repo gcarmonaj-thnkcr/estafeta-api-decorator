@@ -60,10 +60,11 @@ router.get("/lifetimes", validateToken, async (req: Request, res: Response): Pro
   }).execute()
 
   if (orders.body.results.length <= 0) return res.sendStatus(204)
-  console.log('Orders: ', orders.body.results.length)
+  console.log("Orders: ", orders.body.results.length)
 
   //@ts-ignore
   const ordersCombo = orders.body.results.filter(order => order.lineItems.some(item => item.variant?.attributes.some(attr => attr.name == "tipo-paquete" && attr.value["label"] == "UNIZONA")))
+  console.log("Combo Orders: ", ordersCombo.length)
 
 
   for (const order of ordersCombo) {

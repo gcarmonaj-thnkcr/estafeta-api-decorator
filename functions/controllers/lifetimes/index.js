@@ -57,9 +57,10 @@ router.get("/lifetimes", token_1.validateToken, (req, res) => __awaiter(void 0, 
     }).execute();
     if (orders.body.results.length <= 0)
         return res.sendStatus(204);
-    console.log('Orders: ', orders.body.results.length);
+    console.log("Orders: ", orders.body.results.length);
     //@ts-ignore
     const ordersCombo = orders.body.results.filter(order => order.lineItems.some(item => { var _a; return (_a = item.variant) === null || _a === void 0 ? void 0 : _a.attributes.some(attr => attr.name == "tipo-paquete" && attr.value["label"] == "UNIZONA"); }));
+    console.log("Combo Orders: ", ordersCombo.length);
     for (const order of ordersCombo) {
         const daysDif = (0, validate_1.checkDate)(order.createdAt, endDate);
         console.log("Days diference: ", daysDif);
