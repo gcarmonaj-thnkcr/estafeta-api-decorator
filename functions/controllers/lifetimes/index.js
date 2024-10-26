@@ -60,12 +60,15 @@ router.get("/lifetimes", token_1.validateToken, (req, res) => __awaiter(void 0, 
     orders = orders_bundle.body.results;
     if (orders_bundle.body.results.length <= 0)
         return res.sendStatus(204);
+    console.log("Orders length: ", orders_bundle.body.results.length);
     const order_count = ((_a = orders_bundle.body.total) !== null && _a !== void 0 ? _a : 0) - 500;
-    for (let i = 1; i < order_count; i += 500) {
+    console.log("Order count: ", order_count);
+    for (let i = 501; i < order_count; i += 500) {
+        console.log("Offset: ", i);
         const orders_bundle = yield client_1.apiRoot.orders().get({
             queryArgs: {
                 limit: 500,
-                offset: (i * 500) + 1,
+                offset: i,
                 sort: "createdAt desc",
                 where: 'custom(fields(type-order="service"))',
             }

@@ -3,6 +3,7 @@ import { validateToken } from "../../jsonToken/token";
 import { apiRoot } from "../../commercetools/client";
 import { Order } from "@commercetools/platform-sdk";
 import { checkDate } from "../../validateDate/validate";
+import { Console } from "console";
 
 const router = Router()
 
@@ -62,14 +63,18 @@ router.get("/lifetimes", validateToken, async (req: Request, res: Response): Pro
   orders = orders_bundle.body.results
 
   if (orders_bundle.body.results.length <= 0) return res.sendStatus(204)
-   
+  
+  console.log("Orders length: ", orders_bundle.body.results.length)
+
   const order_count = (orders_bundle.body.total ?? 0) - 500
 
-  for (let i = 1; i < order_count; i += 500) {
+  console.log("Order count: ", order_count)
+  for (let i = 501; i < order_count; i += 500) {
+    console.log("Offset: ", i)
     const orders_bundle = await apiRoot.orders().get({
       queryArgs: {
         limit: 500,
-        offset: (i*500)+1,
+        offset: i,
         sort: "createdAt desc",
         where: 'custom(fields(type-order="service"))',
       }
