@@ -14,7 +14,7 @@ const token_1 = require("../../jsonToken/token");
 const client_1 = require("../../commercetools/client");
 const validate_1 = require("../../validateDate/validate");
 const router = (0, express_1.Router)();
-const orderstoNotify = {};
+const orderstoNotify = [];
 const addObject = (index, order, days) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b, _c, _d, _e, _f, _g;
     try {
@@ -31,13 +31,14 @@ const addObject = (index, order, days) => __awaiter(void 0, void 0, void 0, func
         // Formatear la fecha 
         // @ts-ignore
         const fechaFormateada = date.toLocaleDateString('es-ES', opciones);
-        orderstoNotify[index] = {
+        console.log("Formated date: ", fechaFormateada);
+        orderstoNotify.push({
             emailClient: customer.body.email,
-            clientName: (_g = (_e = (_c = (_b = customer.body) === null || _b === void 0 ? void 0 : _b.firstName) !== null && _c !== void 0 ? _c : "" + ((_d = customer.body) === null || _d === void 0 ? void 0 : _d.lastName)) !== null && _e !== void 0 ? _e : "" + ((_f = customer.body) === null || _f === void 0 ? void 0 : _f.middleName)) !== null && _g !== void 0 ? _g : "",
+            clientName: ((_c = (_b = customer.body) === null || _b === void 0 ? void 0 : _b.firstName) !== null && _c !== void 0 ? _c : "") + ((_e = (_d = customer.body) === null || _d === void 0 ? void 0 : _d.lastName) !== null && _e !== void 0 ? _e : "") + ((_g = (_f = customer.body) === null || _f === void 0 ? void 0 : _f.middleName) !== null && _g !== void 0 ? _g : ""),
             folios: products.join(","),
             expirationDate: fechaFormateada,
             expirationDays: days
-        };
+        });
     }
     catch (err) {
         console.log(err.message);
@@ -45,6 +46,7 @@ const addObject = (index, order, days) => __awaiter(void 0, void 0, void 0, func
     }
 });
 router.get("/lifetimes", token_1.validateToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log("Lifetimes called");
     const endDate = req.headers.date;
     const orders = yield client_1.apiRoot.orders().get({
         queryArgs: {
@@ -55,14 +57,15 @@ router.get("/lifetimes", token_1.validateToken, (req, res) => __awaiter(void 0, 
     }).execute();
     if (orders.body.results.length <= 0)
         return res.sendStatus(204);
+    console.log('Orders: ', orders.body.results.length);
     //@ts-ignore
     const ordersCombo = orders.body.results.filter(order => order.lineItems.some(item => { var _a; return (_a = item.variant) === null || _a === void 0 ? void 0 : _a.attributes.some(attr => attr.name == "tipo-paquete" && attr.value["label"] == "UNIZONA"); }));
     for (const order of ordersCombo) {
         const daysDif = (0, validate_1.checkDate)(order.createdAt, endDate);
-        console.log(daysDif);
+        console.log("Days diference: ", daysDif);
         switch (daysDif) {
             case 365:
-                const orders = yield client_1.apiRoot.orders().withId({ ID: order.id }).post({
+                yield client_1.apiRoot.orders().withId({ ID: order.id }).post({
                     body: {
                         version: order.version,
                         actions: [
