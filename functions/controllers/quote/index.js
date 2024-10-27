@@ -27,6 +27,11 @@ router.post("/quote", (req, res) => __awaiter(void 0, void 0, void 0, function* 
                 service.TotalAmount = parseFloat((service.ListPrice + service['FuelChargeListPrice ']).toFixed(2));
             }
         }
+        else {
+            for (const service of services.Quotation[0].Service) {
+                service.TotalAmount = parseFloat((service.TotalAmount).toFixed(2));
+            }
+        }
         response = services;
     }
     else if (req.body.type == "unizona") {
@@ -66,6 +71,11 @@ router.post("/quote", (req, res) => __awaiter(void 0, void 0, void 0, function* 
                 response.Service[0].ServiceCost.OverweightListPrice = 0;
                 response.Service[0].ServiceCost.FuelChargeOverweightListPrice = 0;
                 response.Service[0].ServiceCost.TotalAmount = parseFloat((response.Service[0].ServiceCost.ListPrice + response.Service[0].ServiceCost["FuelChargeListPrice "]).toFixed(2));
+            }
+        }
+        else {
+            for (const service of services.Response) {
+                service.Service[0].ServiceCost.TotalAmount = parseFloat((service.Service[0].ServiceCost.TotalAmount).toFixed(2));
             }
         }
         response = services;
