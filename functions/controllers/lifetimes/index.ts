@@ -15,7 +15,7 @@ interface IOrderToNotify {
   expirationDays: number;
 }
 
-const orderstoNotify: IOrderToNotify[] = [];
+let orderstoNotify: IOrderToNotify[] = [];
 
 const addObject = async (index: any, order: Order, days: number) => {
   try {
@@ -24,7 +24,8 @@ const addObject = async (index: any, order: Order, days: number) => {
 
     const products = []
     for (const item of order.lineItems) {
-      products.push(`(${item.quantity})${item.name["es-MX"]}`)
+      console.log(`${item.name["es-MX"] ?? item.name["en"]}`)
+      products.push(`(${item.quantity})${item.name["es-MX"] ?? item.name["en"]}`)
     }
     const date = new Date(order.createdAt)
     date.setDate(date.getDate() + 426)
@@ -57,9 +58,10 @@ router.get("/lifetimes", validateToken, async (req: Request, res: Response): Pro
     queryArgs: {
       limit: 500,
       sort: "createdAt desc",
-      where: 'custom(fields(type-order="service")) and createdAt >= "2022-10-26T00:00:00Z"',
+      where: 'custom(fields(type-order="service")) and createdAt >= "2023-10-26T00:00:00Z"',
     }
   }).execute()
+  console.log(orders_bundle.body.count, orders_bundle.body.total)
   orders = orders_bundle.body.results
 
   if (orders_bundle.body.results.length <= 0) return res.sendStatus(204)
@@ -88,7 +90,7 @@ router.get("/lifetimes", validateToken, async (req: Request, res: Response): Pro
   const ordersCombo = orders.filter(order => order.lineItems.some(item => item.variant?.attributes.some(attr => attr.name == "tipo-paquete" && attr.value["label"] == "UNIZONA")))
   console.log("Combo Orders: ", ordersCombo.length)
 
-
+  orderstoNotify = []
   for (const order of ordersCombo) {
     const daysDif = checkDate(order.createdAt, endDate)
     console.log("Days diference: ", daysDif)

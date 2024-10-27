@@ -13,7 +13,7 @@ const express_1 = require("express");
 const quote_1 = require("../../estafetaAPI/quote");
 const router = (0, express_1.Router)();
 router.post("/quote", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b, _c;
+    var _a;
     let response;
     if (req.body.type == "nacional") {
         const services = yield (0, quote_1.handleCotizacion)(req.body);
@@ -23,6 +23,7 @@ router.post("/quote", (req, res) => __awaiter(void 0, void 0, void 0, function* 
                 service.VATApplied = 0;
                 service.InsuredCost = 0;
                 service.DeliveryZone = 0;
+                services.FuelChargeOverweightListPrice = 0;
                 service.TotalAmount = parseFloat((service.ListPrice + service['FuelChargeListPrice ']).toFixed(2));
             }
         }
@@ -33,8 +34,8 @@ router.post("/quote", (req, res) => __awaiter(void 0, void 0, void 0, function* 
         if (req.body.IsRecoleccion) {
             for (const service of services.Quotation[0].Service) {
                 service.OverweightListPrice = (_a = service.OverweightListPrice) !== null && _a !== void 0 ? _a : 0;
-                service.FuelChargeOverweightListPrice = (_b = service === null || service === void 0 ? void 0 : service.FuelChargeOverweightListPrice) !== null && _b !== void 0 ? _b : 0;
-                service.ForwardingLevelCostListPrice = (_c = service.ForwardingLevelCostListPrice) !== null && _c !== void 0 ? _c : 0;
+                service.FuelChargeOverweightListPrice = 0;
+                service.ForwardingLevelCostListPrice = 0;
                 service.TotalAmount = parseFloat((service.OverweightListPrice + service.FuelChargeOverweightListPrice + service.ForwardingLevelCostListPrice + service.InsuredCost).toFixed(2));
             }
         }

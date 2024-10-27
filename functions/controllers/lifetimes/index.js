@@ -14,16 +14,17 @@ const token_1 = require("../../jsonToken/token");
 const client_1 = require("../../commercetools/client");
 const validate_1 = require("../../validateDate/validate");
 const router = (0, express_1.Router)();
-const orderstoNotify = [];
+let orderstoNotify = [];
 const addObject = (index, order, days) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b, _c, _d, _e, _f, _g;
+    var _a, _b, _c, _d, _e, _f, _g, _h, _j;
     try {
         const customer = yield client_1.apiRoot.customers().withId({ ID: (_a = order.customerId) !== null && _a !== void 0 ? _a : "" }).get().execute();
         if (!customer.statusCode || customer.statusCode >= 300)
             return;
         const products = [];
         for (const item of order.lineItems) {
-            products.push(`(${item.quantity})${item.name["es-MX"]}`);
+            console.log(`${(_b = item.name["es-MX"]) !== null && _b !== void 0 ? _b : item.name["en"]}`);
+            products.push(`(${item.quantity})${(_c = item.name["es-MX"]) !== null && _c !== void 0 ? _c : item.name["en"]}`);
         }
         const date = new Date(order.createdAt);
         date.setDate(date.getDate() + 426);
@@ -34,7 +35,7 @@ const addObject = (index, order, days) => __awaiter(void 0, void 0, void 0, func
         console.log("Formated date: ", fechaFormateada);
         orderstoNotify.push({
             emailClient: customer.body.email,
-            clientName: ((_c = (_b = customer.body) === null || _b === void 0 ? void 0 : _b.firstName) !== null && _c !== void 0 ? _c : "") + ((_e = (_d = customer.body) === null || _d === void 0 ? void 0 : _d.lastName) !== null && _e !== void 0 ? _e : "") + ((_g = (_f = customer.body) === null || _f === void 0 ? void 0 : _f.middleName) !== null && _g !== void 0 ? _g : ""),
+            clientName: ((_e = (_d = customer.body) === null || _d === void 0 ? void 0 : _d.firstName) !== null && _e !== void 0 ? _e : "") + ((_g = (_f = customer.body) === null || _f === void 0 ? void 0 : _f.lastName) !== null && _g !== void 0 ? _g : "") + ((_j = (_h = customer.body) === null || _h === void 0 ? void 0 : _h.middleName) !== null && _j !== void 0 ? _j : ""),
             folios: products.join(","),
             expirationDate: fechaFormateada,
             expirationDays: days
@@ -54,9 +55,10 @@ router.get("/lifetimes", token_1.validateToken, (req, res) => __awaiter(void 0, 
         queryArgs: {
             limit: 500,
             sort: "createdAt desc",
-            where: 'custom(fields(type-order="service")) and createdAt >= "2022-10-26T00:00:00Z"',
+            where: 'custom(fields(type-order="service")) and createdAt >= "2023-10-26T00:00:00Z"',
         }
     }).execute();
+    console.log(orders_bundle.body.count, orders_bundle.body.total);
     orders = orders_bundle.body.results;
     if (orders_bundle.body.results.length <= 0)
         return res.sendStatus(204);
@@ -81,6 +83,7 @@ router.get("/lifetimes", token_1.validateToken, (req, res) => __awaiter(void 0, 
     //@ts-ignore
     const ordersCombo = orders.filter(order => order.lineItems.some(item => { var _a; return (_a = item.variant) === null || _a === void 0 ? void 0 : _a.attributes.some(attr => attr.name == "tipo-paquete" && attr.value["label"] == "UNIZONA"); }));
     console.log("Combo Orders: ", ordersCombo.length);
+    orderstoNotify = [];
     for (const order of ordersCombo) {
         const daysDif = (0, validate_1.checkDate)(order.createdAt, endDate);
         console.log("Days diference: ", daysDif);
