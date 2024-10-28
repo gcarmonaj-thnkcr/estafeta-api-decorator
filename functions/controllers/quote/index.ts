@@ -30,6 +30,10 @@ router.post("/quote", async(req: Request, res: Response): Promise<any> => {
       for(const service of services.Quotation[0].Service) {
         service.ListPrice = 0
         service['FuelChargeListPrice '] = 0
+        service.OverweightListPrice = service?.OverweightListPrice ?? 0
+        service.FuelChargeOverweightListPrice = service?.FuelChargeOverweightListPrice ?? 0
+        service.ForwardingLevelCostListPrice = service?.ForwardingLevelCostListPrice ?? 0
+        service.InsuredCost = service?.InsuredCost ?? 0
         service.TotalAmount = parseFloat((service.OverweightListPrice + service.FuelChargeOverweightListPrice + service.ForwardingLevelCostListPrice + service.InsuredCost).toFixed(2));
       }
     }
