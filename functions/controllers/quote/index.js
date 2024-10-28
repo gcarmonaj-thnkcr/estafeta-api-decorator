@@ -13,7 +13,6 @@ const express_1 = require("express");
 const quote_1 = require("../../estafetaAPI/quote");
 const router = (0, express_1.Router)();
 router.post("/quote", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
     let response;
     if (req.body.type == "nacional") {
         const services = yield (0, quote_1.handleCotizacion)(req.body);
@@ -24,6 +23,7 @@ router.post("/quote", (req, res) => __awaiter(void 0, void 0, void 0, function* 
                 service.InsuredCost = 0;
                 service.DeliveryZone = 0;
                 services.FuelChargeOverweightListPrice = 0;
+                services.ForwardingLevelCostListPrice = 0;
                 service.TotalAmount = parseFloat((service.ListPrice + service['FuelChargeListPrice ']).toFixed(2));
             }
         }
@@ -38,9 +38,8 @@ router.post("/quote", (req, res) => __awaiter(void 0, void 0, void 0, function* 
         const services = yield (0, quote_1.handleCotizacion)(req.body);
         if (req.body.IsRecoleccion) {
             for (const service of services.Quotation[0].Service) {
-                service.OverweightListPrice = (_a = service.OverweightListPrice) !== null && _a !== void 0 ? _a : 0;
-                service.FuelChargeOverweightListPrice = 0;
-                service.ForwardingLevelCostListPrice = 0;
+                service.ListPrice = 0;
+                service.FuelChargeListPrice = 0;
                 service.TotalAmount = parseFloat((service.OverweightListPrice + service.FuelChargeOverweightListPrice + service.ForwardingLevelCostListPrice + service.InsuredCost).toFixed(2));
             }
         }
@@ -52,6 +51,7 @@ router.post("/quote", (req, res) => __awaiter(void 0, void 0, void 0, function* 
                 service.FuelChargeListPrice = 0;
                 service.ListPrice = 0;
                 service.VATApplied = 0;
+                services.ForwardingLevelCostListPrice = 0;
                 service['FuelChargeListPrice '] = 0;
                 service.TotalAmount = 0;
             }
