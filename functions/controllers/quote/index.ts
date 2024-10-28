@@ -15,7 +15,6 @@ router.post("/quote", async(req: Request, res: Response): Promise<any> => {
         service.DeliveryZone = 0
         services.FuelChargeOverweightListPrice = 0
         services.ForwardingLevelCostListPrice = 0
-
         service.TotalAmount = parseFloat((service.ListPrice + service['FuelChargeListPrice ']).toFixed(2));
       }
     } else {
