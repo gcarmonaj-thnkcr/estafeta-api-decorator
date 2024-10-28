@@ -39,7 +39,7 @@ router.post("/quote", (req, res) => __awaiter(void 0, void 0, void 0, function* 
         if (req.body.IsRecoleccion) {
             for (const service of services.Quotation[0].Service) {
                 service.ListPrice = 0;
-                service.FuelChargeListPrice = 0;
+                service['FuelChargeListPrice '] = 0;
                 service.TotalAmount = parseFloat((service.OverweightListPrice + service.FuelChargeOverweightListPrice + service.ForwardingLevelCostListPrice + service.InsuredCost).toFixed(2));
             }
         }
