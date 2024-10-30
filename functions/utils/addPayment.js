@@ -348,6 +348,7 @@ const addPaymentToOrders = (data, order, customer) => __awaiter(void 0, void 0, 
     //   }
     // }).execute()
     let versionCustomer = customer.version;
+    let objectCustomer = customer;
     //Esto es para agregar items
     for (const line of order.lineItems) {
         const attrType = (_f = (_e = line.variant.attributes) === null || _e === void 0 ? void 0 : _e.find(item => item.name == "tipo-paquete")) === null || _f === void 0 ? void 0 : _f.value["label"];
@@ -356,7 +357,7 @@ const addPaymentToOrders = (data, order, customer) => __awaiter(void 0, void 0, 
         const attrQuantity = (_j = (_h = (_g = line.variant.attributes) === null || _g === void 0 ? void 0 : _g.find(item => item.name == "quantity-items")) === null || _h === void 0 ? void 0 : _h.value) !== null && _j !== void 0 ? _j : 1;
         const attrService = (_l = (_k = line.variant.attributes) === null || _k === void 0 ? void 0 : _k.find(item => item.name == "servicio")) === null || _l === void 0 ? void 0 : _l.value["label"];
         if (attrService == "DIA SIGUIENTE") {
-            const quantityGuideAvailables = (_m = customer.custom) === null || _m === void 0 ? void 0 : _m.fields["quantity-guides-dia-siguiente"];
+            const quantityGuideAvailables = (_m = objectCustomer.custom) === null || _m === void 0 ? void 0 : _m.fields["quantity-guides-dia-siguiente"];
             const updateQuantityUser = yield client_1.apiRoot.customers().withId({ ID: customer.id }).post({
                 body: {
                     version: versionCustomer,
@@ -370,9 +371,10 @@ const addPaymentToOrders = (data, order, customer) => __awaiter(void 0, void 0, 
                 }
             }).execute();
             versionCustomer = updateQuantityUser.body.version;
+            objectCustomer = updateQuantityUser.body;
         }
         else if (attrService == "TERRESTRE") {
-            const quantityGuideAvailables = (_o = customer.custom) === null || _o === void 0 ? void 0 : _o.fields["quantity-guides-terrestres"];
+            const quantityGuideAvailables = (_o = objectCustomer.custom) === null || _o === void 0 ? void 0 : _o.fields["quantity-guides-terrestres"];
             const updateQuantityUser = yield client_1.apiRoot.customers().withId({ ID: customer.id }).post({
                 body: {
                     version: versionCustomer,
@@ -386,9 +388,10 @@ const addPaymentToOrders = (data, order, customer) => __awaiter(void 0, void 0, 
                 }
             }).execute();
             versionCustomer = updateQuantityUser.body.version;
+            objectCustomer = updateQuantityUser.body;
         }
         else if (attrService == "DOS DIAS") {
-            const quantityGuideAvailables = (_p = customer.custom) === null || _p === void 0 ? void 0 : _p.fields["quantity-guides-dos-dias"];
+            const quantityGuideAvailables = (_p = objectCustomer.custom) === null || _p === void 0 ? void 0 : _p.fields["quantity-guides-dos-dias"];
             const updateQuantityUser = yield client_1.apiRoot.customers().withId({ ID: customer.id }).post({
                 body: {
                     version: versionCustomer,
@@ -402,9 +405,10 @@ const addPaymentToOrders = (data, order, customer) => __awaiter(void 0, void 0, 
                 }
             }).execute();
             versionCustomer = updateQuantityUser.body.version;
+            objectCustomer = updateQuantityUser.body;
         }
         else if (attrService == "12:30") {
-            const quantityGuideAvailables = (_q = customer.custom) === null || _q === void 0 ? void 0 : _q.fields["quantity-guides-doce-treinta"];
+            const quantityGuideAvailables = (_q = objectCustomer.custom) === null || _q === void 0 ? void 0 : _q.fields["quantity-guides-doce-treinta"];
             const updateQuantityUser = yield client_1.apiRoot.customers().withId({ ID: customer.id }).post({
                 body: {
                     version: versionCustomer,
@@ -418,6 +422,7 @@ const addPaymentToOrders = (data, order, customer) => __awaiter(void 0, void 0, 
                 }
             }).execute();
             versionCustomer = updateQuantityUser.body.version;
+            objectCustomer = updateQuantityUser.body;
         }
     }
     const isZONA = order.lineItems.some(item => { var _a, _b; return ((_b = (_a = item.variant.attributes) === null || _a === void 0 ? void 0 : _a.find(attr => attr.name == "tipo-paquete")) === null || _b === void 0 ? void 0 : _b.value["label"]) == "ZONA"; });
@@ -598,6 +603,12 @@ const createMapGuide = (guides, order, folios) => {
         }
         else if (index == "H") {
             id = typeService.get("12:30");
+        }
+        else if (index == "G") {
+            id = typeService.get("USA ECONOMICO PREPAGADO");
+        }
+        else {
+            id = typeService.get("SERVICIO GLOBAL EXPRESS PREPAGADO");
         }
         if (id) {
             const lineGuide = lineGuides.get(id);

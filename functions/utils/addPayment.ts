@@ -386,6 +386,8 @@ export const addPaymentToOrders = async (data: ITransactionEvent, order: Order, 
   // }).execute()
 
   let versionCustomer = customer.version
+
+  let objectCustomer = customer
   //Esto es para agregar items
   for (const line of order.lineItems) {
     const attrType = line.variant.attributes?.find(item => item.name == "tipo-paquete")?.value["label"]
@@ -393,7 +395,7 @@ export const addPaymentToOrders = async (data: ITransactionEvent, order: Order, 
     const attrQuantity = line.variant.attributes?.find(item => item.name == "quantity-items")?.value ?? 1
     const attrService = line.variant.attributes?.find(item => item.name == "servicio")?.value["label"]
     if (attrService == "DIA SIGUIENTE") {
-      const quantityGuideAvailables = customer.custom?.fields["quantity-guides-dia-siguiente"]
+      const quantityGuideAvailables = objectCustomer.custom?.fields["quantity-guides-dia-siguiente"]
       const updateQuantityUser = await apiRoot.customers().withId({ ID: customer.id }).post({
         body: {
           version: versionCustomer,
@@ -407,9 +409,10 @@ export const addPaymentToOrders = async (data: ITransactionEvent, order: Order, 
         }
       }).execute()
       versionCustomer = updateQuantityUser.body.version
+      objectCustomer = updateQuantityUser.body
     }
     else if (attrService == "TERRESTRE") {
-      const quantityGuideAvailables = customer.custom?.fields["quantity-guides-terrestres"]
+      const quantityGuideAvailables = objectCustomer.custom?.fields["quantity-guides-terrestres"]
       const updateQuantityUser = await apiRoot.customers().withId({ ID: customer.id }).post({
         body: {
           version: versionCustomer,
@@ -423,9 +426,10 @@ export const addPaymentToOrders = async (data: ITransactionEvent, order: Order, 
         }
       }).execute()
       versionCustomer = updateQuantityUser.body.version
+      objectCustomer = updateQuantityUser.body
     }
     else if (attrService == "DOS DIAS") {
-      const quantityGuideAvailables = customer.custom?.fields["quantity-guides-dos-dias"]
+      const quantityGuideAvailables = objectCustomer.custom?.fields["quantity-guides-dos-dias"]
       const updateQuantityUser = await apiRoot.customers().withId({ ID: customer.id }).post({
         body: {
           version: versionCustomer,
@@ -439,10 +443,11 @@ export const addPaymentToOrders = async (data: ITransactionEvent, order: Order, 
         }
       }).execute()
       versionCustomer = updateQuantityUser.body.version
+      objectCustomer = updateQuantityUser.body
     }
 
     else if (attrService == "12:30") {
-      const quantityGuideAvailables = customer.custom?.fields["quantity-guides-doce-treinta"]
+      const quantityGuideAvailables = objectCustomer.custom?.fields["quantity-guides-doce-treinta"]
       const updateQuantityUser = await apiRoot.customers().withId({ ID: customer.id }).post({
         body: {
           version: versionCustomer,
@@ -456,8 +461,10 @@ export const addPaymentToOrders = async (data: ITransactionEvent, order: Order, 
         }
       }).execute()
       versionCustomer = updateQuantityUser.body.version
+      objectCustomer = updateQuantityUser.body
     }
-  }
+  } 
+  
   const isZONA = order.lineItems.some(item => item.variant.attributes?.find(attr => attr.name == "tipo-paquete")?.value["label"] == "ZONA")
   const isUNIZONA = order.lineItems.some(item => item.variant.attributes?.find(attr => attr.name == "tipo-paquete")?.value["label"] == "UNIZONA")
   const isInternational = order.lineItems.some(item => item.variant.attributes?.find(attr => attr.name == "tipo-paquete")?.value["label"] == "ZONA INTERNACIONAL")
@@ -644,6 +651,10 @@ const createMapGuide = (guides: PurchaseOrder[], order: Order, folios: any[]) =>
       id = typeService.get("TERRESTRE");
     } else if (index == "H") {
       id = typeService.get("12:30");
+    } else if (index == "G") {
+      id = typeService.get("USA ECONOMICO PREPAGADO")
+    } else {
+      id = typeService.get("SERVICIO GLOBAL EXPRESS PREPAGADO")
     }
 
     if (id) {
