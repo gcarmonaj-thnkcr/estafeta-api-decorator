@@ -72,7 +72,6 @@ router.post("/quote", (req, res) => __awaiter(void 0, void 0, void 0, function* 
                 response.Service[0].ServiceCost.InsuredCost = 0;
                 response.Service[0].ServiceCost.VATApplied = 0;
                 response.Service[0].ServiceCost.ContingencyChargeListPrice = 0;
-                response.Service[0].ServiceCost.SpecialHandlingListPrice = 0;
                 response.Service[0].ServiceCost.OverweightListPrice = 0;
                 response.Service[0].ServiceCost.FuelChargeOverweightListPrice = 0;
                 response.Service[0].ServiceCost.ListPrice = (_h = (_g = (_f = (_e = response.Service) === null || _e === void 0 ? void 0 : _e[0]) === null || _f === void 0 ? void 0 : _f.ServiceCost) === null || _g === void 0 ? void 0 : _g.ListPrice) !== null && _h !== void 0 ? _h : 0;
