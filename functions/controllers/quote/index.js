@@ -13,7 +13,7 @@ const express_1 = require("express");
 const quote_1 = require("../../estafetaAPI/quote");
 const router = (0, express_1.Router)();
 router.post("/quote", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b, _c, _d;
+    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l;
     let response;
     if (req.body.type == "nacional") {
         const services = yield (0, quote_1.handleCotizacion)(req.body);
@@ -75,6 +75,8 @@ router.post("/quote", (req, res) => __awaiter(void 0, void 0, void 0, function* 
                 response.Service[0].ServiceCost.SpecialHandlingListPrice = 0;
                 response.Service[0].ServiceCost.OverweightListPrice = 0;
                 response.Service[0].ServiceCost.FuelChargeOverweightListPrice = 0;
+                response.Service[0].ServiceCost.ListPrice = (_h = (_g = (_f = (_e = response.Service) === null || _e === void 0 ? void 0 : _e[0]) === null || _f === void 0 ? void 0 : _f.ServiceCost) === null || _g === void 0 ? void 0 : _g.ListPrice) !== null && _h !== void 0 ? _h : 0;
+                response.Service[0].ServiceCost["FuelChargeListPrice "] = (_l = (_k = (_j = response.Service) === null || _j === void 0 ? void 0 : _j[0]) === null || _k === void 0 ? void 0 : _k.ServiceCost["FuelChargeListPrice "]) !== null && _l !== void 0 ? _l : 0;
                 response.Service[0].ServiceCost.TotalAmount = parseFloat((response.Service[0].ServiceCost.ListPrice + response.Service[0].ServiceCost["FuelChargeListPrice "]).toFixed(2));
             }
         }

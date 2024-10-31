@@ -63,6 +63,8 @@ router.post("/quote", async(req: Request, res: Response): Promise<any> => {
         response.Service[0].ServiceCost.SpecialHandlingListPrice = 0
         response.Service[0].ServiceCost.OverweightListPrice = 0
         response.Service[0].ServiceCost.FuelChargeOverweightListPrice = 0
+        response.Service[0].ServiceCost.ListPrice = response.Service?.[0]?.ServiceCost?.ListPrice ?? 0
+        response.Service[0].ServiceCost["FuelChargeListPrice "] = response.Service?.[0]?.ServiceCost["FuelChargeListPrice "] ?? 0
         response.Service[0].ServiceCost.TotalAmount = parseFloat((response.Service[0].ServiceCost.ListPrice + response.Service[0].ServiceCost["FuelChargeListPrice "]).toFixed(2))
       }
     } else {
