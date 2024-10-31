@@ -58,9 +58,9 @@ const addPaymentToOrdersRecoleccion = (data, order, customer) => __awaiter(void 
             },
             paymentMethodInfo: {
                 paymentInterface: "OPENPAY",
-                method: "Tarjeta",
+                method: data.transaction.description,
                 name: {
-                    "es-MX": "Tarjeta de Crédito"
+                    "es-MX": data.transaction.description,
                 }
             },
             transactions: [
@@ -283,7 +283,7 @@ const addPaymentToOrders = (data, order, customer) => __awaiter(void 0, void 0, 
             },
             paymentMethodInfo: {
                 paymentInterface: "OPENPAY",
-                method: "Transferencia",
+                method: data.transaction.description,
                 name: {
                     "es-MX": data.transaction.description
                 }

@@ -59,9 +59,9 @@ export const addPaymentToOrdersRecoleccion = async (data: ITransactionEvent, ord
       },
       paymentMethodInfo: {
         paymentInterface: "OPENPAY",
-        method: "Tarjeta",
+        method: data.transaction.description,
         name: {
-          "es-MX": "Tarjeta de Crédito"
+          "es-MX": data.transaction.description,
         }
       },
       transactions: [
@@ -315,7 +315,7 @@ export const addPaymentToOrders = async (data: ITransactionEvent, order: Order, 
       },
       paymentMethodInfo: {
         paymentInterface: "OPENPAY",
-        method: "Transferencia",
+        method: data.transaction.description,
         name: {
           "es-MX": data.transaction.description
         }
