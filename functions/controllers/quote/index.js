@@ -70,7 +70,7 @@ router.post("/quote", (req, res) => __awaiter(void 0, void 0, void 0, function* 
         if (!req.body.IsRecoleccion) {
             for (const response of services.Response) {
                 response.Service[0].ServiceCost.InsuredCost = 0;
-                const vatApplied = ((_g = (_f = (_e = response.Service) === null || _e === void 0 ? void 0 : _e[0]) === null || _f === void 0 ? void 0 : _f.ServiceCost) === null || _g === void 0 ? void 0 : _g.VATApplied) ? (response.Service[0].ServiceCost.VATApplied / 100) + 1 : 1.04;
+                const vatApplied = ((_g = (_f = (_e = response.Service) === null || _e === void 0 ? void 0 : _e[0]) === null || _f === void 0 ? void 0 : _f.ServiceCost) === null || _g === void 0 ? void 0 : _g.VATApplied) ? (response.Service[0].ServiceCost.VATApplied / 100) + 1 : 0;
                 response.Service[0].ServiceCost.ContingencyChargeListPrice = ((_k = (_j = (_h = response.Service) === null || _h === void 0 ? void 0 : _h[0]) === null || _j === void 0 ? void 0 : _j.ServiceCost) === null || _k === void 0 ? void 0 : _k.ContingencyChargeListPrice) ? ((_o = (_m = (_l = response.Service) === null || _l === void 0 ? void 0 : _l[0]) === null || _m === void 0 ? void 0 : _m.ServiceCost) === null || _o === void 0 ? void 0 : _o.ContingencyChargeListPrice) * vatApplied : 0;
                 response.Service[0].ServiceCost.OverweightListPrice = 0;
                 response.Service[0].ServiceCost.FuelChargeOverweightListPrice = 0;
