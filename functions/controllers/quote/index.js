@@ -13,7 +13,7 @@ const express_1 = require("express");
 const quote_1 = require("../../estafetaAPI/quote");
 const router = (0, express_1.Router)();
 router.post("/quote", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _0;
+    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _0, _1, _2, _3;
     let response;
     if (req.body.type == "nacional") {
         const services = yield (0, quote_1.handleCotizacion)(req.body);
@@ -70,13 +70,13 @@ router.post("/quote", (req, res) => __awaiter(void 0, void 0, void 0, function* 
         if (!req.body.IsRecoleccion) {
             for (const response of services.Response) {
                 response.Service[0].ServiceCost.InsuredCost = 0;
-                response.Service[0].ServiceCost.VATApplied = 0;
-                response.Service[0].ServiceCost.ContingencyChargeListPrice = ((_g = (_f = (_e = response.Service) === null || _e === void 0 ? void 0 : _e[0]) === null || _f === void 0 ? void 0 : _f.ServiceCost) === null || _g === void 0 ? void 0 : _g.ContingencyChargeListPrice) ? ((_k = (_j = (_h = response.Service) === null || _h === void 0 ? void 0 : _h[0]) === null || _j === void 0 ? void 0 : _j.ServiceCost) === null || _k === void 0 ? void 0 : _k.ContingencyChargeListPrice) * 1.04 : 0;
+                const vatApplied = ((_g = (_f = (_e = response.Service) === null || _e === void 0 ? void 0 : _e[0]) === null || _f === void 0 ? void 0 : _f.ServiceCost) === null || _g === void 0 ? void 0 : _g.VATApplied) ? (response.Service[0].ServiceCost.VATApplied / 100) + 1 : 1.04;
+                response.Service[0].ServiceCost.ContingencyChargeListPrice = ((_k = (_j = (_h = response.Service) === null || _h === void 0 ? void 0 : _h[0]) === null || _j === void 0 ? void 0 : _j.ServiceCost) === null || _k === void 0 ? void 0 : _k.ContingencyChargeListPrice) ? ((_o = (_m = (_l = response.Service) === null || _l === void 0 ? void 0 : _l[0]) === null || _m === void 0 ? void 0 : _m.ServiceCost) === null || _o === void 0 ? void 0 : _o.ContingencyChargeListPrice) * vatApplied : 0;
                 response.Service[0].ServiceCost.OverweightListPrice = 0;
                 response.Service[0].ServiceCost.FuelChargeOverweightListPrice = 0;
-                response.Service[0].ServiceCost.ListPrice = ((_o = (_m = (_l = response.Service) === null || _l === void 0 ? void 0 : _l[0]) === null || _m === void 0 ? void 0 : _m.ServiceCost) === null || _o === void 0 ? void 0 : _o.ListPrice) ? ((_r = (_q = (_p = response.Service) === null || _p === void 0 ? void 0 : _p[0]) === null || _q === void 0 ? void 0 : _q.ServiceCost) === null || _r === void 0 ? void 0 : _r.ListPrice) * 1.04 : 0;
-                response.Service[0].ServiceCost["FuelChargeListPrice "] = ((_u = (_t = (_s = response.Service) === null || _s === void 0 ? void 0 : _s[0]) === null || _t === void 0 ? void 0 : _t.ServiceCost) === null || _u === void 0 ? void 0 : _u["FuelChargeListPrice "]) ? ((_x = (_w = (_v = response.Service) === null || _v === void 0 ? void 0 : _v[0]) === null || _w === void 0 ? void 0 : _w.ServiceCost) === null || _x === void 0 ? void 0 : _x["FuelChargeListPrice "]) * 1.04 : 0;
-                response.Service[0].ServiceCost.TotalAmount = parseFloat((response.Service[0].ServiceCost.ListPrice + ((_0 = (_z = (_y = response.Service) === null || _y === void 0 ? void 0 : _y[0]) === null || _z === void 0 ? void 0 : _z.ServiceCost) === null || _0 === void 0 ? void 0 : _0.ContingencyChargeListPrice) + response.Service[0].ServiceCost["FuelChargeListPrice "]).toFixed(2));
+                response.Service[0].ServiceCost.ListPrice = ((_r = (_q = (_p = response.Service) === null || _p === void 0 ? void 0 : _p[0]) === null || _q === void 0 ? void 0 : _q.ServiceCost) === null || _r === void 0 ? void 0 : _r.ListPrice) ? ((_u = (_t = (_s = response.Service) === null || _s === void 0 ? void 0 : _s[0]) === null || _t === void 0 ? void 0 : _t.ServiceCost) === null || _u === void 0 ? void 0 : _u.ListPrice) * vatApplied : 0;
+                response.Service[0].ServiceCost["FuelChargeListPrice "] = ((_x = (_w = (_v = response.Service) === null || _v === void 0 ? void 0 : _v[0]) === null || _w === void 0 ? void 0 : _w.ServiceCost) === null || _x === void 0 ? void 0 : _x["FuelChargeListPrice "]) ? ((_0 = (_z = (_y = response.Service) === null || _y === void 0 ? void 0 : _y[0]) === null || _z === void 0 ? void 0 : _z.ServiceCost) === null || _0 === void 0 ? void 0 : _0["FuelChargeListPrice "]) * vatApplied : 0;
+                response.Service[0].ServiceCost.TotalAmount = parseFloat((response.Service[0].ServiceCost.ListPrice + ((_3 = (_2 = (_1 = response.Service) === null || _1 === void 0 ? void 0 : _1[0]) === null || _2 === void 0 ? void 0 : _2.ServiceCost) === null || _3 === void 0 ? void 0 : _3.ContingencyChargeListPrice) + response.Service[0].ServiceCost["FuelChargeListPrice "]).toFixed(2));
             }
         }
         else {
