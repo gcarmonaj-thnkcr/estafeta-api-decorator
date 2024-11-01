@@ -80,7 +80,7 @@ router.post("/quote", async(req: Request, res: Response): Promise<any> => {
 
         totalAmount = totalAmount + response.Service[0].ServiceCost.ContingencyChargeListPrice + response.Service[0].ServiceCost.ListPrice + response.Service[0].ServiceCost["FuelChargeListPrice "]
 
-        response.Service[0].ServiceCost.TotalAmount = parseFloat((response.Service[0].ServiceCost.TotalAmount).toFixed(2));
+        response.Service[0].ServiceCost.TotalAmount = parseFloat((totalAmount).toFixed(2));
       }
     }
     response = services

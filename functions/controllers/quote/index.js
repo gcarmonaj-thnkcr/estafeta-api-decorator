@@ -87,7 +87,7 @@ router.post("/quote", (req, res) => __awaiter(void 0, void 0, void 0, function* 
                 response.Service[0].ServiceCost.ListPrice = ((_24 = (_23 = (_22 = response.Service) === null || _22 === void 0 ? void 0 : _22[0]) === null || _23 === void 0 ? void 0 : _23.ServiceCost) === null || _24 === void 0 ? void 0 : _24.ListPrice) ? ((_27 = (_26 = (_25 = response.Service) === null || _25 === void 0 ? void 0 : _25[0]) === null || _26 === void 0 ? void 0 : _26.ServiceCost) === null || _27 === void 0 ? void 0 : _27.ListPrice) * vatApplied : 0;
                 response.Service[0].ServiceCost["FuelChargeListPrice "] = ((_30 = (_29 = (_28 = response.Service) === null || _28 === void 0 ? void 0 : _28[0]) === null || _29 === void 0 ? void 0 : _29.ServiceCost) === null || _30 === void 0 ? void 0 : _30["FuelChargeListPrice "]) ? ((_33 = (_32 = (_31 = response.Service) === null || _31 === void 0 ? void 0 : _31[0]) === null || _32 === void 0 ? void 0 : _32.ServiceCost) === null || _33 === void 0 ? void 0 : _33["FuelChargeListPrice "]) * vatApplied : 0;
                 totalAmount = totalAmount + response.Service[0].ServiceCost.ContingencyChargeListPrice + response.Service[0].ServiceCost.ListPrice + response.Service[0].ServiceCost["FuelChargeListPrice "];
-                response.Service[0].ServiceCost.TotalAmount = parseFloat((response.Service[0].ServiceCost.TotalAmount).toFixed(2));
+                response.Service[0].ServiceCost.TotalAmount = parseFloat((totalAmount).toFixed(2));
             }
         }
         response = services;
