@@ -67,8 +67,20 @@ router.post("/quote", async(req: Request, res: Response): Promise<any> => {
         response.Service[0].ServiceCost.TotalAmount = parseFloat((response.Service[0].ServiceCost.ListPrice + response.Service?.[0]?.ServiceCost?.ContingencyChargeListPrice + response.Service[0].ServiceCost["FuelChargeListPrice "]).toFixed(2))
       }
     } else {
-      for(const service of services.Response) {
-        service.Service[0].ServiceCost.TotalAmount = parseFloat((service.Service[0].ServiceCost.TotalAmount).toFixed(2));
+      for(const response of services.Response) {
+        const vatApplied = response.Service?.[0]?.ServiceCost?.VATApplied ? (response.Service[0].ServiceCost.VATApplied / 100) + 1 : 0
+
+        let totalAmount = response.Service[0].ServiceCost.TotalAmount - (response.Service?.[0]?.ServiceCost?.ContingencyChargeListPrice ?? 0) - (response.Service?.[0]?.ServiceCost?.ListPrice ?? 0) - (response.Service[0].ServiceCost["FuelChargeListPrice "] ?? 0)
+
+        response.Service[0].ServiceCost.ContingencyChargeListPrice = response.Service?.[0]?.ServiceCost?.ContingencyChargeListPrice ? response.Service?.[0]?.ServiceCost?.ContingencyChargeListPrice * vatApplied : 0
+
+        response.Service[0].ServiceCost.ListPrice = response.Service?.[0]?.ServiceCost?.ListPrice ? response.Service?.[0]?.ServiceCost?.ListPrice * vatApplied : 0
+
+        response.Service[0].ServiceCost["FuelChargeListPrice "] = response.Service?.[0]?.ServiceCost?.["FuelChargeListPrice "] ? response.Service?.[0]?.ServiceCost?.["FuelChargeListPrice "] * vatApplied : 0
+
+        totalAmount = totalAmount + response.Service[0].ServiceCost.ContingencyChargeListPrice + response.Service[0].ServiceCost.ListPrice + response.Service[0].ServiceCost["FuelChargeListPrice "]
+
+        response.Service[0].ServiceCost.TotalAmount = parseFloat((response.Service[0].ServiceCost.TotalAmount).toFixed(2));
       }
     }
     response = services
