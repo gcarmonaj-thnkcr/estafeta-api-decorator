@@ -23,10 +23,4 @@ router.post("/payment/webhook", async (req: Request, res: Response): Promise<any
   return res.sendStatus(200)
 })
 
-router.post("/orders/pull", async (req: Request, res: Response): Promise<any> => {
-  // Post to recive a PUSH notification from estafeta API process
-  console.log(req.body)
-  return res.sendStatus(200)
-})
-
 export default router
