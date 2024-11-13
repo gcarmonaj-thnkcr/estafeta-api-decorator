@@ -123,5 +123,27 @@
                 "resultFolioOrder": "TDA-00805"
             }
         ]
+    },
+    "InputPushTrackingItem": {
+        "thirdPL": "Estafeta",
+        "Item": [
+            {
+                "Code": "0145021296537700457435",
+                "DevolutionCode": "5019999999089630000135",
+                "Reference": "39270493",
+                "EstimatedDeliveryDate": "2023-10-30T00:00:00",
+                "Status": {
+                    "Code": "02",
+                    "Name": "En Transito",
+                    "EventCode": "02",
+                    "DeliveredItemName": "",
+                    "ReasonCode": "",
+                    "ReasonCodeDescription": "En tránsito",
+                    "EventDateTime": "2023-10-26T17:04:00",
+                    "DeliveredDateTime": "",
+                    "Township": "Centro de Int. SLP"
+                }
+            }
+        ]
     }
 }
