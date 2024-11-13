@@ -30,4 +30,11 @@ router.post("/payment/webhook", (req, res) => __awaiter(void 0, void 0, void 0, 
         return res.status(500).send({ message: err.message });
     }
 }));
+router.post("/waybills/webhook", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    // Post to recive a PUSH notification from estafeta API process
+    console.log(req.body);
+    const pushTrackingRequest = req.body;
+    // ToDo: Implement the logic to update the waybill status
+    return res.sendStatus(200);
+}));
 exports.default = router;
