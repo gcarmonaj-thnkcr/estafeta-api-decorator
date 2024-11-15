@@ -463,6 +463,11 @@ const addPaymentToOrders = (data, order, customer) => __awaiter(void 0, void 0, 
                         value: codes[0].OrderSAP,
                     },
                     {
+                        action: "setCustomField",
+                        name: "invoice",
+                        value: "No Facturada",
+                    },
+                    {
                         action: "setOrderNumber",
                         orderNumber: newOrder
                     }
@@ -525,6 +530,11 @@ const addPaymentToOrders = (data, order, customer) => __awaiter(void 0, void 0, 
                         action: "setCustomField",
                         name: "ordenSap",
                         value: codes[0].OrderSAP,
+                    },
+                    {
+                        action: "setCustomField",
+                        name: "invoice",
+                        value: "No Facturada",
                     },
                     {
                         action: "setOrderNumber",

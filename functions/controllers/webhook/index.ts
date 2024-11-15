@@ -7,7 +7,6 @@ const router = Router()
 
 router.post("/payment/webhook", async (req: Request, res: Response): Promise<any> => {
   try{
-    console.log("llegue")
     const paymentInfo: ITransactionEvent = req.body
     console.log(paymentInfo.transaction)
     if(paymentInfo.transaction.status != "completed") return res.sendStatus(200)

@@ -506,6 +506,11 @@ export const addPaymentToOrders = async (data: ITransactionEvent, order: Order, 
           value: codes[0].OrderSAP,
         },
         {
+          action: "setCustomField",
+          name: "invoice",
+          value: "No Facturada",
+        },
+        {
           action: "setOrderNumber",
           orderNumber: newOrder
         }
@@ -570,6 +575,11 @@ export const addPaymentToOrders = async (data: ITransactionEvent, order: Order, 
           action: "setCustomField",
           name: "ordenSap",
           value: codes[0].OrderSAP,
+        },
+        {
+          action: "setCustomField",
+          name: "invoice",
+          value: "No Facturada",
         },
         {
           action: "setOrderNumber",
