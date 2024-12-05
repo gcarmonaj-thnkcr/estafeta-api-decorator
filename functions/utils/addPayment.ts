@@ -83,6 +83,50 @@ export const addPaymentToOrdersRecoleccion = async (data: ITransactionEvent, ord
 
   const guides: IOrderSelected[] = JSON.parse(order.lineItems[0].custom?.fields["guia"])
   const date = order.lineItems[0].custom?.fields["adicionales"]
+
+  const orders = await apiRoot.orders().get({
+    queryArgs: {
+      sort: `createdAt desc`,
+      where: `orderNumber is defined`
+    }
+  }).execute()
+
+  if (!orders.body.results[0].orderNumber) return
+  const quantityTotalGuides = 0
+  const orderSplit = orders.body.results[0].orderNumber.split('D')
+  let newOrder = `${orderSplit[0]}D${String(parseInt(orderSplit[1]) + 1).padStart(6, "0")}`
+
+  const createPurchaseOrder = async (): Promise<any> => {
+    const purchaseOrder = await WSPurchaseOrder({ order: order, code: newOrder, idPaymentService: data.transaction.id, methodName: "Openpay", customer, quantityTotalGuides })
+    debugger
+    if (purchaseOrder.result.Code > 0) {
+      if (purchaseOrder.result.Description.includes("REPEATED_TICKET")) {
+        const orderSplit = newOrder.split('D')
+        newOrder = `${orderSplit[0]}D${String(parseInt(orderSplit[1]) + 1).padStart(6, "0")}`
+        return await createPurchaseOrder();
+      }
+      return {
+        purchaseOrder: undefined,
+        orderId: '',
+        message: purchaseOrder.result.Description
+      }
+    }
+    return {
+      purchaseOrder: purchaseOrder,
+      orderId: '',
+      message: purchaseOrder.result.Description
+    }
+  }
+
+  const purchaseResult = await createPurchaseOrder()
+
+  if (!purchaseResult.purchaseOrder) return {
+    message: purchaseResult.message,
+    orderId: "",
+  }
+
+  const purchaseOrder = purchaseResult.purchaseOrder
+  const codes = purchaseOrder.resultPurchaseOrder
   
   for (const guide of guides) {
     // const guide = items.custom?.fields["guia"]
@@ -180,7 +224,7 @@ export const addPaymentToOrdersRecoleccion = async (data: ITransactionEvent, ord
     }
   }
 
-
+  /*
   //Descontamos guias
   let versionCustomer = customer.version
   let quantityGuideAvailablesSiguiente = customerCopy.custom?.fields["quantity-guides-dia-siguiente"]
@@ -264,7 +308,7 @@ export const addPaymentToOrdersRecoleccion = async (data: ITransactionEvent, ord
       versionCustomer = updateQuantityUser.body.version
     }
   }
-
+  */
   const addPaymentToOrder = await apiRoot.orders().withId({ ID: order.id }).post({
     body: {
       version: order.version,
@@ -279,6 +323,11 @@ export const addPaymentToOrdersRecoleccion = async (data: ITransactionEvent, ord
         {
           action: "changePaymentState",
           paymentState: "Paid"
+        },
+        {
+          action: 'setCustomField',
+          name: 'ordenSap',
+          value: codes[0].OrderSAP
         }
       ]
     }
@@ -303,7 +352,7 @@ export const addPaymentToOrders = async (data: ITransactionEvent, order: Order, 
 
   if (!orders.body.results[0].orderNumber) return
   const orderSplit = orders.body.results[0].orderNumber.split('D')
-  let newOrder = `${orderSplit[0]}D${parseInt(orderSplit[1]) + 1}`
+  let newOrder = `${orderSplit[0]}D${String(parseInt(orderSplit[1]) + 1).padStart(6, "0")}`
 
   const createPayment = await apiRoot.payments().post({
     body: {
@@ -339,7 +388,7 @@ export const addPaymentToOrders = async (data: ITransactionEvent, order: Order, 
     if (purchaseOrder.result.Code > 0) {
       if (purchaseOrder.result.Description.includes("REPEATED_TICKET")) {
         const orderSplit = newOrder.split('D')
-        newOrder = `${orderSplit[0]}D${parseInt(orderSplit[1]) + 1}`
+        newOrder = `${orderSplit[0]}D${String(parseInt(orderSplit[1]) + 1).padStart(6, "0")}`
         return await createPurchaseOrder();
       }
       return {
