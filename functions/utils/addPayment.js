@@ -45,7 +45,7 @@ const addPaymentToOrder = (body) => __awaiter(void 0, void 0, void 0, function* 
 });
 exports.addPaymentToOrder = addPaymentToOrder;
 const addPaymentToOrdersRecoleccion = (data, order, customer) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _0, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _20, _21, _22, _23, _24;
+    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _0, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _20;
     let customerCopy = customer;
     let orderVersion = order.version;
     const createPayment = yield client_1.apiRoot.payments().post({
@@ -80,6 +80,46 @@ const addPaymentToOrdersRecoleccion = (data, order, customer) => __awaiter(void 
     const mapGuide = {};
     const guides = JSON.parse((_a = order.lineItems[0].custom) === null || _a === void 0 ? void 0 : _a.fields["guia"]);
     const date = (_b = order.lineItems[0].custom) === null || _b === void 0 ? void 0 : _b.fields["adicionales"];
+    const orders = yield client_1.apiRoot.orders().get({
+        queryArgs: {
+            sort: `createdAt desc`,
+            where: `orderNumber is defined`
+        }
+    }).execute();
+    if (!orders.body.results[0].orderNumber)
+        return;
+    const quantityTotalGuides = 0;
+    const orderSplit = orders.body.results[0].orderNumber.split('D');
+    let newOrder = `${orderSplit[0]}D${String(parseInt(orderSplit[1]) + 1).padStart(6, "0")}`;
+    const createPurchaseOrder = () => __awaiter(void 0, void 0, void 0, function* () {
+        const purchaseOrder = yield (0, purchaseOrder_1.WSPurchaseOrder)({ order: order, code: newOrder, idPaymentService: data.transaction.id, methodName: "Openpay", customer, quantityTotalGuides });
+        debugger;
+        if (purchaseOrder.result.Code > 0) {
+            if (purchaseOrder.result.Description.includes("REPEATED_TICKET")) {
+                const orderSplit = newOrder.split('D');
+                newOrder = `${orderSplit[0]}D${String(parseInt(orderSplit[1]) + 1).padStart(6, "0")}`;
+                return yield createPurchaseOrder();
+            }
+            return {
+                purchaseOrder: undefined,
+                orderId: '',
+                message: purchaseOrder.result.Description
+            };
+        }
+        return {
+            purchaseOrder: purchaseOrder,
+            orderId: '',
+            message: purchaseOrder.result.Description
+        };
+    });
+    const purchaseResult = yield createPurchaseOrder();
+    if (!purchaseResult.purchaseOrder)
+        return {
+            message: purchaseResult.message,
+            orderId: "",
+        };
+    const purchaseOrder = purchaseResult.purchaseOrder;
+    const codes = purchaseOrder.resultPurchaseOrder;
     for (const guide of guides) {
         // const guide = items.custom?.fields["guia"]
         // const QR = items.custom?.fields["folio_md5"]
@@ -152,88 +192,91 @@ const addPaymentToOrdersRecoleccion = (data, order, customer) => __awaiter(void 
             isUso: false
         };
     }
+    /*
     //Descontamos guias
-    let versionCustomer = customer.version;
-    let quantityGuideAvailablesSiguiente = (_21 = customerCopy.custom) === null || _21 === void 0 ? void 0 : _21.fields["quantity-guides-dia-siguiente"];
-    let quantityGuideAvailablesTerrestre = (_22 = customer.custom) === null || _22 === void 0 ? void 0 : _22.fields["quantity-guides-terrestres"];
-    let quantityGuideAvailablesDosDias = (_23 = customer.custom) === null || _23 === void 0 ? void 0 : _23.fields["quantity-guides-dos-dias"];
-    let quantityGuideAvailablesDoce = (_24 = customer.custom) === null || _24 === void 0 ? void 0 : _24.fields["quantity-guides-doce-treinta"];
+    let versionCustomer = customer.version
+    let quantityGuideAvailablesSiguiente = customerCopy.custom?.fields["quantity-guides-dia-siguiente"]
+    let quantityGuideAvailablesTerrestre = customer.custom?.fields["quantity-guides-terrestres"]
+    let quantityGuideAvailablesDosDias = customer.custom?.fields["quantity-guides-dos-dias"]
+    let quantityGuideAvailablesDoce = customer.custom?.fields["quantity-guides-doce-treinta"]
+  
     for (const guide of guides) {
-        if (guide.typeGuide == "DIA SIGUIENTE") {
-            quantityGuideAvailablesSiguiente = quantityGuideAvailablesSiguiente - 1;
-            try {
-                const updateQuantityUser = yield client_1.apiRoot.customers().withId({ ID: customer.id }).post({
-                    body: {
-                        version: versionCustomer,
-                        actions: [
-                            {
-                                action: "setCustomField",
-                                name: "quantity-guides-dia-siguiente",
-                                value: quantityGuideAvailablesSiguiente
-                            }
-                        ]
-                    }
-                }).execute();
-                versionCustomer = updateQuantityUser.body.version;
-            }
-            catch (err) {
-                console.log(err.message);
-            }
-        }
-        else if (guide.typeGuide == "TERRESTRE") {
-            quantityGuideAvailablesTerrestre = quantityGuideAvailablesTerrestre - 1;
-            try {
-                const updateQuantityUser = yield client_1.apiRoot.customers().withId({ ID: customer.id }).post({
-                    body: {
-                        version: versionCustomer,
-                        actions: [
-                            {
-                                action: "setCustomField",
-                                name: "quantity-guides-terrestres",
-                                value: quantityGuideAvailablesTerrestre
-                            }
-                        ]
-                    }
-                }).execute();
-                versionCustomer = updateQuantityUser.body.version;
-            }
-            catch (err) {
-                console.log(err.message);
-            }
-        }
-        else if (guide.typeGuide == "DOS DIAS") {
-            quantityGuideAvailablesDosDias = quantityGuideAvailablesDosDias - 1;
-            const updateQuantityUser = yield client_1.apiRoot.customers().withId({ ID: customer.id }).post({
-                body: {
-                    version: versionCustomer,
-                    actions: [
-                        {
-                            action: "setCustomField",
-                            name: "quantity-guides-dos-dias",
-                            value: quantityGuideAvailablesDosDias
-                        }
-                    ]
+  
+      if (guide.typeGuide == "DIA SIGUIENTE") {
+        quantityGuideAvailablesSiguiente = quantityGuideAvailablesSiguiente - 1
+        try {
+          const updateQuantityUser = await apiRoot.customers().withId({ ID: customer.id }).post({
+            body: {
+              version: versionCustomer,
+              actions: [
+                {
+                  action: "setCustomField",
+                  name: "quantity-guides-dia-siguiente",
+                  value: quantityGuideAvailablesSiguiente
                 }
-            }).execute();
-            versionCustomer = updateQuantityUser.body.version;
+              ]
+            }
+          }).execute()
+          versionCustomer = updateQuantityUser.body.version
+        } catch (err: any) {
+          console.log(err.message)
         }
-        else if (guide.typeGuide == "12:30") {
-            quantityGuideAvailablesDoce = quantityGuideAvailablesDoce - 1;
-            const updateQuantityUser = yield client_1.apiRoot.customers().withId({ ID: customer.id }).post({
-                body: {
-                    version: versionCustomer,
-                    actions: [
-                        {
-                            action: "setCustomField",
-                            name: "quantity-guides-doce-treinta",
-                            value: quantityGuideAvailablesDoce
-                        }
-                    ]
+      }
+      else if (guide.typeGuide == "TERRESTRE") {
+        quantityGuideAvailablesTerrestre = quantityGuideAvailablesTerrestre - 1
+        try {
+          const updateQuantityUser = await apiRoot.customers().withId({ ID: customer.id }).post({
+            body: {
+              version: versionCustomer,
+              actions: [
+                {
+                  action: "setCustomField",
+                  name: "quantity-guides-terrestres",
+                  value: quantityGuideAvailablesTerrestre
                 }
-            }).execute();
-            versionCustomer = updateQuantityUser.body.version;
+              ]
+            }
+          }).execute()
+          versionCustomer = updateQuantityUser.body.version
+        } catch (err: any) {
+          console.log(err.message)
         }
+      }
+      else if (guide.typeGuide == "DOS DIAS") {
+        quantityGuideAvailablesDosDias = quantityGuideAvailablesDosDias - 1
+        const updateQuantityUser = await apiRoot.customers().withId({ ID: customer.id }).post({
+          body: {
+            version: versionCustomer,
+            actions: [
+              {
+                action: "setCustomField",
+                name: "quantity-guides-dos-dias",
+                value: quantityGuideAvailablesDosDias
+              }
+            ]
+          }
+        }).execute()
+        versionCustomer = updateQuantityUser.body.version
+      }
+  
+      else if (guide.typeGuide == "12:30") {
+        quantityGuideAvailablesDoce = quantityGuideAvailablesDoce - 1
+        const updateQuantityUser = await apiRoot.customers().withId({ ID: customer.id }).post({
+          body: {
+            version: versionCustomer,
+            actions: [
+              {
+                action: "setCustomField",
+                name: "quantity-guides-doce-treinta",
+                value: quantityGuideAvailablesDoce
+              }
+            ]
+          }
+        }).execute()
+        versionCustomer = updateQuantityUser.body.version
+      }
     }
+    */
     const addPaymentToOrder = yield client_1.apiRoot.orders().withId({ ID: order.id }).post({
         body: {
             version: order.version,
@@ -248,6 +291,11 @@ const addPaymentToOrdersRecoleccion = (data, order, customer) => __awaiter(void 
                 {
                     action: "changePaymentState",
                     paymentState: "Paid"
+                },
+                {
+                    action: 'setCustomField',
+                    name: 'ordenSap',
+                    value: codes[0].OrderSAP
                 }
             ]
         }
@@ -272,7 +320,7 @@ const addPaymentToOrders = (data, order, customer) => __awaiter(void 0, void 0, 
     if (!orders.body.results[0].orderNumber)
         return;
     const orderSplit = orders.body.results[0].orderNumber.split('D');
-    let newOrder = `${orderSplit[0]}D${parseInt(orderSplit[1]) + 1}`;
+    let newOrder = `${orderSplit[0]}D${String(parseInt(orderSplit[1]) + 1).padStart(6, "0")}`;
     const createPayment = yield client_1.apiRoot.payments().post({
         body: {
             key: data.transaction.id,
@@ -306,7 +354,7 @@ const addPaymentToOrders = (data, order, customer) => __awaiter(void 0, void 0, 
         if (purchaseOrder.result.Code > 0) {
             if (purchaseOrder.result.Description.includes("REPEATED_TICKET")) {
                 const orderSplit = newOrder.split('D');
-                newOrder = `${orderSplit[0]}D${parseInt(orderSplit[1]) + 1}`;
+                newOrder = `${orderSplit[0]}D${String(parseInt(orderSplit[1]) + 1).padStart(6, "0")}`;
                 return yield createPurchaseOrder();
             }
             return {

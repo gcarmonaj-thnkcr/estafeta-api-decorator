@@ -51,9 +51,12 @@ router.get("/lifetimes", token_1.validateToken, (req, res) => __awaiter(void 0, 
     console.log("Lifetimes called");
     let orders = [];
     const endDate = req.headers.date;
+    const limit = parseInt(req.headers.limit) || 20;
+    const offset = parseInt(req.headers.offset) || 0;
     const orders_bundle = yield client_1.apiRoot.orders().get({
         queryArgs: {
-            limit: 500,
+            limit: limit,
+            offset: offset,
             sort: "createdAt desc",
             where: 'custom(fields(type-order="service")) and createdAt >= "2023-10-26T00:00:00Z"',
         }
@@ -64,21 +67,22 @@ router.get("/lifetimes", token_1.validateToken, (req, res) => __awaiter(void 0, 
         return res.sendStatus(204);
     console.log("Orders length: ", orders_bundle.body.results.length);
     const order_count = ((_a = orders_bundle.body.total) !== null && _a !== void 0 ? _a : 0) - 500;
-    console.log("Order count: ", order_count);
+    /*
+    console.log("Order count: ", order_count)
     for (let i = 501; i < order_count; i += 500) {
-        console.log("Offset: ", i);
-        const orders_bundle = yield client_1.apiRoot.orders().get({
-            queryArgs: {
-                limit: 500,
-                offset: i,
-                sort: "createdAt desc",
-                where: 'custom(fields(type-order="service"))',
-            }
-        }).execute();
-        if (orders_bundle.body.results.length <= 0)
-            return res.sendStatus(204);
-        orders = [...orders, ...orders_bundle.body.results];
+      console.log("Offset: ", i)
+      const orders_bundle = await apiRoot.orders().get({
+        queryArgs: {
+          limit: 500,
+          offset: i,
+          sort: "createdAt desc",
+          where: 'custom(fields(type-order="service"))',
+        }
+      }).execute()
+      if (orders_bundle.body.results.length <= 0) return res.sendStatus(204)
+      orders = [...orders, ...orders_bundle.body.results]
     }
+    */
     console.log("Orders: ", orders.length);
     //@ts-ignore
     const ordersCombo = orders.filter(order => order.lineItems.some(item => { var _a; return (_a = item.variant) === null || _a === void 0 ? void 0 : _a.attributes.some(attr => attr.name == "tipo-paquete" && attr.value["label"] == "UNIZONA"); }));
@@ -118,6 +122,10 @@ router.get("/lifetimes", token_1.validateToken, (req, res) => __awaiter(void 0, 
         }
     }
     return res.status(200).send({
+        limit: limit,
+        offset: offset,
+        count: orders_bundle.body.count,
+        total: orders_bundle.body.total,
         statusCode: 200,
         body: orderstoNotify,
     });
