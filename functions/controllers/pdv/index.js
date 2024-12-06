@@ -73,7 +73,7 @@ router.get("/pdv-services", token_1.validateToken, (req, res) => __awaiter(void 
             "TarriffFractionCode": "0",
             "consultaId": "99999999", /// Revisarlo con Memo
             "createdDate": (0, formaterDate_1.FormaterDate)(searchOrder.body.createdAt, false),
-            "availabledDate": `${(0, formaterDate_1.FormaterDate)(searchOrder.body.createdAt, false)} - ${(0, formaterDate_1.FormaterDate)(searchOrder.body.createdAt, false)}`,
+            "availabledDate": `${(0, formaterDate_1.FormaterDate)(new Date(searchOrder.body.createdAt).toISOString(), false)} - ${(0, formaterDate_1.FormaterDate)(new Date(new Date(searchOrder.body.createdAt).setDate(new Date(searchOrder.body.createdAt).getDate() + 30)).toISOString(), false)}`,
             "sender": {
                 "eMailClient": origin.email, //email del remitente
                 "isPudo": origin.isPudo ? "1" : "0",
