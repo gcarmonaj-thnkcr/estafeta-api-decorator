@@ -37,6 +37,9 @@ router.get("/pdv-services", validateToken, async (req: Request, res: Response): 
     console.log(servicesFind) 
     const { origin, destination } = servicesFind.address
 
+    const betweenRoadsOrigin = origin?.optionalAddress1?.includes(" y ") ? origin.optionalAddress1.split(" y ") : [origin.optionalAddress1];
+    const betweenRoadsDestination = destination?.optionalAddress1?.includes(" y ") ? destination.optionalAddress1.split(" y ") : [destination.optionalAddress1];
+
     const responseObject = {
       "pdvService": {
         "storeServiceOrder": searchOrder.body.id,
@@ -89,8 +92,8 @@ router.get("/pdv-services", validateToken, async (req: Request, res: Response): 
             "countryCode": "MX",
             "countryCodeAlfa3": "MEX",
             "countryName": "México",
-            "betweenRoadName1": origin?.optionalAddress1 ?? "",
-            "betweenRoadName2": "y"+" "+origin?.optionalAddress2,
+            "betweenRoadName1": betweenRoadsOrigin[0]? betweenRoadsOrigin[0] : origin?.optionalAddress1,
+            "betweenRoadName2": betweenRoadsOrigin[1]? betweenRoadsOrigin[1] : " ",
             "AddressReference": origin?.reference ?? "",
             "CountryCodePhone": "999",
             "LandlinePhone": origin.phone1,
@@ -126,8 +129,8 @@ router.get("/pdv-services", validateToken, async (req: Request, res: Response): 
               "countryCode": destination.countryCodeAlfa2? destination.countryCodeAlfa2 : "MX",
               "countryCodeAlfa3": destination.countryCodeAlfa3? destination.countryCodeAlfa3 : "MEX",
               "countryName": destination.country? destination.country : "México",
-              "betweenRoadName1": destination?.optionalAddress1 ?? "",
-              "betweenRoadName2": "y"+" "+destination?.optionalAddress2,
+              "betweenRoadName1": betweenRoadsDestination[0]? betweenRoadsDestination[0] : destination?.optionalAddress1,
+              "betweenRoadName2": betweenRoadsDestination[1]? betweenRoadsDestination[1] : " ",
               "AddressReference": destination?.reference ?? "",
               "CountryCodePhone": "",
               "LandlinePhone": destination.phone1,
