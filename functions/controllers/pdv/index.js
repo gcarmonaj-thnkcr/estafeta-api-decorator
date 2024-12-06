@@ -15,7 +15,7 @@ const client_1 = require("../../commercetools/client");
 const formaterDate_1 = require("../../utils/formaterDate");
 const router = (0, express_1.Router)();
 router.get("/pdv-services", token_1.validateToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _0, _1, _2, _3, _4, _5;
+    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _0, _1, _2, _3, _4, _5, _6, _7, _8, _9;
     const qr = req.headers.qr;
     if (!qr || qr == '')
         return res.sendStatus(404);
@@ -83,7 +83,7 @@ router.get("/pdv-services", token_1.validateToken, (req, res) => __awaiter(void 
                 "isSender": "1",
                 "Alias": origin.alias,
                 "TaxPayer": "",
-                "CompleteName": (_t = (_s = (_r = origin === null || origin === void 0 ? void 0 : origin.firstName) !== null && _r !== void 0 ? _r : "" + " " + (origin === null || origin === void 0 ? void 0 : origin.lastName)) !== null && _s !== void 0 ? _s : "" + " " + (origin === null || origin === void 0 ? void 0 : origin.middleName)) !== null && _t !== void 0 ? _t : "",
+                "CompleteName": `${(_r = origin === null || origin === void 0 ? void 0 : origin.firstName) !== null && _r !== void 0 ? _r : ""} ${(_s = origin === null || origin === void 0 ? void 0 : origin.lastName) !== null && _s !== void 0 ? _s : ""} ${(_t = origin === null || origin === void 0 ? void 0 : origin.middleName) !== null && _t !== void 0 ? _t : ""}`,
                 "zipCode": origin.postalCode,
                 "roadTypeCode": "9999",
                 "roadTypeName": origin.road,
@@ -101,12 +101,12 @@ router.get("/pdv-services", token_1.validateToken, (req, res) => __awaiter(void 
                 "countryCode": "MX",
                 "countryCodeAlfa3": "MEX",
                 "countryName": "México",
-                "betweenRoadName1": betweenRoadsOrigin[0] ? betweenRoadsOrigin[0] : (origin === null || origin === void 0 ? void 0 : origin.optionalAddress1) ? " y " : "",
-                "betweenRoadName2": betweenRoadsOrigin[1] ? betweenRoadsOrigin[1] : " ",
-                "AddressReference": (_v = origin === null || origin === void 0 ? void 0 : origin.reference) !== null && _v !== void 0 ? _v : "",
+                "betweenRoadName1": (_v = betweenRoadsOrigin[0]) !== null && _v !== void 0 ? _v : ((origin === null || origin === void 0 ? void 0 : origin.optionalAddress1) == " y " ? "" : ""),
+                "betweenRoadName2": (_w = betweenRoadsOrigin[1]) !== null && _w !== void 0 ? _w : " ",
+                "AddressReference": (_x = origin === null || origin === void 0 ? void 0 : origin.reference) !== null && _x !== void 0 ? _x : "",
                 "CountryCodePhone": "999",
                 "LandlinePhone": origin.phone1,
-                "CellPhone": (_w = origin === null || origin === void 0 ? void 0 : origin.phon2) !== null && _w !== void 0 ? _w : "",
+                "CellPhone": (_y = origin === null || origin === void 0 ? void 0 : origin.phon2) !== null && _y !== void 0 ? _y : "",
                 "ContacteMail": origin.email,
                 "Latitude": 99999.99,
                 "Longitude": 99999.99,
@@ -114,19 +114,19 @@ router.get("/pdv-services", token_1.validateToken, (req, res) => __awaiter(void 
                 "recipient": {
                     "eMailClient": destination.email, //email del destinatario
                     "isPudo": destination.isPudo ? "1" : "0",
-                    "EquivalentCode": destination.isPudo ? (_x = destination.pudoInfo) === null || _x === void 0 ? void 0 : _x.EquivalentCode : "",
-                    "TyoeLocationName": destination.isPudo ? (_y = destination.pudoInfo) === null || _y === void 0 ? void 0 : _y.TyoeLocationName : "",
-                    "SpaceOwnerName": destination.isPudo ? (_z = destination.pudoInfo) === null || _z === void 0 ? void 0 : _z.SpaceOwnerName : "",
+                    "EquivalentCode": destination.isPudo ? (_z = destination.pudoInfo) === null || _z === void 0 ? void 0 : _z.EquivalentCode : "",
+                    "TyoeLocationName": destination.isPudo ? (_0 = destination.pudoInfo) === null || _0 === void 0 ? void 0 : _0.TyoeLocationName : "",
+                    "SpaceOwnerName": destination.isPudo ? (_1 = destination.pudoInfo) === null || _1 === void 0 ? void 0 : _1.SpaceOwnerName : "",
                     "isSender": "0",
                     "Alias": destination.alias,
                     "TaxPayer": "",
-                    "CompleteName": (_2 = (_1 = (_0 = destination === null || destination === void 0 ? void 0 : destination.firstName) !== null && _0 !== void 0 ? _0 : "" + " " + (destination === null || destination === void 0 ? void 0 : destination.lastName)) !== null && _1 !== void 0 ? _1 : "" + " " + (destination === null || destination === void 0 ? void 0 : destination.middleName)) !== null && _2 !== void 0 ? _2 : "",
+                    "CompleteName": (_4 = (_3 = (_2 = destination === null || destination === void 0 ? void 0 : destination.firstName) !== null && _2 !== void 0 ? _2 : "" + " " + (destination === null || destination === void 0 ? void 0 : destination.lastName)) !== null && _3 !== void 0 ? _3 : "" + " " + (destination === null || destination === void 0 ? void 0 : destination.middleName)) !== null && _4 !== void 0 ? _4 : "",
                     "zipCode": destination.postalCode,
                     "roadTypeCode": "",
                     "roadTypeName": destination.road,
                     "street": destination.street,
                     "externalNum": destination.exteriorNumber,
-                    "indoreInformation": (_3 = destination === null || destination === void 0 ? void 0 : destination.interiorNumber) !== null && _3 !== void 0 ? _3 : "",
+                    "indoreInformation": (_5 = destination === null || destination === void 0 ? void 0 : destination.interiorNumber) !== null && _5 !== void 0 ? _5 : "",
                     "settlementTypeCode": "",
                     "settlementTypeName": destination.settlement,
                     "SettlementTypeAbbName": destination.settlement.slice(0, 3),
@@ -138,12 +138,12 @@ router.get("/pdv-services", token_1.validateToken, (req, res) => __awaiter(void 
                     "countryCode": destination.countryCodeAlfa2 ? destination.countryCodeAlfa2 : "MX",
                     "countryCodeAlfa3": destination.countryCodeAlfa3 ? destination.countryCodeAlfa3 : "MEX",
                     "countryName": destination.country ? destination.country : "México",
-                    "betweenRoadName1": betweenRoadsDestination[0] ? betweenRoadsDestination[0] : (destination === null || destination === void 0 ? void 0 : destination.optionalAddress1) ? " y " : "",
-                    "betweenRoadName2": betweenRoadsDestination[1] ? betweenRoadsDestination[1] : " ",
-                    "AddressReference": (_4 = destination === null || destination === void 0 ? void 0 : destination.reference) !== null && _4 !== void 0 ? _4 : "",
+                    "betweenRoadName1": (_6 = betweenRoadsDestination[0]) !== null && _6 !== void 0 ? _6 : ((origin === null || origin === void 0 ? void 0 : origin.optionalAddress1) == " y " ? "" : ""),
+                    "betweenRoadName2": (_7 = betweenRoadsDestination[1]) !== null && _7 !== void 0 ? _7 : "",
+                    "AddressReference": (_8 = destination === null || destination === void 0 ? void 0 : destination.reference) !== null && _8 !== void 0 ? _8 : "",
                     "CountryCodePhone": "",
                     "LandlinePhone": destination.phone1,
-                    "CellPhone": (_5 = destination === null || destination === void 0 ? void 0 : destination.phon2) !== null && _5 !== void 0 ? _5 : "",
+                    "CellPhone": (_9 = destination === null || destination === void 0 ? void 0 : destination.phon2) !== null && _9 !== void 0 ? _9 : "",
                     "ContacteMail": destination.email,
                     "Latitude": 99999.99,
                     "Longitude": 99999.99,
