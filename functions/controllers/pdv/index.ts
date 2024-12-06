@@ -123,7 +123,7 @@ router.get("/pdv-services", validateToken, async (req: Request, res: Response): 
               "twnshipName": "",
               "stateCode": destination.stateCode,
               "stateName": destination.state,
-              "countryCode": destination.countryCode? destination.countryCode : "MX",
+              "countryCode": destination.countryCodeAlfa2? destination.countryCodeAlfa2 : "MX",
               "countryCodeAlfa3": destination.countryCodeAlfa3? destination.countryCodeAlfa3 : "MEX",
               "countryName": destination.country? destination.country : "México",
               "betweenRoadName1": destination?.optionalAddress1 ?? "",
