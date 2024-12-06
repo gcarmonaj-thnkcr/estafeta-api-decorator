@@ -114,9 +114,9 @@ router.get("/pdv-services", token_1.validateToken, (req, res) => __awaiter(void 
                 "recipient": {
                     "eMailClient": destination.email, //email del destinatario
                     "isPudo": servicesFind.isPudo ? "1" : "0",
-                    "EquivalentCode": servicesFind.isPudo ? (_z = destination.pudoInfo[0]) === null || _z === void 0 ? void 0 : _z.EquivalentCode : "",
-                    "TyoeLocationName": servicesFind.isPudo ? (_0 = destination.pudoInfo[0]) === null || _0 === void 0 ? void 0 : _0.SpaceOwnerName : "",
-                    "SpaceOwnerName": servicesFind.isPudo ? (_1 = destination.pudoInfo[0]) === null || _1 === void 0 ? void 0 : _1.OwnerCode : "",
+                    "EquivalentCode": servicesFind.isPudo ? (_z = destination.pudoinfo[0]) === null || _z === void 0 ? void 0 : _z.EquivalentCode : "",
+                    "TyoeLocationName": servicesFind.isPudo ? (_0 = destination.pudoinfo[0]) === null || _0 === void 0 ? void 0 : _0.SpaceOwnerName : "",
+                    "SpaceOwnerName": servicesFind.isPudo ? (_1 = destination.pudoinfo[0]) === null || _1 === void 0 ? void 0 : _1.OwnerCode : "",
                     "isSender": "0",
                     "Alias": destination.alias,
                     "TaxPayer": "",
