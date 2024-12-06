@@ -15,7 +15,7 @@ const client_1 = require("../../commercetools/client");
 const formaterDate_1 = require("../../utils/formaterDate");
 const router = (0, express_1.Router)();
 router.get("/pdv-services", token_1.validateToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _0, _1, _2;
+    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _0, _1, _2, _3, _4, _5;
     const qr = req.headers.qr;
     if (!qr || qr == '')
         return res.sendStatus(404);
@@ -76,12 +76,12 @@ router.get("/pdv-services", token_1.validateToken, (req, res) => __awaiter(void 
             "availabledDate": `${(0, formaterDate_1.FormaterDate)(searchOrder.body.createdAt, false)} - ${(0, formaterDate_1.FormaterDate)(searchOrder.body.createdAt, false)}`,
             "sender": {
                 "eMailClient": origin.email, //email del remitente
-                "isPudo": "0",
-                "EquivalentCode": "123",
-                "TyoeLocationName": "Nombre del Pudo",
-                "SpaceOwnerName": "Tipo de pudo",
-                "isSender": "0",
-                "Alias": "",
+                "isPudo": origin.isPudo ? "1" : "0",
+                "EquivalentCode": "",
+                "TyoeLocationName": "",
+                "SpaceOwnerName": "",
+                "isSender": "1",
+                "Alias": origin.alias,
                 "TaxPayer": "",
                 "CompleteName": (_t = (_s = (_r = origin === null || origin === void 0 ? void 0 : origin.firstName) !== null && _r !== void 0 ? _r : "" + " " + (origin === null || origin === void 0 ? void 0 : origin.lastName)) !== null && _s !== void 0 ? _s : "" + " " + (origin === null || origin === void 0 ? void 0 : origin.middleName)) !== null && _t !== void 0 ? _t : "",
                 "zipCode": origin.postalCode,
@@ -93,9 +93,9 @@ router.get("/pdv-services", token_1.validateToken, (req, res) => __awaiter(void 
                 "settlementTypeCode": "999",
                 "settlementTypeName": origin.settlement,
                 "SettlementTypeAbbName": origin.settlement.slice(0, 3),
-                "settlementName": "",
+                "settlementName": origin.settlement,
                 "twnshipCode": "",
-                "twnshipName": "",
+                "twnshipName": origin.municipality,
                 "stateCode": origin.stateCode,
                 "stateName": origin.state,
                 "countryCode": "MX",
@@ -113,26 +113,26 @@ router.get("/pdv-services", token_1.validateToken, (req, res) => __awaiter(void 
                 "IsActive": "True",
                 "recipient": {
                     "eMailClient": destination.email, //email del destinatario
-                    "isPudo": "0",
-                    "EquivalentCode": "",
-                    "TyoeLocationName": "",
-                    "SpaceOwnerName": "",
+                    "isPudo": destination.isPudo ? "1" : "0",
+                    "EquivalentCode": destination.isPudo ? (_x = destination.pudoInfo) === null || _x === void 0 ? void 0 : _x.EquivalentCode : "",
+                    "TyoeLocationName": destination.isPudo ? (_y = destination.pudoInfo) === null || _y === void 0 ? void 0 : _y.TyoeLocationName : "",
+                    "SpaceOwnerName": destination.isPudo ? (_z = destination.pudoInfo) === null || _z === void 0 ? void 0 : _z.SpaceOwnerName : "",
                     "isSender": "0",
-                    "Alias": "",
+                    "Alias": destination.alias,
                     "TaxPayer": "",
-                    "CompleteName": (_z = (_y = (_x = destination === null || destination === void 0 ? void 0 : destination.firstName) !== null && _x !== void 0 ? _x : "" + " " + (destination === null || destination === void 0 ? void 0 : destination.lastName)) !== null && _y !== void 0 ? _y : "" + " " + (destination === null || destination === void 0 ? void 0 : destination.middleName)) !== null && _z !== void 0 ? _z : "",
+                    "CompleteName": (_2 = (_1 = (_0 = destination === null || destination === void 0 ? void 0 : destination.firstName) !== null && _0 !== void 0 ? _0 : "" + " " + (destination === null || destination === void 0 ? void 0 : destination.lastName)) !== null && _1 !== void 0 ? _1 : "" + " " + (destination === null || destination === void 0 ? void 0 : destination.middleName)) !== null && _2 !== void 0 ? _2 : "",
                     "zipCode": destination.postalCode,
                     "roadTypeCode": "",
                     "roadTypeName": destination.road,
                     "street": destination.street,
                     "externalNum": destination.exteriorNumber,
-                    "indoreInformation": (_0 = destination === null || destination === void 0 ? void 0 : destination.interiorNumber) !== null && _0 !== void 0 ? _0 : "",
+                    "indoreInformation": (_3 = destination === null || destination === void 0 ? void 0 : destination.interiorNumber) !== null && _3 !== void 0 ? _3 : "",
                     "settlementTypeCode": "",
                     "settlementTypeName": destination.settlement,
                     "SettlementTypeAbbName": destination.settlement.slice(0, 3),
-                    "settlementName": "",
+                    "settlementName": destination.destination,
                     "twnshipCode": "",
-                    "twnshipName": "",
+                    "twnshipName": destination.municipality,
                     "stateCode": destination.stateCode,
                     "stateName": destination.state,
                     "countryCode": destination.countryCodeAlfa2 ? destination.countryCodeAlfa2 : "MX",
@@ -140,10 +140,10 @@ router.get("/pdv-services", token_1.validateToken, (req, res) => __awaiter(void 
                     "countryName": destination.country ? destination.country : "México",
                     "betweenRoadName1": betweenRoadsDestination[0] ? betweenRoadsDestination[0] : destination === null || destination === void 0 ? void 0 : destination.optionalAddress1,
                     "betweenRoadName2": betweenRoadsDestination[1] ? betweenRoadsDestination[1] : " ",
-                    "AddressReference": (_1 = destination === null || destination === void 0 ? void 0 : destination.reference) !== null && _1 !== void 0 ? _1 : "",
+                    "AddressReference": (_4 = destination === null || destination === void 0 ? void 0 : destination.reference) !== null && _4 !== void 0 ? _4 : "",
                     "CountryCodePhone": "",
                     "LandlinePhone": destination.phone1,
-                    "CellPhone": (_2 = destination === null || destination === void 0 ? void 0 : destination.phon2) !== null && _2 !== void 0 ? _2 : "",
+                    "CellPhone": (_5 = destination === null || destination === void 0 ? void 0 : destination.phon2) !== null && _5 !== void 0 ? _5 : "",
                     "ContacteMail": destination.email,
                     "Latitude": 99999.99,
                     "Longitude": 99999.99,
