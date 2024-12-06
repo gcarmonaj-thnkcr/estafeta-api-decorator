@@ -135,6 +135,7 @@ router.get("/pdv-services", token_1.validateToken, (req, res) => __awaiter(void 
                     "stateName": destination.state,
                     "countryCode": destination.countryCode,
                     "countryCodeAlfa3": destination.countryCodeAlfa3,
+                    "countryCodeAlfa2": destination.countryCodeAlfa2,
                     "countryName": destination.country,
                     "betweenRoadName1": (_0 = destination === null || destination === void 0 ? void 0 : destination.optionalAddress1) !== null && _0 !== void 0 ? _0 : "",
                     "betweenRoadName2": "y" + " " + (destination === null || destination === void 0 ? void 0 : destination.optionalAddress2),

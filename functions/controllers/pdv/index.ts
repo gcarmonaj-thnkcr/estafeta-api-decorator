@@ -125,6 +125,7 @@ router.get("/pdv-services", validateToken, async (req: Request, res: Response): 
               "stateName": destination.state,
               "countryCode": destination.countryCode,
               "countryCodeAlfa3": destination.countryCodeAlfa3,
+              "countryCodeAlfa2": destination.countryCodeAlfa2,
               "countryName": destination.country,
               "betweenRoadName1": destination?.optionalAddress1 ?? "",
               "betweenRoadName2": "y"+" "+destination?.optionalAddress2,
