@@ -104,10 +104,10 @@ router.get("/pdv-services", validateToken, async (req: Request, res: Response): 
             "IsActive": "True",
             "recipient": {
               "eMailClient": destination.email, //email del destinatario
-              "isPudo": destination.isPudo ? "1" : "0",
-              "EquivalentCode": destination.isPudo? destination.pudoInfo[0]?.EquivalentCode : "",
-              "TyoeLocationName": destination.isPudo? destination.pudoInfo[0]?.SpaceOwnerName : "",
-              "SpaceOwnerName": destination.isPudo? destination.pudoInfo[0]?.OwnerCode : "",
+              "isPudo": servicesFind.isPudo ? "1" : "0",
+              "EquivalentCode": servicesFind.isPudo? destination.pudoInfo[0]?.EquivalentCode : "",
+              "TyoeLocationName": servicesFind.isPudo? destination.pudoInfo[0]?.SpaceOwnerName : "",
+              "SpaceOwnerName": servicesFind.isPudo? destination.pudoInfo[0]?.OwnerCode : "",
               "isSender": "0",
               "Alias": destination.alias,
               "TaxPayer": "",
