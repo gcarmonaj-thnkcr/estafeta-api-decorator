@@ -14,7 +14,6 @@ const addPayment_1 = require("../../utils/addPayment");
 const router = (0, express_1.Router)();
 router.post("/payment/webhook", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        console.log("llegue");
         const paymentInfo = req.body;
         console.log(paymentInfo.transaction);
         if (paymentInfo.transaction.status != "completed")
@@ -29,5 +28,12 @@ router.post("/payment/webhook", (req, res) => __awaiter(void 0, void 0, void 0, 
     catch (err) {
         return res.status(500).send({ message: err.message });
     }
+}));
+router.post("/waybills/webhook", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    // Post to recive a PUSH notification from estafeta API process
+    console.log(req.body);
+    const pushTrackingRequest = req.body;
+    // ToDo: Implement the logic to update the waybill status
+    return res.sendStatus(200);
 }));
 exports.default = router;

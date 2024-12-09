@@ -4,6 +4,7 @@ import { apiRoot } from "../../commercetools/client";
 import { Order } from "@commercetools/platform-sdk";
 import { checkDate } from "../../validateDate/validate";
 import { Console } from "console";
+import { off } from "process";
 
 const router = Router()
 
@@ -54,9 +55,13 @@ router.get("/lifetimes", validateToken, async (req: Request, res: Response): Pro
   console.log("Lifetimes called")
   let orders: Order[] = []
   const endDate = req.headers.date
+  const limit = parseInt(req.headers.limit as string) || 20
+  const offset = parseInt(req.headers.offset as string) || 0
+
   const orders_bundle = await apiRoot.orders().get({
     queryArgs: {
-      limit: 500,
+      limit: limit,
+      offset: offset,
       sort: "createdAt desc",
       where: 'custom(fields(type-order="service")) and createdAt >= "2023-10-26T00:00:00Z"',
     }
@@ -69,7 +74,7 @@ router.get("/lifetimes", validateToken, async (req: Request, res: Response): Pro
   console.log("Orders length: ", orders_bundle.body.results.length)
 
   const order_count = (orders_bundle.body.total ?? 0) - 500
-
+  /*
   console.log("Order count: ", order_count)
   for (let i = 501; i < order_count; i += 500) {
     console.log("Offset: ", i)
@@ -84,6 +89,7 @@ router.get("/lifetimes", validateToken, async (req: Request, res: Response): Pro
     if (orders_bundle.body.results.length <= 0) return res.sendStatus(204)
     orders = [...orders, ...orders_bundle.body.results]
   }
+  */
 
   console.log("Orders: ", orders.length)
   //@ts-ignore
@@ -126,6 +132,10 @@ router.get("/lifetimes", validateToken, async (req: Request, res: Response): Pro
   }
 
   return res.status(200).send({
+    limit: limit,
+    offset: offset,
+    count: orders_bundle.body.count,
+    total: orders_bundle.body.total,
     statusCode: 200,
     body: orderstoNotify,
   });
