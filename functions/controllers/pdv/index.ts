@@ -37,8 +37,8 @@ router.get("/pdv-services", validateToken, async (req: Request, res: Response): 
     console.log(servicesFind) 
     const { origin, destination } = servicesFind.address
 
-    const betweenRoadsOrigin = origin?.optionalAddress1?.includes(" y ") ? origin.optionalAddress1.split(" y ") : [origin.optionalAddress1];
-    const betweenRoadsDestination = destination?.optionalAddress1?.includes(" y ") ? destination.optionalAddress1.split(" y ") : [destination.optionalAddress1];
+    const betweenRoadsOrigin = origin?.optionalAddress1?.includes("?") ? origin.optionalAddress1.split("?") : [origin.optionalAddress1];
+    const betweenRoadsDestination = destination?.optionalAddress1?.includes("?") ? destination.optionalAddress1.split("?") : [destination.optionalAddress1];
 
     const responseObject = {
       "pdvService": {
@@ -86,7 +86,7 @@ router.get("/pdv-services", validateToken, async (req: Request, res: Response): 
             "SettlementTypeAbbName": origin.settlement.slice(0, 3),
             "settlementName": origin.settlement,
             "twnshipCode": "",
-            "twnshipName": origin.municipality,
+            "twnshipName": origin.city,
             "stateCode": origin.stateCode,
             "stateName": origin.state,
             "countryCode": "MX",

@@ -47,8 +47,8 @@ router.get("/pdv-services", token_1.validateToken, (req, res) => __awaiter(void 
     }
     console.log(servicesFind);
     const { origin, destination } = servicesFind.address;
-    const betweenRoadsOrigin = ((_d = origin === null || origin === void 0 ? void 0 : origin.optionalAddress1) === null || _d === void 0 ? void 0 : _d.includes(" y ")) ? origin.optionalAddress1.split(" y ") : [origin.optionalAddress1];
-    const betweenRoadsDestination = ((_e = destination === null || destination === void 0 ? void 0 : destination.optionalAddress1) === null || _e === void 0 ? void 0 : _e.includes(" y ")) ? destination.optionalAddress1.split(" y ") : [destination.optionalAddress1];
+    const betweenRoadsOrigin = ((_d = origin === null || origin === void 0 ? void 0 : origin.optionalAddress1) === null || _d === void 0 ? void 0 : _d.includes("?")) ? origin.optionalAddress1.split("?") : [origin.optionalAddress1];
+    const betweenRoadsDestination = ((_e = destination === null || destination === void 0 ? void 0 : destination.optionalAddress1) === null || _e === void 0 ? void 0 : _e.includes("?")) ? destination.optionalAddress1.split("?") : [destination.optionalAddress1];
     const responseObject = {
         "pdvService": {
             "storeServiceOrder": searchOrder.body.id,
@@ -95,7 +95,7 @@ router.get("/pdv-services", token_1.validateToken, (req, res) => __awaiter(void 
                 "SettlementTypeAbbName": origin.settlement.slice(0, 3),
                 "settlementName": origin.settlement,
                 "twnshipCode": "",
-                "twnshipName": origin.municipality,
+                "twnshipName": origin.city,
                 "stateCode": origin.stateCode,
                 "stateName": origin.state,
                 "countryCode": "MX",
@@ -160,4 +160,3 @@ router.get("/pdv-services", token_1.validateToken, (req, res) => __awaiter(void 
     });
 }));
 exports.default = router;
-//# sourceMappingURL=index.js.map
