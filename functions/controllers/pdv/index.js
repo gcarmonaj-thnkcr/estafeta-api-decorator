@@ -15,7 +15,7 @@ const client_1 = require("../../commercetools/client");
 const formaterDate_1 = require("../../utils/formaterDate");
 const router = (0, express_1.Router)();
 router.get("/pdv-services", token_1.validateToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _0, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10;
+    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _0, _1, _2, _3, _4, _5, _6, _7, _8, _9;
     const qr = req.headers.qr;
     if (!qr || qr == '')
         return res.sendStatus(404);
@@ -136,14 +136,14 @@ router.get("/pdv-services", token_1.validateToken, (req, res) => __awaiter(void 
                     "stateCode": destination.stateCode,
                     "stateName": destination.state,
                     "countryCode": destination.countryCodeAlfa2 ? destination.countryCodeAlfa2 : "MX",
-                    "countryCodeAlfa3": (_6 = destination.countryCodeAlfa3) !== null && _6 !== void 0 ? _6 : "MEX",
+                    "countryCodeAlfa3": destination.countryCodeAlfa3 && destination.countryCodeAlfa3 !== "" ? destination.countryCodeAlfa3 : "MEX",
                     "countryName": destination.country && destination.country !== "MX" ? destination.country : "México",
-                    "betweenRoadName1": (_7 = betweenRoadsDestination[0]) !== null && _7 !== void 0 ? _7 : ((destination === null || destination === void 0 ? void 0 : destination.optionalAddress1) == " y " ? "" : ""),
-                    "betweenRoadName2": (_8 = betweenRoadsDestination[1]) !== null && _8 !== void 0 ? _8 : "",
-                    "AddressReference": (_9 = destination === null || destination === void 0 ? void 0 : destination.reference) !== null && _9 !== void 0 ? _9 : "",
+                    "betweenRoadName1": (_6 = betweenRoadsDestination[0]) !== null && _6 !== void 0 ? _6 : ((destination === null || destination === void 0 ? void 0 : destination.optionalAddress1) == " y " ? "" : ""),
+                    "betweenRoadName2": (_7 = betweenRoadsDestination[1]) !== null && _7 !== void 0 ? _7 : "",
+                    "AddressReference": (_8 = destination === null || destination === void 0 ? void 0 : destination.reference) !== null && _8 !== void 0 ? _8 : "",
                     "CountryCodePhone": "",
                     "LandlinePhone": destination.phone1,
-                    "CellPhone": (_10 = destination === null || destination === void 0 ? void 0 : destination.phon2) !== null && _10 !== void 0 ? _10 : "",
+                    "CellPhone": (_9 = destination === null || destination === void 0 ? void 0 : destination.phon2) !== null && _9 !== void 0 ? _9 : "",
                     "ContacteMail": destination.email,
                     "Latitude": 99999.99,
                     "Longitude": 99999.99,

@@ -127,7 +127,7 @@ router.get("/pdv-services", validateToken, async (req: Request, res: Response): 
               "stateCode": destination.stateCode,
               "stateName": destination.state,
               "countryCode": destination.countryCodeAlfa2? destination.countryCodeAlfa2 : "MX",
-              "countryCodeAlfa3": destination.countryCodeAlfa3 ?? "MEX",
+              "countryCodeAlfa3": destination.countryCodeAlfa3 && destination.countryCodeAlfa3 !=="" ? destination.countryCodeAlfa3 : "MEX",
               "countryName": destination.country && destination.country !== "MX" ? destination.country : "México",
               "betweenRoadName1": betweenRoadsDestination[0] ?? (destination?.optionalAddress1 == " y " ? "" : ""),
               "betweenRoadName2": betweenRoadsDestination[1] ?? "",
