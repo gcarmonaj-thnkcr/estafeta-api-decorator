@@ -30,9 +30,17 @@ router.get("/pdv-services", validateToken, async (req: Request, res: Response): 
     const customObject = searchOrder.body.custom?.fields["services"] && JSON.parse(searchOrder.body.custom.fields["services"])
     let servicesFind;
     try{
-      servicesFind = customObject[searchOrder.body.lineItems[0].id].find((item: any) => item.QR == qr)
+      const lineItems = searchOrder.body.lineItems.filter(item => item.variant.attributes?.length ?? 0 > 0)
+      for(const line of lineItems) {
+        servicesFind = customObject[line.id].find((item: any) => item.QR == qr)   
+        if(servicesFind) break
+      }
     } catch(err) {
-      servicesFind = customObject[searchOrder.body.lineItems[0].id].guides.find((item: any) => item.QR == qr)
+      const lineItems = searchOrder.body.lineItems.filter(item => item.variant.attributes?.length ?? 0 > 0)
+      for(const line of lineItems) {
+        servicesFind = customObject[line.id].guides.find((item: any) => item.QR == qr)   
+        if(servicesFind) break
+      }
     }
     console.log(servicesFind) 
     const { origin, destination } = servicesFind.address

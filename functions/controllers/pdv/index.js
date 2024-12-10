@@ -40,10 +40,20 @@ router.get("/pdv-services", token_1.validateToken, (req, res) => __awaiter(void 
     const customObject = ((_c = searchOrder.body.custom) === null || _c === void 0 ? void 0 : _c.fields["services"]) && JSON.parse(searchOrder.body.custom.fields["services"]);
     let servicesFind;
     try {
-        servicesFind = customObject[searchOrder.body.lineItems[0].id].find((item) => item.QR == qr);
+        const lineItems = searchOrder.body.lineItems.filter(item => { var _a, _b; return (_b = (_a = item.variant.attributes) === null || _a === void 0 ? void 0 : _a.length) !== null && _b !== void 0 ? _b : 0 > 0; });
+        for (const line of lineItems) {
+            servicesFind = customObject[line.id].find((item) => item.QR == qr);
+            if (servicesFind)
+                break;
+        }
     }
     catch (err) {
-        servicesFind = customObject[searchOrder.body.lineItems[0].id].guides.find((item) => item.QR == qr);
+        const lineItems = searchOrder.body.lineItems.filter(item => { var _a, _b; return (_b = (_a = item.variant.attributes) === null || _a === void 0 ? void 0 : _a.length) !== null && _b !== void 0 ? _b : 0 > 0; });
+        for (const line of lineItems) {
+            servicesFind = customObject[line.id].guides.find((item) => item.QR == qr);
+            if (servicesFind)
+                break;
+        }
     }
     console.log(servicesFind);
     const { origin, destination } = servicesFind.address;
