@@ -131,7 +131,7 @@ router.get("/pdv-services", validateToken, async (req: Request, res: Response): 
               "SettlementTypeAbbName": destination.settlement.slice(0, 3),
               "settlementName": destination.destination,
               "twnshipCode": "",
-              "twnshipName": destination.municipality,
+              "twnshipName": destination.city,
               "stateCode": destination.stateCode,
               "stateName": destination.state,
               "countryCode": destination.countryCodeAlfa2? destination.countryCodeAlfa2 : "MX",
