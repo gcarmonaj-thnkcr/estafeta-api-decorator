@@ -18,7 +18,7 @@ interface IOrderToNotify {
 
 let orderstoNotify: IOrderToNotify[] = [];
 
-const addObject = async (index: any, order: Order, days: number) => {
+const addObject = async (index: any, order: Order, days: number, daysDif: number) => {
   try {
     const customer = await apiRoot.customers().withId({ ID: order.customerId ?? "" }).get().execute()
     if (!customer.statusCode || customer.statusCode >= 300) return
@@ -28,8 +28,9 @@ const addObject = async (index: any, order: Order, days: number) => {
       console.log(`${item.name["es-MX"] ?? item.name["en"]}`)
       products.push(`(${item.quantity})${item.name["es-MX"] ?? item.name["en"]}`)
     }
+
     const date = new Date(order.createdAt)
-    date.setDate(date.getDate() + 426)
+    date.setDate(date.getDate() + (daysDif + 1))
 
     const opciones = { year: 'numeric', month: 'long', day: 'numeric' };
 
@@ -98,10 +99,13 @@ router.get("/lifetimes", validateToken, async (req: Request, res: Response): Pro
 
   orderstoNotify = []
   for (const order of ordersCombo) {
+    console.log(order.customerEmail)
+    console.log(order.orderNumber ?? "")
     const daysDif = checkDate(order.createdAt, endDate)
     console.log("Days diference: ", daysDif)
     switch (daysDif) {
       case 365:
+      case 364:
         await apiRoot.orders().withId({ ID: order.id }).post({
           body: {
             version: order.version,
@@ -114,19 +118,23 @@ router.get("/lifetimes", validateToken, async (req: Request, res: Response): Pro
             ]
           }
         }).execute()
-        await addObject(daysDif, order, 90)
+        await addObject(daysDif, order, 90, daysDif)
         break;
       case 395:
-        await addObject(daysDif, order, 30)
+      case 394:
+        await addObject(daysDif, order, 30, daysDif)
         break;
       case 411:
-        await addObject(daysDif, order, 15)
+      case 410:
+        await addObject(daysDif, order, 15, daysDif)
         break;
       case 417:
-        await addObject(daysDif, order, 7)
+      case 416:
+        await addObject(daysDif, order, 7, daysDif)
         break;
       case 424:
-        await addObject(daysDif, order, 1)
+      case 423:
+        await addObject(daysDif, order, 1, daysDif)
         break;
     }
   }

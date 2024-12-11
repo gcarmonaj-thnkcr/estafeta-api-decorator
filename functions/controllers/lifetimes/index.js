@@ -15,7 +15,7 @@ const client_1 = require("../../commercetools/client");
 const validate_1 = require("../../validateDate/validate");
 const router = (0, express_1.Router)();
 let orderstoNotify = [];
-const addObject = (index, order, days) => __awaiter(void 0, void 0, void 0, function* () {
+const addObject = (index, order, days, daysDif) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b, _c, _d, _e, _f, _g, _h, _j;
     try {
         const customer = yield client_1.apiRoot.customers().withId({ ID: (_a = order.customerId) !== null && _a !== void 0 ? _a : "" }).get().execute();
@@ -27,7 +27,7 @@ const addObject = (index, order, days) => __awaiter(void 0, void 0, void 0, func
             products.push(`(${item.quantity})${(_c = item.name["es-MX"]) !== null && _c !== void 0 ? _c : item.name["en"]}`);
         }
         const date = new Date(order.createdAt);
-        date.setDate(date.getDate() + 426);
+        date.setDate(date.getDate() + (daysDif + 1));
         const opciones = { year: 'numeric', month: 'long', day: 'numeric' };
         // Formatear la fecha 
         // @ts-ignore
@@ -47,7 +47,7 @@ const addObject = (index, order, days) => __awaiter(void 0, void 0, void 0, func
     }
 });
 router.get("/lifetimes", token_1.validateToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
+    var _a, _b;
     console.log("Lifetimes called");
     let orders = [];
     const endDate = req.headers.date;
@@ -89,10 +89,13 @@ router.get("/lifetimes", token_1.validateToken, (req, res) => __awaiter(void 0, 
     console.log("Combo Orders: ", ordersCombo.length);
     orderstoNotify = [];
     for (const order of ordersCombo) {
+        console.log(order.customerEmail);
+        console.log((_b = order.orderNumber) !== null && _b !== void 0 ? _b : "");
         const daysDif = (0, validate_1.checkDate)(order.createdAt, endDate);
         console.log("Days diference: ", daysDif);
         switch (daysDif) {
             case 365:
+            case 364:
                 yield client_1.apiRoot.orders().withId({ ID: order.id }).post({
                     body: {
                         version: order.version,
@@ -105,19 +108,23 @@ router.get("/lifetimes", token_1.validateToken, (req, res) => __awaiter(void 0, 
                         ]
                     }
                 }).execute();
-                yield addObject(daysDif, order, 90);
+                yield addObject(daysDif, order, 90, daysDif);
                 break;
             case 395:
-                yield addObject(daysDif, order, 30);
+            case 394:
+                yield addObject(daysDif, order, 30, daysDif);
                 break;
             case 411:
-                yield addObject(daysDif, order, 15);
+            case 410:
+                yield addObject(daysDif, order, 15, daysDif);
                 break;
             case 417:
-                yield addObject(daysDif, order, 7);
+            case 416:
+                yield addObject(daysDif, order, 7, daysDif);
                 break;
             case 424:
-                yield addObject(daysDif, order, 1);
+            case 423:
+                yield addObject(daysDif, order, 1, daysDif);
                 break;
         }
     }
