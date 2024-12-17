@@ -30,7 +30,7 @@ const addObject = async (index: any, order: Order, days: number, daysDif: number
     }
 
     const date = new Date(order.createdAt)
-    date.setDate(date.getDate() + (daysDif + 1))
+    date.setDate(date.getDate() + daysDif)
 
     const opciones = { year: 'numeric', month: 'long', day: 'numeric' };
 
@@ -105,7 +105,8 @@ router.get("/lifetimes", validateToken, async (req: Request, res: Response): Pro
     console.log("Days diference: ", daysDif)
     switch (daysDif) {
       case 365:
-      case 364:
+      case 366:
+      case 367:
         await apiRoot.orders().withId({ ID: order.id }).post({
           body: {
             version: order.version,
@@ -120,20 +121,24 @@ router.get("/lifetimes", validateToken, async (req: Request, res: Response): Pro
         }).execute()
         await addObject(daysDif, order, 90, daysDif)
         break;
-      case 395:
-      case 394:
+      case 425:
+      case 426:
+      case 427:
         await addObject(daysDif, order, 30, daysDif)
         break;
-      case 411:
-      case 410:
+      case 442:
+      case 443:
+      case 442:
         await addObject(daysDif, order, 15, daysDif)
         break;
-      case 417:
-      case 416:
+      case 448:
+      case 449:
+      case 450:
         await addObject(daysDif, order, 7, daysDif)
         break;
-      case 424:
-      case 423:
+      case 454:
+      case 455:
+      case 456:
         await addObject(daysDif, order, 1, daysDif)
         break;
     }

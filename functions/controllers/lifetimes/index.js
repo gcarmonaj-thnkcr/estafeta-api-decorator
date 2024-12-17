@@ -27,7 +27,7 @@ const addObject = (index, order, days, daysDif) => __awaiter(void 0, void 0, voi
             products.push(`(${item.quantity})${(_c = item.name["es-MX"]) !== null && _c !== void 0 ? _c : item.name["en"]}`);
         }
         const date = new Date(order.createdAt);
-        date.setDate(date.getDate() + (daysDif + 1));
+        date.setDate(date.getDate() + daysDif);
         const opciones = { year: 'numeric', month: 'long', day: 'numeric' };
         // Formatear la fecha 
         // @ts-ignore
@@ -95,7 +95,8 @@ router.get("/lifetimes", token_1.validateToken, (req, res) => __awaiter(void 0, 
         console.log("Days diference: ", daysDif);
         switch (daysDif) {
             case 365:
-            case 364:
+            case 366:
+            case 367:
                 yield client_1.apiRoot.orders().withId({ ID: order.id }).post({
                     body: {
                         version: order.version,
@@ -110,20 +111,24 @@ router.get("/lifetimes", token_1.validateToken, (req, res) => __awaiter(void 0, 
                 }).execute();
                 yield addObject(daysDif, order, 90, daysDif);
                 break;
-            case 395:
-            case 394:
+            case 425:
+            case 426:
+            case 427:
                 yield addObject(daysDif, order, 30, daysDif);
                 break;
-            case 411:
-            case 410:
+            case 442:
+            case 443:
+            case 442:
                 yield addObject(daysDif, order, 15, daysDif);
                 break;
-            case 417:
-            case 416:
+            case 448:
+            case 449:
+            case 450:
                 yield addObject(daysDif, order, 7, daysDif);
                 break;
-            case 424:
-            case 423:
+            case 454:
+            case 455:
+            case 456:
                 yield addObject(daysDif, order, 1, daysDif);
                 break;
         }

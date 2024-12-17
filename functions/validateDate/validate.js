@@ -3,13 +3,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.checkDate = checkDate;
 function checkDate(date, endDate) {
     const dateOrder = new Date(date);
-    let dateNow;
-    if (endDate) {
-        dateNow = new Date(endDate);
-    }
-    else {
-        dateNow = new Date();
-    }
+    const dateNow = endDate ? new Date(endDate) : new Date();
+    dateOrder.setHours(0, 0, 0, 0);
+    dateNow.setHours(0, 0, 0, 0);
     console.log(dateNow);
     console.log(dateOrder);
     const dayDiff = dateNow.getTime() - dateOrder.getTime();
