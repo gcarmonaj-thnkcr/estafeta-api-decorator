@@ -128,8 +128,7 @@ router.get("/lifetimes", validateToken, async (req: Request, res: Response): Pro
       case 443:
         await addObject(daysDif, order, 15, daysDif)
         break;
-      case 448:
-      case 449:
+      case 450:
         await addObject(daysDif, order, 7, daysDif)
         break;
       case 456:
