@@ -119,7 +119,7 @@ router.get("/pdv-services", validateToken, async (req: Request, res: Response): 
               "isSender": "0",
               "Alias": destination.alias,
               "TaxPayer": "",
-              "CompleteName": (destination?.firstName ?? "")+" " + (destination?.lastName?? "")+ " " + (destination?.middleName ?? ""),
+              "CompleteName": `${origin?.firstName ?? ""} ${origin?.lastName ?? ""} ${origin?.middleName ?? ""}`,
               "zipCode": destination.postalCode,
               "roadTypeCode": "",
               "roadTypeName": destination.road,
