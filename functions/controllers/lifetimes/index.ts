@@ -30,7 +30,7 @@ const addObject = async (index: any, order: Order, days: number, daysDif: number
     }
 
     const date = new Date(order.createdAt)
-    date.setDate(date.getDate() + daysDif)
+    date.setDate(date.getDate() + 457)
 
     const opciones = { year: 'numeric', month: 'long', day: 'numeric' };
 
@@ -132,8 +132,7 @@ router.get("/lifetimes", validateToken, async (req: Request, res: Response): Pro
       case 449:
         await addObject(daysDif, order, 7, daysDif)
         break;
-      case 454:
-      case 455:
+      case 456:
         await addObject(daysDif, order, 1, daysDif)
         break;
     }

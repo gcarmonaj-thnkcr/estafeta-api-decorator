@@ -27,7 +27,7 @@ const addObject = (index, order, days, daysDif) => __awaiter(void 0, void 0, voi
             products.push(`(${item.quantity})${(_c = item.name["es-MX"]) !== null && _c !== void 0 ? _c : item.name["en"]} ${(_e = (_d = item.variant.attributes) === null || _d === void 0 ? void 0 : _d.find(item => item.name == "servicio")) === null || _e === void 0 ? void 0 : _e.value["key"].replace('-', " ")}`);
         }
         const date = new Date(order.createdAt);
-        date.setDate(date.getDate() + daysDif);
+        date.setDate(date.getDate() + 457);
         const opciones = { year: 'numeric', month: 'long', day: 'numeric' };
         // Formatear la fecha 
         // @ts-ignore
@@ -112,21 +112,16 @@ router.get("/lifetimes", token_1.validateToken, (req, res) => __awaiter(void 0, 
                 break;
             case 425:
             case 426:
-            case 427:
                 yield addObject(daysDif, order, 30, daysDif);
                 break;
             case 442:
             case 443:
-            case 442:
                 yield addObject(daysDif, order, 15, daysDif);
                 break;
             case 448:
             case 449:
-            case 450:
                 yield addObject(daysDif, order, 7, daysDif);
                 break;
-            case 454:
-            case 455:
             case 456:
                 yield addObject(daysDif, order, 1, daysDif);
                 break;
