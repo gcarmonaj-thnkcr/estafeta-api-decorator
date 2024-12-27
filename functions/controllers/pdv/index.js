@@ -130,7 +130,7 @@ router.get("/pdv-services", token_1.validateToken, (req, res) => __awaiter(void 
                     "isSender": "0",
                     "Alias": destination.alias,
                     "TaxPayer": "",
-                    "CompleteName": (_4 = (_3 = (_2 = destination === null || destination === void 0 ? void 0 : destination.firstName) !== null && _2 !== void 0 ? _2 : "" + " " + (destination === null || destination === void 0 ? void 0 : destination.lastName)) !== null && _3 !== void 0 ? _3 : "" + " " + (destination === null || destination === void 0 ? void 0 : destination.middleName)) !== null && _4 !== void 0 ? _4 : "",
+                    "CompleteName": ((_2 = destination === null || destination === void 0 ? void 0 : destination.firstName) !== null && _2 !== void 0 ? _2 : "") + " " + ((_3 = destination === null || destination === void 0 ? void 0 : destination.lastName) !== null && _3 !== void 0 ? _3 : "") + " " + ((_4 = destination === null || destination === void 0 ? void 0 : destination.middleName) !== null && _4 !== void 0 ? _4 : ""),
                     "zipCode": destination.postalCode,
                     "roadTypeCode": "",
                     "roadTypeName": destination.road,
