@@ -110,17 +110,17 @@ router.get("/lifetimes", token_1.validateToken, (req, res) => __awaiter(void 0, 
                 }).execute();
                 yield addObject(daysDif, order, 90, daysDif);
                 break;
-            case 427:
+            case 425:
                 yield addObject(daysDif, order, 30, daysDif);
                 break;
-            case 442:
-            case 443:
+            // case 442:
+            case 440:
                 yield addObject(daysDif, order, 15, daysDif);
                 break;
-            case 450:
+            case 448:
                 yield addObject(daysDif, order, 7, daysDif);
                 break;
-            case 455:
+            case 452:
                 yield addObject(daysDif, order, 1, daysDif);
                 break;
         }
