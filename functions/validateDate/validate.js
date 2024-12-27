@@ -4,11 +4,12 @@ exports.checkDate = checkDate;
 function checkDate(date, endDate) {
     const dateOrder = new Date(date);
     const dateNow = endDate ? new Date(endDate) : new Date();
-    dateOrder.setUTCHours(0, 0, 0, 0);
-    dateNow.setUTCHours(0, 0, 0, 0);
-    console.log('Fecha enviada (normalizada):', dateOrder);
-    console.log('Fecha actual (normalizada):', dateNow);
-    const dayDiff = dateNow.getTime() - dateOrder.getTime();
+    // Normalizar la fecha sin afectar la zona horaria
+    const normalizedDateOrder = new Date(Date.UTC(dateOrder.getUTCFullYear(), dateOrder.getUTCMonth(), dateOrder.getUTCDate()));
+    const normalizedDateNow = new Date(Date.UTC(dateNow.getUTCFullYear(), dateNow.getUTCMonth(), dateNow.getUTCDate()));
+    console.log('Fecha enviada (normalizada a UTC):', normalizedDateOrder);
+    console.log('Fecha actual (normalizada a UTC):', normalizedDateNow);
+    const dayDiff = normalizedDateNow.getTime() - normalizedDateOrder.getTime();
     const diferenciaDias = Math.floor(dayDiff / (1000 * 60 * 60 * 24));
     return diferenciaDias;
 }
