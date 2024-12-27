@@ -97,6 +97,7 @@ router.get("/lifetimes", validateToken, async (req: Request, res: Response): Pro
   //const ordersCombo = orders.filter(order => order.lineItems.some(item => item.variant?.attributes.some(attr => attr.name == "tipo-paquete" && attr.value["label"] == "UNIZONA")))
 
   orderstoNotify = []
+  console.log(orderstoNotify)
   for (const order of orders) {
     console.log(order.customerEmail)
     console.log(order.orderNumber ?? "")
