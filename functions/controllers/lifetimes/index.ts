@@ -120,8 +120,7 @@ router.get("/lifetimes", validateToken, async (req: Request, res: Response): Pro
         }).execute()
         await addObject(daysDif, order, 90, daysDif)
         break;
-      case 425:
-      case 426:
+      case 427:
         await addObject(daysDif, order, 30, daysDif)
         break;
       case 442:
