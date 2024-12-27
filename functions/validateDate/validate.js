@@ -4,7 +4,7 @@ exports.checkDate = checkDate;
 function checkDate(date, endDate) {
     const dateOrder = new Date(date);
     const dateNow = endDate ? new Date(endDate) : new Date();
-    // Normalizar ambas fechas al principio del día en la zona local
+    dateOrder.setDate(dateOrder.getDate() - 1);
     dateOrder.setHours(0, 0, 0, 0);
     dateNow.setHours(0, 0, 0, 0);
     console.log('Date Now:', dateNow.toLocaleDateString());
