@@ -58,7 +58,7 @@ router.get("/lifetimes", token_1.validateToken, (req, res) => __awaiter(void 0, 
             limit: limit,
             offset: offset,
             sort: "createdAt desc",
-            where: 'custom(fields(type-order="service")) and createdAt >= "2023-10-26T00:00:00Z"',
+            where: 'custom(fields(isCombo=true)) and createdAt >= "2023-10-26T00:00:00Z"',
         }
     }).execute();
     console.log(orders_bundle.body.count, orders_bundle.body.total);
@@ -85,10 +85,9 @@ router.get("/lifetimes", token_1.validateToken, (req, res) => __awaiter(void 0, 
     */
     console.log("Orders: ", orders.length);
     //@ts-ignore
-    const ordersCombo = orders.filter(order => order.lineItems.some(item => { var _a; return (_a = item.variant) === null || _a === void 0 ? void 0 : _a.attributes.some(attr => attr.name == "tipo-paquete" && attr.value["label"] == "UNIZONA"); }));
-    console.log("Combo Orders: ", ordersCombo.length);
+    //const ordersCombo = orders.filter(order => order.lineItems.some(item => item.variant?.attributes.some(attr => attr.name == "tipo-paquete" && attr.value["label"] == "UNIZONA")))
     orderstoNotify = [];
-    for (const order of ordersCombo) {
+    for (const order of orders) {
         console.log(order.customerEmail);
         console.log((_b = order.orderNumber) !== null && _b !== void 0 ? _b : "");
         const daysDif = (0, validate_1.checkDate)(order.createdAt, endDate);

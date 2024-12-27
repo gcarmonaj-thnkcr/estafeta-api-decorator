@@ -64,7 +64,7 @@ router.get("/lifetimes", validateToken, async (req: Request, res: Response): Pro
       limit: limit,
       offset: offset,
       sort: "createdAt desc",
-      where: 'custom(fields(type-order="service")) and createdAt >= "2023-10-26T00:00:00Z"',
+      where: 'custom(fields(isCombo=true)) and createdAt >= "2023-10-26T00:00:00Z"',
     }
   }).execute()
   console.log(orders_bundle.body.count, orders_bundle.body.total)
@@ -94,11 +94,10 @@ router.get("/lifetimes", validateToken, async (req: Request, res: Response): Pro
 
   console.log("Orders: ", orders.length)
   //@ts-ignore
-  const ordersCombo = orders.filter(order => order.lineItems.some(item => item.variant?.attributes.some(attr => attr.name == "tipo-paquete" && attr.value["label"] == "UNIZONA")))
-  console.log("Combo Orders: ", ordersCombo.length)
+  //const ordersCombo = orders.filter(order => order.lineItems.some(item => item.variant?.attributes.some(attr => attr.name == "tipo-paquete" && attr.value["label"] == "UNIZONA")))
 
   orderstoNotify = []
-  for (const order of ordersCombo) {
+  for (const order of orders) {
     console.log(order.customerEmail)
     console.log(order.orderNumber ?? "")
     const daysDif = checkDate(order.createdAt, endDate)
