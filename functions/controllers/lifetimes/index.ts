@@ -25,8 +25,8 @@ const addObject = async (index: any, order: Order, days: number, daysDif: number
 
     const products = []
     for (const item of order.lineItems) {
-      console.log(`${item.name["es-MX"] ?? item.name["en"]}`)
-      products.push(`(${item.quantity})${item.name["es-MX"] ?? item.name["en"]}`)
+      console.log(`${item.name["es-MX"] ?? item.name["en"]} `)
+      products.push(`(${item.quantity})${item.name["es-MX"] ?? item.name["en"]} ${item.variant.attributes?.find(item => item.name == "servicio")?.value["key"].replace('-', " ")}`)
     }
 
     const date = new Date(order.createdAt)
@@ -99,6 +99,7 @@ router.get("/lifetimes", validateToken, async (req: Request, res: Response): Pro
   orderstoNotify = []
   console.log(orderstoNotify)
   for (const order of orders) {
+    console.log('-----------------')
     console.log(order.customerEmail)
     console.log(order.orderNumber ?? "")
     const daysDif = checkDate(order.createdAt, endDate)
