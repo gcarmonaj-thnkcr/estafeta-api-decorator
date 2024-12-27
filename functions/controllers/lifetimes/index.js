@@ -23,7 +23,6 @@ const addObject = (index, order, days, daysDif) => __awaiter(void 0, void 0, voi
             return;
         const products = [];
         for (const item of order.lineItems) {
-            console.log(item.variant.attributes);
             console.log(`${(_b = item.name["es-MX"]) !== null && _b !== void 0 ? _b : item.name["en"]} `);
             products.push(`(${item.quantity})${(_c = item.name["es-MX"]) !== null && _c !== void 0 ? _c : item.name["en"]} ${(_e = (_d = item.variant.attributes) === null || _d === void 0 ? void 0 : _d.find(item => item.name == "servicio")) === null || _e === void 0 ? void 0 : _e.value["key"].replace('-', " ")}`);
         }
@@ -97,8 +96,6 @@ router.get("/lifetimes", token_1.validateToken, (req, res) => __awaiter(void 0, 
         console.log("Days diference: ", daysDif);
         switch (daysDif) {
             case 365:
-            case 366:
-            case 367:
                 yield client_1.apiRoot.orders().withId({ ID: order.id }).post({
                     body: {
                         version: order.version,
