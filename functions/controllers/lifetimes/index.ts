@@ -30,7 +30,7 @@ const addObject = async (index: any, order: Order, days: number, daysDif: number
     }
 
     const date = new Date(order.createdAt)
-    date.setDate(date.getDate() + 455)
+    date.setDate(date.getDate() + 454)
 
     const opciones = { year: 'numeric', month: 'long', day: 'numeric' };
 
