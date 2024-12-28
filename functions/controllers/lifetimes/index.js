@@ -27,7 +27,7 @@ const addObject = (index, order, days, daysDif) => __awaiter(void 0, void 0, voi
             products.push(`(${item.quantity})${(_c = item.name["es-MX"]) !== null && _c !== void 0 ? _c : item.name["en"]} ${(_e = (_d = item.variant.attributes) === null || _d === void 0 ? void 0 : _d.find(item => item.name == "servicio")) === null || _e === void 0 ? void 0 : _e.value["key"].replace('-', " ")}`);
         }
         const date = new Date(order.createdAt);
-        date.setDate(date.getDate() + 456);
+        date.setDate(date.getDate() + 455);
         const opciones = { year: 'numeric', month: 'long', day: 'numeric' };
         // Formatear la fecha 
         // @ts-ignore
