@@ -26,10 +26,12 @@ router.get("/ordersExpired/:idCustomer", (req, res) => __awaiter(void 0, void 0,
     if (!orders.statusCode || orders.statusCode >= 300)
         return res.sendStatus(404);
     for (const order of orders.body.results) {
-        const services = (_a = order.custom) === null || _a === void 0 ? void 0 : _a.fields["services"];
+        console.log(order.orderNumber);
+        const services = JSON.parse((_a = order.custom) === null || _a === void 0 ? void 0 : _a.fields["services"]);
         if (!services)
             continue;
         for (const key in services) {
+            const service = services[key] || {};
             countGuides = countGuides + services[key].guides.length;
         }
     }
