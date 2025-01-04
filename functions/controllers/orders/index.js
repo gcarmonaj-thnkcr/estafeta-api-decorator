@@ -13,7 +13,8 @@ const express_1 = require("express");
 const client_1 = require("../../commercetools/client");
 const router = (0, express_1.Router)();
 router.get("/ordersExpired/:idCustomer", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b;
+    var _a;
+    let countGuides = 0;
     const idCustomer = req.params.idCustomer;
     if (!idCustomer)
         return res.status(400).send({ message: 'idCustomer is required' });
@@ -24,9 +25,17 @@ router.get("/ordersExpired/:idCustomer", (req, res) => __awaiter(void 0, void 0,
     }).execute();
     if (!orders.statusCode || orders.statusCode >= 300)
         return res.sendStatus(404);
+    for (const order of orders.body.results) {
+        const services = (_a = order.custom) === null || _a === void 0 ? void 0 : _a.fields["services"];
+        if (!services)
+            continue;
+        for (const key in services) {
+            countGuides = countGuides + services[key].guides.length;
+        }
+    }
     return res.status(200).send({
         message: '',
-        ordersToExpired: (_b = (_a = orders.body) === null || _a === void 0 ? void 0 : _a.total) !== null && _b !== void 0 ? _b : 0
+        ordersToExpired: countGuides
     });
 }));
 router.post("/payment/webhook", (req, res) => __awaiter(void 0, void 0, void 0, function* () {

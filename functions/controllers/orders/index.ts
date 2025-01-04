@@ -4,6 +4,7 @@ import { apiRoot } from "../../commercetools/client";
 const router = Router()
 
 router.get("/ordersExpired/:idCustomer", async (req: Request, res: Response): Promise<any> => {
+  let countGuides = 0
   const idCustomer = req.params.idCustomer
   if(!idCustomer) return res.status(400).send({ message: 'idCustomer is required' })
   const orders = await apiRoot.orders().get({
@@ -12,9 +13,16 @@ router.get("/ordersExpired/:idCustomer", async (req: Request, res: Response): Pr
     }
   }).execute()
   if(!orders.statusCode || orders.statusCode >= 300) return res.sendStatus(404)
+  for(const order of orders.body.results){
+    const services = order.custom?.fields["services"]
+    if(!services) continue
+    for (const key in services) {
+      countGuides = countGuides + services[key].guides.length
+    }
+  }
   return res.status(200).send({
     message: '',
-    ordersToExpired: orders.body?.total ?? 0
+    ordersToExpired: countGuides
   })
 })
 
