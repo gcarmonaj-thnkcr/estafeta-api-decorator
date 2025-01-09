@@ -9,6 +9,7 @@ export interface PurchaseOrder {
 
 interface Waybill {
   Code: string;
+  TrackingCode: string;
 }
 
 export interface ILineGuide {

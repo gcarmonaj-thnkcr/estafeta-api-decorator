@@ -309,7 +309,7 @@ const addPaymentToOrdersRecoleccion = (data, order, customer) => __awaiter(void 
 });
 exports.addPaymentToOrdersRecoleccion = addPaymentToOrdersRecoleccion;
 const addPaymentToOrders = (data, order, customer) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q;
+    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y;
     const quantityTotalGuides = 0;
     const orders = yield client_1.apiRoot.orders().get({
         queryArgs: {
@@ -395,8 +395,13 @@ const addPaymentToOrders = (data, order, customer) => __awaiter(void 0, void 0, 
     //     ]
     //   }
     // }).execute()
-    let versionCustomer = customer.version;
-    let objectCustomer = customer;
+    const userUpdated = yield client_1.apiRoot.customers().get({
+        queryArgs: {
+            where: `email in ("${customer.email}")`
+        }
+    }).execute();
+    let versionCustomer = userUpdated.body.results[0].version;
+    let objectCustomer = userUpdated.body.results[0];
     //Esto es para agregar items
     for (const line of order.lineItems) {
         const attrType = (_f = (_e = line.variant.attributes) === null || _e === void 0 ? void 0 : _e.find(item => item.name == "tipo-paquete")) === null || _f === void 0 ? void 0 : _f.value["label"];
@@ -404,8 +409,9 @@ const addPaymentToOrders = (data, order, customer) => __awaiter(void 0, void 0, 
             continue;
         const attrQuantity = (_j = (_h = (_g = line.variant.attributes) === null || _g === void 0 ? void 0 : _g.find(item => item.name == "quantity-items")) === null || _h === void 0 ? void 0 : _h.value) !== null && _j !== void 0 ? _j : 1;
         const attrService = (_l = (_k = line.variant.attributes) === null || _k === void 0 ? void 0 : _k.find(item => item.name == "servicio")) === null || _l === void 0 ? void 0 : _l.value["label"];
+        debugger;
         if (attrService == "DIA SIGUIENTE") {
-            const quantityGuideAvailables = (_m = objectCustomer.custom) === null || _m === void 0 ? void 0 : _m.fields["quantity-guides-dia-siguiente"];
+            const quantityGuideAvailables = (_p = (_o = (_m = objectCustomer.custom) === null || _m === void 0 ? void 0 : _m.fields) === null || _o === void 0 ? void 0 : _o["quantity-guides-dia-siguiente"]) !== null && _p !== void 0 ? _p : 0;
             const updateQuantityUser = yield client_1.apiRoot.customers().withId({ ID: customer.id }).post({
                 body: {
                     version: versionCustomer,
@@ -422,7 +428,7 @@ const addPaymentToOrders = (data, order, customer) => __awaiter(void 0, void 0, 
             objectCustomer = updateQuantityUser.body;
         }
         else if (attrService == "TERRESTRE") {
-            const quantityGuideAvailables = (_o = objectCustomer.custom) === null || _o === void 0 ? void 0 : _o.fields["quantity-guides-terrestres"];
+            const quantityGuideAvailables = (_s = (_r = (_q = objectCustomer.custom) === null || _q === void 0 ? void 0 : _q.fields) === null || _r === void 0 ? void 0 : _r["quantity-guides-terrestres"]) !== null && _s !== void 0 ? _s : 0;
             const updateQuantityUser = yield client_1.apiRoot.customers().withId({ ID: customer.id }).post({
                 body: {
                     version: versionCustomer,
@@ -439,7 +445,7 @@ const addPaymentToOrders = (data, order, customer) => __awaiter(void 0, void 0, 
             objectCustomer = updateQuantityUser.body;
         }
         else if (attrService == "DOS DIAS") {
-            const quantityGuideAvailables = (_p = objectCustomer.custom) === null || _p === void 0 ? void 0 : _p.fields["quantity-guides-dos-dias"];
+            const quantityGuideAvailables = (_v = (_u = (_t = objectCustomer.custom) === null || _t === void 0 ? void 0 : _t.fields) === null || _u === void 0 ? void 0 : _u["quantity-guides-dos-dias"]) !== null && _v !== void 0 ? _v : 0;
             const updateQuantityUser = yield client_1.apiRoot.customers().withId({ ID: customer.id }).post({
                 body: {
                     version: versionCustomer,
@@ -456,7 +462,7 @@ const addPaymentToOrders = (data, order, customer) => __awaiter(void 0, void 0, 
             objectCustomer = updateQuantityUser.body;
         }
         else if (attrService == "12:30") {
-            const quantityGuideAvailables = (_q = objectCustomer.custom) === null || _q === void 0 ? void 0 : _q.fields["quantity-guides-doce-treinta"];
+            const quantityGuideAvailables = (_y = (_x = (_w = objectCustomer.custom) === null || _w === void 0 ? void 0 : _w.fields) === null || _x === void 0 ? void 0 : _x["quantity-guides-doce-treinta"]) !== null && _y !== void 0 ? _y : 0;
             const updateQuantityUser = yield client_1.apiRoot.customers().withId({ ID: customer.id }).post({
                 body: {
                     version: versionCustomer,
@@ -518,6 +524,11 @@ const addPaymentToOrders = (data, order, customer) => __awaiter(void 0, void 0, 
                     {
                         action: "setOrderNumber",
                         orderNumber: newOrder
+                    },
+                    {
+                        action: "setCustomField",
+                        name: "isCombo",
+                        value: isUNIZONA ? true : false
                     }
                 ]
             }
@@ -623,7 +634,7 @@ const addPaymentToOrders = (data, order, customer) => __awaiter(void 0, void 0, 
 });
 exports.addPaymentToOrders = addPaymentToOrders;
 const createMapGuide = (guides, order, folios) => {
-    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z;
+    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _0;
     const lineGuides = new Map();
     const typeService = new Map();
     if (!order.lineItems || ((_a = order.lineItems) === null || _a === void 0 ? void 0 : _a.length) <= 0)
@@ -674,7 +685,7 @@ const createMapGuide = (guides, order, folios) => {
                 continue;
             const origenDestino = order.lineItems.find(item => item.id == id);
             // Asegurarse de que guides esté inicializado antes de hacer push
-            (_k = lineGuide.guides) === null || _k === void 0 ? void 0 : _k.push(Object.assign({ guide: guia.Code, QR: ((_l = folios === null || folios === void 0 ? void 0 : folios[0]) === null || _l === void 0 ? void 0 : _l.folioMD5) ? `Q3SQR${folios[0].folioMD5}` : "0", isItemDimensionsExceeded: (_m = origenDestino === null || origenDestino === void 0 ? void 0 : origenDestino.custom) === null || _m === void 0 ? void 0 : _m.fields["isItemDimensionsExceeded"], isItemWeightExceeded: (_o = origenDestino === null || origenDestino === void 0 ? void 0 : origenDestino.custom) === null || _o === void 0 ? void 0 : _o.fields["isItemWeightExceeded"], isPackage: (_p = origenDestino === null || origenDestino === void 0 ? void 0 : origenDestino.custom) === null || _p === void 0 ? void 0 : _p.fields["isPackage"], isPudo: (_q = origenDestino === null || origenDestino === void 0 ? void 0 : origenDestino.custom) === null || _q === void 0 ? void 0 : _q.fields["isPudo"], itemHeight: (_r = origenDestino === null || origenDestino === void 0 ? void 0 : origenDestino.custom) === null || _r === void 0 ? void 0 : _r.fields["itemHeight"], itemLength: (_s = origenDestino === null || origenDestino === void 0 ? void 0 : origenDestino.custom) === null || _s === void 0 ? void 0 : _s.fields["itemLength"], itemVolumen: (_t = origenDestino === null || origenDestino === void 0 ? void 0 : origenDestino.custom) === null || _t === void 0 ? void 0 : _t.fields["itemVolumen"], itemWeight: (_u = origenDestino === null || origenDestino === void 0 ? void 0 : origenDestino.custom) === null || _u === void 0 ? void 0 : _u.fields["itemWeight"], itemWidth: (_v = origenDestino === null || origenDestino === void 0 ? void 0 : origenDestino.custom) === null || _v === void 0 ? void 0 : _v.fields["itemWidth"], Recoleccion: (_w = origenDestino === null || origenDestino === void 0 ? void 0 : origenDestino.custom) === null || _w === void 0 ? void 0 : _w.fields["Recoleccion"], address: JSON.parse((_z = (_y = (_x = origenDestino === null || origenDestino === void 0 ? void 0 : origenDestino.custom) === null || _x === void 0 ? void 0 : _x.fields) === null || _y === void 0 ? void 0 : _y["origen-destino"]) !== null && _z !== void 0 ? _z : "{}") }, (0, validity_1.getValidityData)()));
+            (_k = lineGuide.guides) === null || _k === void 0 ? void 0 : _k.push(Object.assign({ guide: guia.Code, trackingCode: guia.TrackingCode, QR: ((_l = folios === null || folios === void 0 ? void 0 : folios[0]) === null || _l === void 0 ? void 0 : _l.folioMD5) ? `Q3SQR${folios[0].folioMD5}` : "0", isItemDimensionsExceeded: (_m = origenDestino === null || origenDestino === void 0 ? void 0 : origenDestino.custom) === null || _m === void 0 ? void 0 : _m.fields["isItemDimensionsExceeded"], isItemWeightExceeded: (_o = origenDestino === null || origenDestino === void 0 ? void 0 : origenDestino.custom) === null || _o === void 0 ? void 0 : _o.fields["isItemWeightExceeded"], isPackage: (_p = origenDestino === null || origenDestino === void 0 ? void 0 : origenDestino.custom) === null || _p === void 0 ? void 0 : _p.fields["isPackage"], isPudo: (_q = origenDestino === null || origenDestino === void 0 ? void 0 : origenDestino.custom) === null || _q === void 0 ? void 0 : _q.fields["isPudo"], itemHeight: (_r = origenDestino === null || origenDestino === void 0 ? void 0 : origenDestino.custom) === null || _r === void 0 ? void 0 : _r.fields["itemHeight"], itemLength: (_s = origenDestino === null || origenDestino === void 0 ? void 0 : origenDestino.custom) === null || _s === void 0 ? void 0 : _s.fields["itemLength"], itemVolumen: (_t = origenDestino === null || origenDestino === void 0 ? void 0 : origenDestino.custom) === null || _t === void 0 ? void 0 : _t.fields["itemVolumen"], itemWeight: (_u = origenDestino === null || origenDestino === void 0 ? void 0 : origenDestino.custom) === null || _u === void 0 ? void 0 : _u.fields["itemWeight"], itemWidth: (_v = origenDestino === null || origenDestino === void 0 ? void 0 : origenDestino.custom) === null || _v === void 0 ? void 0 : _v.fields["itemWidth"], Recoleccion: (_w = origenDestino === null || origenDestino === void 0 ? void 0 : origenDestino.custom) === null || _w === void 0 ? void 0 : _w.fields["Recoleccion"], address: JSON.parse((_z = (_y = (_x = origenDestino === null || origenDestino === void 0 ? void 0 : origenDestino.custom) === null || _x === void 0 ? void 0 : _x.fields) === null || _y === void 0 ? void 0 : _y["origen-destino"]) !== null && _z !== void 0 ? _z : "{}") }, (0, validity_1.getValidityData)(false, (_0 = origenDestino === null || origenDestino === void 0 ? void 0 : origenDestino.custom) === null || _0 === void 0 ? void 0 : _0.fields["isPudo"])));
         }
         if ((folios === null || folios === void 0 ? void 0 : folios.length) > 0) {
             folios.shift();

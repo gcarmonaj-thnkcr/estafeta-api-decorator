@@ -434,17 +434,22 @@ export const addPaymentToOrders = async (data: ITransactionEvent, order: Order, 
   //   }
   // }).execute()
 
-  let versionCustomer = customer.version
-
-  let objectCustomer = customer
+  const userUpdated = await apiRoot.customers().get({
+    queryArgs: {
+      where: `email in ("${customer.email}")`
+    }
+  }).execute()
+  let versionCustomer = userUpdated.body.results[0].version
+  let objectCustomer = userUpdated.body.results[0]
   //Esto es para agregar items
   for (const line of order.lineItems) {
     const attrType = line.variant.attributes?.find(item => item.name == "tipo-paquete")?.value["label"]
     if (attrType != "UNIZONA") continue
     const attrQuantity = line.variant.attributes?.find(item => item.name == "quantity-items")?.value ?? 1
     const attrService = line.variant.attributes?.find(item => item.name == "servicio")?.value["label"]
+    debugger
     if (attrService == "DIA SIGUIENTE") {
-      const quantityGuideAvailables = objectCustomer.custom?.fields["quantity-guides-dia-siguiente"]
+      const quantityGuideAvailables = objectCustomer.custom?.fields?.["quantity-guides-dia-siguiente"] ?? 0
       const updateQuantityUser = await apiRoot.customers().withId({ ID: customer.id }).post({
         body: {
           version: versionCustomer,
@@ -452,7 +457,7 @@ export const addPaymentToOrders = async (data: ITransactionEvent, order: Order, 
             {
               action: "setCustomField",
               name: "quantity-guides-dia-siguiente",
-              value: quantityGuideAvailables + (attrQuantity * line.quantity)
+              value: quantityGuideAvailables  + (attrQuantity * line.quantity)
             }
           ]
         }
@@ -461,7 +466,7 @@ export const addPaymentToOrders = async (data: ITransactionEvent, order: Order, 
       objectCustomer = updateQuantityUser.body
     }
     else if (attrService == "TERRESTRE") {
-      const quantityGuideAvailables = objectCustomer.custom?.fields["quantity-guides-terrestres"]
+      const quantityGuideAvailables = objectCustomer.custom?.fields?.["quantity-guides-terrestres"] ?? 0
       const updateQuantityUser = await apiRoot.customers().withId({ ID: customer.id }).post({
         body: {
           version: versionCustomer,
@@ -478,7 +483,7 @@ export const addPaymentToOrders = async (data: ITransactionEvent, order: Order, 
       objectCustomer = updateQuantityUser.body
     }
     else if (attrService == "DOS DIAS") {
-      const quantityGuideAvailables = objectCustomer.custom?.fields["quantity-guides-dos-dias"]
+      const quantityGuideAvailables = objectCustomer.custom?.fields?.["quantity-guides-dos-dias"] ?? 0
       const updateQuantityUser = await apiRoot.customers().withId({ ID: customer.id }).post({
         body: {
           version: versionCustomer,
@@ -496,7 +501,7 @@ export const addPaymentToOrders = async (data: ITransactionEvent, order: Order, 
     }
 
     else if (attrService == "12:30") {
-      const quantityGuideAvailables = objectCustomer.custom?.fields["quantity-guides-doce-treinta"]
+      const quantityGuideAvailables = objectCustomer.custom?.fields?.["quantity-guides-doce-treinta"] ?? 0
       const updateQuantityUser = await apiRoot.customers().withId({ ID: customer.id }).post({
         body: {
           version: versionCustomer,
@@ -504,7 +509,7 @@ export const addPaymentToOrders = async (data: ITransactionEvent, order: Order, 
             {
               action: "setCustomField",
               name: "quantity-guides-doce-treinta",
-              value: quantityGuideAvailables + (attrQuantity * line.quantity)
+              value: quantityGuideAvailables  + (attrQuantity * line.quantity)
             }
           ]
         }
@@ -562,6 +567,11 @@ export const addPaymentToOrders = async (data: ITransactionEvent, order: Order, 
         {
           action: "setOrderNumber",
           orderNumber: newOrder
+        },
+        {
+          action: "setCustomField",
+          name: "isCombo",
+          value: isUNIZONA ? true : false
         }
       ]
     }
@@ -723,6 +733,7 @@ const createMapGuide = (guides: PurchaseOrder[], order: Order, folios: any[]) =>
       // Asegurarse de que guides esté inicializado antes de hacer push
       lineGuide.guides?.push({
         guide: guia.Code,
+        trackingCode: guia.TrackingCode,
         QR: folios?.[0]?.folioMD5 ? `Q3SQR${folios[0].folioMD5}` : "0",
         isItemDimensionsExceeded: origenDestino?.custom?.fields["isItemDimensionsExceeded"],
         isItemWeightExceeded: origenDestino?.custom?.fields["isItemWeightExceeded"],
@@ -735,7 +746,7 @@ const createMapGuide = (guides: PurchaseOrder[], order: Order, folios: any[]) =>
         itemWidth: origenDestino?.custom?.fields["itemWidth"],
         Recoleccion: origenDestino?.custom?.fields["Recoleccion"],
         address: JSON.parse(origenDestino?.custom?.fields?.["origen-destino"] ?? "{}"),
-        ...getValidityData()
+        ...getValidityData(false, origenDestino?.custom?.fields["isPudo"])
       });
     }
 
