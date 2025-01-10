@@ -27,7 +27,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CTP_SCOPES = exports.CTP_API_URL = exports.CTP_AUTH_URL = exports.CTP_CLIENT_ID = exports.CTP_CLIENT_SECRET = exports.CTP_PROJECT_KEY = void 0;
 const dotenv = __importStar(require("dotenv"));
 dotenv.config();
-console.log("Project", process.env.CTP_PROJECT_KEY);
 exports.CTP_PROJECT_KEY = (_a = process.env.CTP_PROJECT_KEY) !== null && _a !== void 0 ? _a : "";
 exports.CTP_CLIENT_SECRET = (_b = process.env.CTP_CLIENT_SECRET) !== null && _b !== void 0 ? _b : "";
 exports.CTP_CLIENT_ID = (_c = process.env.CTP_CLIENT_ID) !== null && _c !== void 0 ? _c : "";
