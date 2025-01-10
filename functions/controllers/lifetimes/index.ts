@@ -37,7 +37,6 @@ const addObject = async (index: any, order: Order, days: number, daysDif: number
     // Formatear la fecha 
     // @ts-ignore
     const fechaFormateada = date.toLocaleDateString('es-ES', opciones);
-    console.log("Formated date: ", fechaFormateada)
 
     orderstoNotify.push({
       emailClient: customer.body.email,

@@ -32,7 +32,6 @@ const addObject = (index, order, days, daysDif) => __awaiter(void 0, void 0, voi
         // Formatear la fecha 
         // @ts-ignore
         const fechaFormateada = date.toLocaleDateString('es-ES', opciones);
-        console.log("Formated date: ", fechaFormateada);
         orderstoNotify.push({
             emailClient: customer.body.email,
             clientName: ((_g = (_f = customer.body) === null || _f === void 0 ? void 0 : _f.firstName) !== null && _g !== void 0 ? _g : "") + ((_j = (_h = customer.body) === null || _h === void 0 ? void 0 : _h.lastName) !== null && _j !== void 0 ? _j : "") + ((_l = (_k = customer.body) === null || _k === void 0 ? void 0 : _k.middleName) !== null && _l !== void 0 ? _l : ""),
