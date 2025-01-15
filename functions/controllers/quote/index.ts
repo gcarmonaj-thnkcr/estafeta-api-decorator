@@ -52,9 +52,7 @@ router.post("/quote", async(req: Request, res: Response): Promise<any> => {
     }
     response = services
   } else if(req.body.type == "internacional") {
-    console.log(req.body)
     const services = await handleCotizacionInternacional(req.body)
-    console.log("Respuesta",services)
     if(!req.body.IsRecoleccion) {
       for(const response of services.Response){
         response.Service[0].ServiceCost.InsuredCost = 0
