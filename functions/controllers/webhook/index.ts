@@ -13,6 +13,7 @@ router.post("/payment/webhook", async (req: Request, res: Response): Promise<any
     const responsePayment = await addPaymentToOrder(paymentInfo)   
     if(responsePayment.message) {
       console.log(responsePayment)
+
       return res.sendStatus(500)
     }
     return res.sendStatus(200)
