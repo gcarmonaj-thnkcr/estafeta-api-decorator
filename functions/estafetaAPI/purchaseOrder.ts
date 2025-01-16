@@ -49,7 +49,7 @@ let taxAmount = 16
 export const WSPurchaseOrder = async ({ order, code, customer, idPaymentService, methodName, quantityTotalGuides }: IPurchaseOrder) => {
   const typeCart = getTypeCart(order)
   idPaymentService = idPaymentService.length > 10 ? idPaymentService.substring(0, 10) : idPaymentService
-  const purchaseLines = createLinePurchase(typeCart, order, code, quantityTotalGuides, customer, idPaymentService)
+  const purchaseLines = await createLinePurchase(typeCart, order, code, quantityTotalGuides, customer, idPaymentService)
   if(!taxAmount) taxAmount = 16 
   const data = {
     "purchaseOrder": [
@@ -87,8 +87,8 @@ export const WSPurchaseOrder = async ({ order, code, customer, idPaymentService,
     ]
   }
 
+  console.log(data)
   const token = await authToken({ type: 'purchaseOrder' })
-  console.log(token)
   const config = {
     method: 'post',
     url: 'https://apimiddlewareinvoiceqa.estafeta.com/TiendaEstafetaAPI/rest/PurchasePortalOrder/Insert',
@@ -250,7 +250,7 @@ const createLinePurchase = async (typeCart: string, order: Order, code: string, 
     if (line.totalPrice.centAmount > 0) {
       quitAdicionales = quitAdicionales * 100
       const finalPrice = (line.totalPrice.centAmount - quitAdicionales) | 0
-      
+      console.log(codeMaterial.code) 
       if (finalPrice > 0) {
         servicesLines.push({
           PurchaseOrderCode: code, // Autoincrementable
@@ -266,6 +266,8 @@ const createLinePurchase = async (typeCart: string, order: Order, code: string, 
         })
       }
     }
+
+    console.log(servicesLines)
     
     if (adicionales) {
       const result = adicionales.reduce((acc: any, item: any) => {

@@ -1,3 +1,4 @@
+
 interface ICodes {
   [name:string]: {
     code: string
@@ -13,8 +14,8 @@ const codes: ICodes = {
   ["manejo-especial"] : { code: "EI" },
   ["manejo"]: {code: "EI"},
   ["seguro"]: {code: "SG"},
-  ["12:30-cargo"] : { code: "HCB" },
-  ["12:30-combustible-por-peso"] : { code: "HCBS" },
+  ["cargo-combustible"] : { code: "CB" },
+  ["combustible-por-peso"] : { code: "CBS" },
   ["DIA SIGUIENTE"] : { code: "68" },
   ["DIA SIGUIENTE-cargo"] : { code: "6CB" },
   ["DIA SIGUIENTE-cargo-por-peso"] : { code: "6CBS" },

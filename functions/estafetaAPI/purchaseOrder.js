@@ -39,7 +39,7 @@ const WSPurchaseOrder = (_a) => __awaiter(void 0, [_a], void 0, function* ({ ord
     var _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q;
     const typeCart = getTypeCart(order);
     idPaymentService = idPaymentService.length > 10 ? idPaymentService.substring(0, 10) : idPaymentService;
-    const purchaseLines = createLinePurchase(typeCart, order, code, quantityTotalGuides, customer, idPaymentService);
+    const purchaseLines = yield createLinePurchase(typeCart, order, code, quantityTotalGuides, customer, idPaymentService);
     if (!taxAmount)
         taxAmount = 16;
     const data = {
@@ -77,8 +77,8 @@ const WSPurchaseOrder = (_a) => __awaiter(void 0, [_a], void 0, function* ({ ord
             }
         ]
     };
+    console.log(data);
     const token = yield (0, auth_1.authToken)({ type: 'purchaseOrder' });
-    console.log(token);
     const config = {
         method: 'post',
         url: 'https://apimiddlewareinvoiceqa.estafeta.com/TiendaEstafetaAPI/rest/PurchasePortalOrder/Insert',
@@ -242,6 +242,7 @@ const createLinePurchase = (typeCart, order, code, quantityTotalGuides, customer
         if (line.totalPrice.centAmount > 0) {
             quitAdicionales = quitAdicionales * 100;
             const finalPrice = (line.totalPrice.centAmount - quitAdicionales) | 0;
+            console.log(codeMaterial.code);
             if (finalPrice > 0) {
                 servicesLines.push({
                     PurchaseOrderCode: code, // Autoincrementable
@@ -257,6 +258,7 @@ const createLinePurchase = (typeCart, order, code, quantityTotalGuides, customer
                 });
             }
         }
+        console.log(servicesLines);
         if (adicionales) {
             const result = adicionales.reduce((acc, item) => {
                 const keys = Object.keys(item);
