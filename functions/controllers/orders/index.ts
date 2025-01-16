@@ -14,7 +14,6 @@ router.get("/ordersExpired/:idCustomer", async (req: Request, res: Response): Pr
   }).execute()
   if(!orders.statusCode || orders.statusCode >= 300) return res.sendStatus(404)
   for(const order of orders.body.results){
-    console.log(order.orderNumber)
     const services = JSON.parse(order.custom?.fields["services"])
     if(!services) continue
     for (const key in services) {
