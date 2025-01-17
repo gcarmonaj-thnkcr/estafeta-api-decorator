@@ -14,8 +14,6 @@ const addPayment_1 = require("../../utils/addPayment");
 const router = (0, express_1.Router)();
 router.post("/payment/webhook", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        console.log(req.body);
-        return res.status(200);
         const paymentInfo = req.body;
         console.log(paymentInfo.transaction);
         if (paymentInfo.transaction.status != "completed")
