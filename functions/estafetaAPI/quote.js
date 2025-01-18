@@ -45,6 +45,7 @@ function handleCotizacionInternacional(body) {
     return __awaiter(this, void 0, void 0, function* () {
         const data = body;
         const token = yield (0, auth_1.authToken)({ type: 'quoteInternacional' });
+        console.log(data);
         const config = {
             method: 'post',
             url: 'https://apimwscotizador.estafeta.com/Cotizacion/rest/Cotizador/InternationalQuotation?SALES_ORGANIZATION&CUSTOMER',
@@ -56,7 +57,9 @@ function handleCotizacionInternacional(body) {
             data: JSON.stringify(data),
         };
         try {
+            console.log("Config", config);
             const response = yield axios_1.default.request(config);
+            console.log("Response int:", response);
             return response;
         }
         catch (error) {
