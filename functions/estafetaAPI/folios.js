@@ -27,7 +27,7 @@ const CreateFolios = (quantityFolios) => __awaiter(void 0, void 0, void 0, funct
         method: 'post',
         url: 'https://wsbotrastreo.estafeta.com/Folios_IS/rest/FoliosManagement/CreateFolio',
         headers: {
-            'apikey': 'l7f498410411fb4b23b62c1a78abf60200',
+            'apikey': 'l7fa71f4ddb9b14ae3a4cf799269f3aed4',
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`,
         },
