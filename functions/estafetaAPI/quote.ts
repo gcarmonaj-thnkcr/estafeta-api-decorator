@@ -33,7 +33,7 @@ export async function handleCotizacionInternacional(body: any) {
   const token = await authToken({ type: 'quoteInternacional' });
   const config = {
     method: 'post',
-    url: 'https://apimwscotizadorqa.estafeta.com/Cotizacion/rest/Cotizador/InternationalQuotation?SALES_ORGANIZATION&CUSTOMER',
+    url: 'https://apimwscotizador.estafeta.com/Cotizacion/rest/Cotizador/InternationalQuotation',
     headers: {
       apikey: 'f3bb437a10d348c99eeeb0101de13013',
       'Content-Type': 'application/json',
