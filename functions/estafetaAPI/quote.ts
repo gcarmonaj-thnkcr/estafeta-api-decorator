@@ -35,7 +35,7 @@ export async function handleCotizacionInternacional(body: any) {
     method: 'post',
     url: 'https://apimwscotizadorqa.estafeta.com/Cotizacion/rest/Cotizador/InternationalQuotation?SALES_ORGANIZATION&CUSTOMER',
     headers: {
-      apikey: '782b4f8f93934ab28e4c4ab33ca2f833',
+      apikey: 'e40aabc76af34cbc99378a4732e759d5',
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
     },
