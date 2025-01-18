@@ -91,13 +91,11 @@ export const WSPurchaseOrder = async ({ order, code, customer, idPaymentService,
   const token = await authToken({ type: 'purchaseOrder' })
   const config = {
     method: 'post',
-    url: 'https://apimiddlewareinvoiceqa.estafeta.com/TiendaEstafetaAPI/rest/PurchasePortalOrder/Insert',
+    url: 'https://apimiddlewareinvoice.estafeta.com/TiendaEstafetaAPI/rest/PurchasePortalOrder/Insert',
     headers: {
-      APIKEY: '35a7bf4c03f44514b7f100f9bcdfc208',
+      APIKEY: '535bdfc24755428aac2d96dca5a158ee',
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
-      Cookie:
-        'dd4f03=4xuDehaAsBXfKXHuNYpioX8SAaJ5WeWSH6rsC+LyveY2vvEGjw2weq+6elv8TGL4ooypquxeH7iU3UhM3I6EiJtLDsqT2qGvmBhbKu8FeSwnxDTjsMG/B8KyTXOD9rBIVUftAp9K1nrKTWdSTmQSgJR0WdgomFHUqPjGLAr1nOoFlNbA',
     },
     data: JSON.stringify(data),
   };

@@ -10,7 +10,7 @@ export const newPickUp = async (pickupOrder: PickupRequest) => {
     maxBodyLength: Infinity,
     url: 'https://wspickup.estafeta.com/v2/MiEstafetaServices/rest/PickupAPI/NewPickup',
     headers: { 
-      'apikey': '0bd16b9f856f479898b5193d6492ac8f', 
+      'apikey': 'l706a9c7720e524ad2a0296b300db7955b', 
       'Content-Type': 'application/json', 
       'Authorization': `Bearer ${token}`, 
     },
