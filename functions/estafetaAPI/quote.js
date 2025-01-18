@@ -23,12 +23,11 @@ function handleCotizacion(body) {
         const token = yield (0, auth_1.authToken)({ type: 'quote' });
         const config = {
             method: 'post',
-            url: 'https://wscotizadorqa.estafeta.com/Cotizacion/rest/Cotizador/Cotizacion',
+            url: 'https://wscotizador.estafeta.com/Cotizacion/rest/Cotizador/Cotizacion',
             headers: {
-                apikey: 'l7beefb34b43bc44ef8d318541258df87c',
+                apikey: 'l78539fd322ef546f1885be202a6535157',
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${token}`,
-                Cookie: 'BIGipServerCaildad_8443=!WuZyHrCif8e/oHAeQuK4+sWx1d8MfXw6kMKwes1XaUfnA1qegtN97nV/TkPw6P8sisaPvspWFcz1IX8=',
             },
             data: JSON.stringify(data),
         };
@@ -58,7 +57,7 @@ function handleCotizacionInternacional(body) {
         };
         try {
             const response = yield axios_1.default.request(config);
-            return response.data;
+            return response;
         }
         catch (error) {
             console.error('Error: Cotizacion', error.message);

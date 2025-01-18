@@ -13,12 +13,11 @@ export const CreateFolios = async (quantityFolios: number) => {
 
   const config = {
     method: 'post',
-    url: 'https://apimwsbotrastreoqa.estafeta.com/Folios_IS/rest/FoliosManagement/CreateFolio',
+    url: 'https://wsbotrastreo.estafeta.com/Folios_IS/rest/FoliosManagement/CreateFolio',
     headers: { 
-      'apikey': 'dde71ba840d743e1b217db74e4785574', 
+      'apikey': 'l7f498410411fb4b23b62c1a78abf60200', 
       'Content-Type': 'application/json', 
       'Authorization': `Bearer ${token}`, 
-      'Cookie': 'dd4f03=pdaswPuDm9YyIYorIacttqNYnhSBitzehBSStG2X5HPhv3ijCDKesbRzoSQkgQX5QbFA7eQoQUwuYma/CTSimSpocQ6/wtBu/M1EV0JoxRx8q4eGZO/b1VCKBVNundXbMxDuhiX90iuiUu0zlk0FOePVlKLg8rWp8/N0Fq+J+ro0FWde'
     },
     data : data
   };
