@@ -46,7 +46,8 @@ export async function handleCotizacionInternacional(body: any) {
   try {
     console.log("Config",config)
     const response = await axios.request(config);
-    console.log("Response int:",response.data)
+
+    console.log("Response international:",response.data)
     return response.data;
 
   } catch (error: any) {

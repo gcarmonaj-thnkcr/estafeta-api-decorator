@@ -59,8 +59,8 @@ function handleCotizacionInternacional(body) {
         try {
             console.log("Config", config);
             const response = yield axios_1.default.request(config);
-            console.log("Response int:", response.data);
-            return response;
+            console.log("Response international:", response.data);
+            return response.data;
         }
         catch (error) {
             console.error('Error: Cotizacion', error.message);
