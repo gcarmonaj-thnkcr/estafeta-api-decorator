@@ -187,7 +187,7 @@ export const addPaymentToOrdersRecoleccion = async (data: ITransactionEvent, ord
   }
 
   const newPickUpModel: PickupRequest = {
-    AccountNumber: "8605960",
+    AccountNumber: "5909118",
     RequesterName: order.shippingAddress?.firstName ?? "" + order.shippingAddress?.lastName ?? "",
     RequesterEmail: order.shippingAddress?.email ?? "",
     PickupType: "MP",
