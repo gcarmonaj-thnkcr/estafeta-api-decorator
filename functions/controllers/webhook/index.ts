@@ -7,9 +7,7 @@ const router = Router()
 
 router.post("/payment/webhook", async (req: Request, res: Response): Promise<any> => {
   try{
-    console.log(req.body)
-    console.log(req)
-    return res.sendStatus(200)
+    console.log("Openpay webhook body", req.body)
     const paymentInfo: ITransactionEvent = req.body
     console.log(paymentInfo.transaction)
     if(paymentInfo.transaction.status != "completed") return res.sendStatus(200)
