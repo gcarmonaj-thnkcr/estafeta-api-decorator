@@ -11,7 +11,7 @@ export interface ICardPayment {
 }
 
 export interface IPurchaseOrder {
-  order: Order;
+  order: Order | Cart;
   code: string;
   idPaymentService: string;
   methodName: string;
@@ -32,7 +32,7 @@ interface IPurchaseLine {
   SummaryService: number;
 }
 
-const getTypeCart = (order: Order) => {
+const getTypeCart = (order: Order | Cart) => {
   let attrType = order?.lineItems?.some(item => item.variant.attributes?.find(attr => attr.name == "tipo-paquete")?.value["label"] == "ZONA")
   if (attrType) return "ZONA"
   attrType = order?.lineItems?.some(item => item.variant.attributes?.find(attr => attr.name == "tipo-paquete")?.value["label"] == "UNIZONA")
@@ -167,7 +167,7 @@ const updatedCustomer = async (email: string, fieldToUpdated: string, quantityGu
   
 }
 
-const createLinePurchase = async (typeCart: string, order: Order, code: string, quantityTotalGuides: number, customer: Customer, idPaymentService: string): Promise<IPurchaseLine[]> => {
+const createLinePurchase = async (typeCart: string, order: Order | Cart, code: string, quantityTotalGuides: number, customer: Customer, idPaymentService: string): Promise<IPurchaseLine[]> => {
   debugger
   if (typeCart == "UNIZONA") {
     const servicesLines: IPurchaseLine[] = [];

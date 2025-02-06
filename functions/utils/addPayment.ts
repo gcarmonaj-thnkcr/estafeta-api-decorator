@@ -1,4 +1,4 @@
-import type { Customer, Order } from "@commercetools/platform-sdk";
+import type { Cart, Customer, Order } from "@commercetools/platform-sdk";
 import { apiRoot } from "../commercetools/client";
 import { ITransactionEvent } from "../interfaces/payment";
 import { IMapGuide, IOrderSelected, PickupPackage, PickupRequest } from "../interfaces/pickupModel";
@@ -680,7 +680,7 @@ export const addPaymentToOrders = async (data: ITransactionEvent, order: Order, 
 }
 
 
-const createMapGuide = (guides: PurchaseOrder[], order: Order, folios: any[]) => {
+export const createMapGuide = (guides: PurchaseOrder[], order: Order | Cart, folios: any[]) => {
   const lineGuides = new Map<string, ILineGuide>();
   const typeService = new Map<string, string>();
 

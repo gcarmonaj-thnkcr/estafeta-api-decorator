@@ -18,7 +18,7 @@ interface IGuides {
   QR: string;
 }
 
-export const asignGuideToOrder = async (customer: Customer, order: Order): Promise<any> => {
+export const asignGuideToOrder = async (customer: Customer, order: Order | Cart): Promise<any> => {
   debugger
   let guias = []
   const ordenToDeleteGuide: any[] = []
