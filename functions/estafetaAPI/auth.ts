@@ -78,8 +78,8 @@ const validateToken = async ({type}: ITypeToken)  => {
 
   const currentDate = new Date();
   if (currentDate >= expirationDate) {
-    const { clientId, clientSecret, url } = Keys[type]
-    const creationToken = await createToken(clientId, clientSecret, url)
+    const { clientId, clientSecret, url, scope } = Keys[type]
+    const creationToken = await createToken(clientId, clientSecret, url, scope)
     tokensCreateds.set(type, creationToken)
     return creationToken.access_token
   } else {
@@ -102,10 +102,12 @@ const createToken = async (clientId: string, clientSecret: string, url: string, 
         'Authorization': `Basic ${auth}`
       }
     })
+    console.log("Token request",request.data)
     const token: IToken = {
       ...request.data,
       created_at: new Date()
     }
+    console.log(token)
     if (!token) return {} as IToken
     return token
   } catch (err: any) {

@@ -90,8 +90,8 @@ const validateToken = (_a) => __awaiter(void 0, [_a], void 0, function* ({ type 
     const expirationDate = new Date(createdAt.getTime() + expiresInMilliseconds);
     const currentDate = new Date();
     if (currentDate >= expirationDate) {
-        const { clientId, clientSecret, url } = Keys[type];
-        const creationToken = yield createToken(clientId, clientSecret, url);
+        const { clientId, clientSecret, url, scope } = Keys[type];
+        const creationToken = yield createToken(clientId, clientSecret, url, scope);
         tokensCreateds.set(type, creationToken);
         return creationToken.access_token;
     }
@@ -112,7 +112,9 @@ const createToken = (clientId, clientSecret, url, scope) => __awaiter(void 0, vo
                 'Authorization': `Basic ${auth}`
             }
         });
+        console.log("Token request", request.data);
         const token = Object.assign(Object.assign({}, request.data), { created_at: new Date() });
+        console.log(token);
         if (!token)
             return {};
         return token;
