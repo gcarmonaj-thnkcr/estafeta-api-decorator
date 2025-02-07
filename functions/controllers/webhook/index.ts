@@ -20,6 +20,8 @@ router.post("/payment/webhook", async (req: Request, res: Response): Promise<any
 
       return res.sendStatus(500)
     }
+    console.log("Proceso culminado")
+    console.log("------------------------")
     return res.sendStatus(200)
   } catch(err: any) {
     return res.status(500).send({message: err.message})

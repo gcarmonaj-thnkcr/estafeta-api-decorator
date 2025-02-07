@@ -36,6 +36,7 @@ const addPaymentToOrder = (body) => __awaiter(void 0, void 0, void 0, function* 
         response = yield (0, exports.addPaymentToOrdersRecoleccion)(body, order.body, customer.body);
     }
     else {
+        console.log("Iniciando pago");
         response = yield (0, exports.addPaymentToOrders)(body, order.body, customer.body);
     }
     return {
@@ -321,6 +322,7 @@ const addPaymentToOrders = (data, order, customer) => __awaiter(void 0, void 0, 
         return;
     const orderSplit = orders.body.results[0].orderNumber.split('D');
     let newOrder = `${orderSplit[0]}D${String(parseInt(orderSplit[1]) + 1).padStart(6, "0")}`;
+    console.log("Pago registrado en ct");
     const createPayment = yield client_1.apiRoot.payments().post({
         body: {
             key: data.transaction.id,
@@ -375,6 +377,7 @@ const addPaymentToOrders = (data, order, customer) => __awaiter(void 0, void 0, 
             message: purchaseResult.message,
             orderId: "",
         };
+    console.log("Purchase order generado");
     const purchaseOrder = purchaseResult.purchaseOrder;
     const codes = purchaseOrder.resultPurchaseOrder;
     let mapGuides;

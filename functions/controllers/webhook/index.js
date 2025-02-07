@@ -27,6 +27,8 @@ router.post("/payment/webhook", (req, res) => __awaiter(void 0, void 0, void 0, 
             console.log(responsePayment);
             return res.sendStatus(500);
         }
+        console.log("Proceso culminado");
+        console.log("------------------------");
         return res.sendStatus(200);
     }
     catch (err) {

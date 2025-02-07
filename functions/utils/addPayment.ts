@@ -35,6 +35,7 @@ export const addPaymentToOrder = async (body: ITransactionEvent): Promise<IRespo
   if (isRecoleccion) {
     response = await addPaymentToOrdersRecoleccion(body, order.body, customer.body)
   } else {
+    console.log("Iniciando pago")
     response = await addPaymentToOrders(body, order.body, customer.body)
   }
     
@@ -353,7 +354,7 @@ export const addPaymentToOrders = async (data: ITransactionEvent, order: Order, 
   if (!orders.body.results[0].orderNumber) return
   const orderSplit = orders.body.results[0].orderNumber.split('D')
   let newOrder = `${orderSplit[0]}D${String(parseInt(orderSplit[1]) + 1).padStart(6, "0")}`
-
+  console.log("Pago registrado en ct")
   const createPayment = await apiRoot.payments().post({
     body: {
       key: data.transaction.id,
@@ -410,7 +411,7 @@ export const addPaymentToOrders = async (data: ITransactionEvent, order: Order, 
     message: purchaseResult.message,
     orderId: "",
   }
-
+  console.log("Purchase order generado")
   const purchaseOrder = purchaseResult.purchaseOrder
 
   const codes = purchaseOrder.resultPurchaseOrder
