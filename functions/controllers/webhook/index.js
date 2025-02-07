@@ -17,6 +17,8 @@ router.post("/payment/webhook", (req, res) => __awaiter(void 0, void 0, void 0, 
         const paymentInfo = req.body;
         if (paymentInfo.transaction.status != "completed")
             return res.sendStatus(200);
+        if (paymentInfo.transaction.method == "card")
+            return res.sendStatus(200);
         console.log("------------------------");
         console.log(`Openpay webhook body: ${paymentInfo.transaction.id}`);
         console.log("Pagado");

@@ -12,6 +12,7 @@ interface ITrasactionBody {
   order_id: string;
   amount: number;
   payment_method: IPaymentMethod  
+  method: string
 }
 
 interface IPaymentMethod {
