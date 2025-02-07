@@ -44,7 +44,6 @@ const app = (0, express_1.default)();
 dotenv.config();
 app.use((0, cors_1.default)());
 app.use(express_1.default.json());
-console.log(process.env.ClientSecretPurchase);
 app.use("/.netlify/functions/api", index_6.default);
 app.use("/.netlify/functions/api", index_1.default);
 app.use("/.netlify/functions/api", index_2.default);

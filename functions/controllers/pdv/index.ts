@@ -20,7 +20,6 @@ router.get("/pdv-services", validateToken, async (req: Request, res: Response): 
       }
     }).execute()
 
-    console.log(order.body.hits)
     
     if(order.body.hits.length <= 0) return res.sendStatus(404)
     
@@ -42,7 +41,6 @@ router.get("/pdv-services", validateToken, async (req: Request, res: Response): 
         if(servicesFind) break
       }
     }
-    console.log(servicesFind) 
     const { origin, destination } = servicesFind.address
 
     const betweenRoadsOrigin = origin?.optionalAddress1?.includes("?") ? origin.optionalAddress1.split("?") : [origin.optionalAddress1];

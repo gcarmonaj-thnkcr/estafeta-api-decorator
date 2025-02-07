@@ -19,8 +19,6 @@ dotenv.config()
 app.use(cors());
 app.use(express.json())
 
-console.log(process.env.ClientSecretPurchase)
-
 app.use("/.netlify/functions/api", webhookRouter)
 app.use("/.netlify/functions/api",pdvRouter)
 app.use("/.netlify/functions/api", lifetTimeRouter)

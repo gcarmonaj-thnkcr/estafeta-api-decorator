@@ -16,15 +16,14 @@ const validate_1 = require("../../validateDate/validate");
 const router = (0, express_1.Router)();
 let orderstoNotify = [];
 const addObject = (index, order, days, daysDif) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l;
+    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
     try {
         const customer = yield client_1.apiRoot.customers().withId({ ID: (_a = order.customerId) !== null && _a !== void 0 ? _a : "" }).get().execute();
         if (!customer.statusCode || customer.statusCode >= 300)
             return;
         const products = [];
         for (const item of order.lineItems) {
-            console.log(`${(_b = item.name["es-MX"]) !== null && _b !== void 0 ? _b : item.name["en"]} `);
-            products.push(`(${item.quantity})${(_c = item.name["es-MX"]) !== null && _c !== void 0 ? _c : item.name["en"]} ${(_e = (_d = item.variant.attributes) === null || _d === void 0 ? void 0 : _d.find(item => item.name == "servicio")) === null || _e === void 0 ? void 0 : _e.value["key"].replace('-', " ")}`);
+            products.push(`(${item.quantity})${(_b = item.name["es-MX"]) !== null && _b !== void 0 ? _b : item.name["en"]} ${(_d = (_c = item.variant.attributes) === null || _c === void 0 ? void 0 : _c.find(item => item.name == "servicio")) === null || _d === void 0 ? void 0 : _d.value["key"].replace('-', " ")}`);
         }
         const date = new Date(order.createdAt);
         date.setDate(date.getDate() + 454);
@@ -34,7 +33,7 @@ const addObject = (index, order, days, daysDif) => __awaiter(void 0, void 0, voi
         const fechaFormateada = date.toLocaleDateString('es-ES', opciones);
         orderstoNotify.push({
             emailClient: customer.body.email,
-            clientName: ((_g = (_f = customer.body) === null || _f === void 0 ? void 0 : _f.firstName) !== null && _g !== void 0 ? _g : "") + ((_j = (_h = customer.body) === null || _h === void 0 ? void 0 : _h.lastName) !== null && _j !== void 0 ? _j : "") + ((_l = (_k = customer.body) === null || _k === void 0 ? void 0 : _k.middleName) !== null && _l !== void 0 ? _l : ""),
+            clientName: ((_f = (_e = customer.body) === null || _e === void 0 ? void 0 : _e.firstName) !== null && _f !== void 0 ? _f : "") + ((_h = (_g = customer.body) === null || _g === void 0 ? void 0 : _g.lastName) !== null && _h !== void 0 ? _h : "") + ((_k = (_j = customer.body) === null || _j === void 0 ? void 0 : _j.middleName) !== null && _k !== void 0 ? _k : ""),
             folios: products.join(","),
             expirationDate: fechaFormateada,
             expirationDays: days
@@ -47,7 +46,6 @@ const addObject = (index, order, days, daysDif) => __awaiter(void 0, void 0, voi
 });
 router.get("/lifetimes", token_1.validateToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b;
-    console.log("Lifetimes called");
     let orders = [];
     const endDate = req.headers.date;
     const limit = parseInt(req.headers.limit) || 20;
@@ -60,14 +58,11 @@ router.get("/lifetimes", token_1.validateToken, (req, res) => __awaiter(void 0, 
             where: 'custom(fields(isCombo=true)) and createdAt >= "2023-10-26T00:00:00Z"',
         }
     }).execute();
-    console.log(orders_bundle.body.count, orders_bundle.body.total);
     orders = orders_bundle.body.results;
     if (orders_bundle.body.results.length <= 0)
         return res.sendStatus(204);
-    console.log("Orders length: ", orders_bundle.body.results.length);
     const order_count = ((_a = orders_bundle.body.total) !== null && _a !== void 0 ? _a : 0) - 500;
     /*
-    console.log("Order count: ", order_count)
     for (let i = 501; i < order_count; i += 500) {
       console.log("Offset: ", i)
       const orders_bundle = await apiRoot.orders().get({
@@ -86,7 +81,6 @@ router.get("/lifetimes", token_1.validateToken, (req, res) => __awaiter(void 0, 
     //@ts-ignore
     //const ordersCombo = orders.filter(order => order.lineItems.some(item => item.variant?.attributes.some(attr => attr.name == "tipo-paquete" && attr.value["label"] == "UNIZONA")))
     orderstoNotify = [];
-    console.log(orderstoNotify);
     for (const order of orders) {
         console.log('-----------------');
         console.log(order.customerEmail);

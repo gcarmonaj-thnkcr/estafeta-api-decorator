@@ -30,7 +30,6 @@ router.get("/pdv-services", token_1.validateToken, (req, res) => __awaiter(void 
             }
         }
     }).execute();
-    console.log(order.body.hits);
     if (order.body.hits.length <= 0)
         return res.sendStatus(404);
     const searchOrder = yield client_1.apiRoot.orders().withId({ ID: order.body.hits[0].id }).get().execute();
@@ -55,7 +54,6 @@ router.get("/pdv-services", token_1.validateToken, (req, res) => __awaiter(void 
                 break;
         }
     }
-    console.log(servicesFind);
     const { origin, destination } = servicesFind.address;
     const betweenRoadsOrigin = ((_d = origin === null || origin === void 0 ? void 0 : origin.optionalAddress1) === null || _d === void 0 ? void 0 : _d.includes("?")) ? origin.optionalAddress1.split("?") : [origin.optionalAddress1];
     const betweenRoadsDestination = ((_e = destination === null || destination === void 0 ? void 0 : destination.optionalAddress1) === null || _e === void 0 ? void 0 : _e.includes("?")) ? destination.optionalAddress1.split("?") : [destination.optionalAddress1];

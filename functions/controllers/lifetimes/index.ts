@@ -25,7 +25,6 @@ const addObject = async (index: any, order: Order, days: number, daysDif: number
 
     const products = []
     for (const item of order.lineItems) {
-      console.log(`${item.name["es-MX"] ?? item.name["en"]} `)
       products.push(`(${item.quantity})${item.name["es-MX"] ?? item.name["en"]} ${item.variant.attributes?.find(item => item.name == "servicio")?.value["key"].replace('-', " ")}`)
     }
 
@@ -52,7 +51,6 @@ const addObject = async (index: any, order: Order, days: number, daysDif: number
 }
 
 router.get("/lifetimes", validateToken, async (req: Request, res: Response): Promise<any> => {
-  console.log("Lifetimes called")
   let orders: Order[] = []
   const endDate = req.headers.date
   const limit = parseInt(req.headers.limit as string) || 20
@@ -66,16 +64,13 @@ router.get("/lifetimes", validateToken, async (req: Request, res: Response): Pro
       where: 'custom(fields(isCombo=true)) and createdAt >= "2023-10-26T00:00:00Z"',
     }
   }).execute()
-  console.log(orders_bundle.body.count, orders_bundle.body.total)
   orders = orders_bundle.body.results
 
   if (orders_bundle.body.results.length <= 0) return res.sendStatus(204)
   
-  console.log("Orders length: ", orders_bundle.body.results.length)
 
   const order_count = (orders_bundle.body.total ?? 0) - 500
   /*
-  console.log("Order count: ", order_count)
   for (let i = 501; i < order_count; i += 500) {
     console.log("Offset: ", i)
     const orders_bundle = await apiRoot.orders().get({
@@ -96,7 +91,6 @@ router.get("/lifetimes", validateToken, async (req: Request, res: Response): Pro
   //const ordersCombo = orders.filter(order => order.lineItems.some(item => item.variant?.attributes.some(attr => attr.name == "tipo-paquete" && attr.value["label"] == "UNIZONA")))
 
   orderstoNotify = []
-  console.log(orderstoNotify)
   for (const order of orders) {
     console.log('-----------------')
     console.log(order.customerEmail)
