@@ -44,18 +44,14 @@ router.post("/waybills", async (req: Request, res: Response): Promise<any> =>{
     const searchOrder = await apiRoot.orders().withId({ID: order.body.hits[0].id}).get().execute()
     if(!searchOrder.statusCode || searchOrder.statusCode >= 300) return res.sendStatus(404)
     const customObject = searchOrder.body.custom?.fields["services"] && JSON.parse(searchOrder.body.custom.fields["services"])
-    console.log(customObject)
     let servicesFind
     try{
       servicesFind = customObject[searchOrder.body.lineItems[0].id].find((item: any) => item.QR == wayBillItem.qr)
     } catch(err) {
       servicesFind = customObject[searchOrder.body.lineItems[0].id].guides.find((item: any) => item.QR == wayBillItem.qr)
     }
-    console.log(servicesFind.status)
     if(!servicesFind.status ||  servicesFind.status == "DISPONIBLE"){
-      console.log("Entre")
       servicesFind.status = "EN PROCESO"
-      console.log("Cambio")
     } else {
       resulWaylBill.push({
         "resultCode": "1",
@@ -63,7 +59,6 @@ router.post("/waybills", async (req: Request, res: Response): Promise<any> =>{
       })
       continue;
     }
-    console.log("Response", customObject)
     resulWaylBill.push({
         "resultCode": "0",
         "resultDescription": "Proceso completo",
@@ -94,7 +89,6 @@ router.post("/waybills", async (req: Request, res: Response): Promise<any> =>{
 
 router.put("/waybills", async (req: Request, res: Response): Promise<any> =>{
   const { AsignWaybillOrder } = req.body;
-  console.log("PUT")
   
   const isValid = validateWaybillRequest(AsignWaybillOrder);
 

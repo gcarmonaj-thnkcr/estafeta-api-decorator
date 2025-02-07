@@ -48,7 +48,6 @@ router.post("/waybills", (req, res) => __awaiter(void 0, void 0, void 0, functio
         if (!searchOrder.statusCode || searchOrder.statusCode >= 300)
             return res.sendStatus(404);
         const customObject = ((_a = searchOrder.body.custom) === null || _a === void 0 ? void 0 : _a.fields["services"]) && JSON.parse(searchOrder.body.custom.fields["services"]);
-        console.log(customObject);
         let servicesFind;
         try {
             servicesFind = customObject[searchOrder.body.lineItems[0].id].find((item) => item.QR == wayBillItem.qr);
@@ -56,11 +55,8 @@ router.post("/waybills", (req, res) => __awaiter(void 0, void 0, void 0, functio
         catch (err) {
             servicesFind = customObject[searchOrder.body.lineItems[0].id].guides.find((item) => item.QR == wayBillItem.qr);
         }
-        console.log(servicesFind.status);
         if (!servicesFind.status || servicesFind.status == "DISPONIBLE") {
-            console.log("Entre");
             servicesFind.status = "EN PROCESO";
-            console.log("Cambio");
         }
         else {
             resulWaylBill.push({
@@ -69,7 +65,6 @@ router.post("/waybills", (req, res) => __awaiter(void 0, void 0, void 0, functio
             });
             continue;
         }
-        console.log("Response", customObject);
         resulWaylBill.push({
             "resultCode": "0",
             "resultDescription": "Proceso completo",
@@ -97,7 +92,6 @@ router.post("/waybills", (req, res) => __awaiter(void 0, void 0, void 0, functio
 router.put("/waybills", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const { AsignWaybillOrder } = req.body;
-    console.log("PUT");
     const isValid = validateWaybillRequest(AsignWaybillOrder);
     if (!isValid) {
         return res.status(400).send({ message: 'Invalid WaybillService format.' });
