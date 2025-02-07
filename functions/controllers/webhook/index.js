@@ -15,11 +15,10 @@ const router = (0, express_1.Router)();
 router.post("/payment/webhook", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const paymentInfo = req.body;
-        console.log(paymentInfo.transaction);
         if (paymentInfo.transaction.status != "completed")
             return res.sendStatus(200);
         console.log("------------------------");
-        console.log(`Openpay webhook body: ${req.body.transaction.id}`);
+        console.log(`Openpay webhook body: ${paymentInfo.transaction.id}`);
         console.log("Pagado");
         const responsePayment = yield (0, addPayment_1.addPaymentToOrder)(paymentInfo);
         if (responsePayment.message) {
