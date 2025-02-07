@@ -12,12 +12,26 @@ interface IResponse {
 
 export const reprocessPayment = async (idCart: string): Promise<IResponse> => {
   if(!idCart || idCart == "") return { response: "IdCart undefined", status: 500 }   
-  const getCart = await apiRoot.carts().withId({ ID: idCart }).get().execute()
+  let getCart = await apiRoot.carts().withId({ ID: idCart }).get().execute()
   if(!getCart.statusCode || getCart.statusCode >= 300) return { response: 'Cart not found', status: 404 }
   const customer = await apiRoot.customers().withId({ ID: getCart.body?.customerId ?? "" }).get().execute()
   if(!customer.statusCode || customer.statusCode >= 300) return { response: 'Customer not found', status: 404 }
+  if(!getCart.body.shippingAddress) {
+    getCart = await apiRoot.carts().withId({ ID: idCart }).post({
+      body: {
+        version: getCart.body.version,
+        actions: [
+          {
+            action: 'setShippingAddress',
+            address: customer.body.addresses[0]
+          }
+        ]
+      }
+    }).execute() 
+  }
   const isRecoleccion = getCart.body.lineItems.some(item => item.variant.attributes?.find(attr => attr.name == "tipo-paquete")?.value["label"] == "RECOLECCION")
   let response: any 
+  console.log("-----------------")
   console.log("Iniciando proceso")
   console.log("Cart", getCart.body.id)
   if(isRecoleccion) {
@@ -147,6 +161,7 @@ export const addPaymentToOrders = async (cart: Cart, customer: Customer) => {
   }).execute()
   let versionCustomer = userUpdated.body.results[0].version
   let objectCustomer = userUpdated.body.results[0]
+  console.log("Actualizando info de usuario")
   //Esto es para agregar items
   for (const line of cart.lineItems) {
     const attrType = line.variant.attributes?.find(item => item.name == "tipo-paquete")?.value["label"]
@@ -226,7 +241,7 @@ export const addPaymentToOrders = async (cart: Cart, customer: Customer) => {
   }
 
   let order: Order = {} as Order 
-
+  console.log("Creando orden")
   if (isUNIZONA || isZONA || isInternational) {
     const mapToObject = (map: Map<any, any>) => {
       const obj: any = {};
@@ -283,6 +298,7 @@ export const addPaymentToOrders = async (cart: Cart, customer: Customer) => {
     }).execute()
     order = createOrder.body
   }
+  console.log("Anexando pago a orden", order.orderNumber)
 
   const addPaymentToOrder = await apiRoot.orders().withId({ ID: order.id }).post({
     body: {
@@ -302,7 +318,8 @@ export const addPaymentToOrders = async (cart: Cart, customer: Customer) => {
       ]
     }
   }).execute()
-
+  
+  console.log("Proceso terminado")
   return {
     orderId: addPaymentToOrder.body.id,
     message: "",

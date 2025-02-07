@@ -72,8 +72,8 @@ const Keys = {
     'folios': {
         clientId: (_j = process.env.ClientIdFolios) !== null && _j !== void 0 ? _j : "",
         clientSecret: (_k = process.env.ClientSecretFolios) !== null && _k !== void 0 ? _k : "",
-        url: urlMicrosoft,
-        scope: "https://graph.microsoft.com/.default"
+        url: urlEstafeta,
+        scope: "execute"
     },
 };
 const validateToken = (_a) => __awaiter(void 0, [_a], void 0, function* ({ type }) {

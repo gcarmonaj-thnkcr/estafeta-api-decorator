@@ -19,14 +19,28 @@ const reprocessPayment = (idCart) => __awaiter(void 0, void 0, void 0, function*
     var _a, _b;
     if (!idCart || idCart == "")
         return { response: "IdCart undefined", status: 500 };
-    const getCart = yield client_1.apiRoot.carts().withId({ ID: idCart }).get().execute();
+    let getCart = yield client_1.apiRoot.carts().withId({ ID: idCart }).get().execute();
     if (!getCart.statusCode || getCart.statusCode >= 300)
         return { response: 'Cart not found', status: 404 };
     const customer = yield client_1.apiRoot.customers().withId({ ID: (_b = (_a = getCart.body) === null || _a === void 0 ? void 0 : _a.customerId) !== null && _b !== void 0 ? _b : "" }).get().execute();
     if (!customer.statusCode || customer.statusCode >= 300)
         return { response: 'Customer not found', status: 404 };
+    if (!getCart.body.shippingAddress) {
+        getCart = yield client_1.apiRoot.carts().withId({ ID: idCart }).post({
+            body: {
+                version: getCart.body.version,
+                actions: [
+                    {
+                        action: 'setShippingAddress',
+                        address: customer.body.addresses[0]
+                    }
+                ]
+            }
+        }).execute();
+    }
     const isRecoleccion = getCart.body.lineItems.some(item => { var _a, _b; return ((_b = (_a = item.variant.attributes) === null || _a === void 0 ? void 0 : _a.find(attr => attr.name == "tipo-paquete")) === null || _b === void 0 ? void 0 : _b.value["label"]) == "RECOLECCION"; });
     let response;
+    console.log("-----------------");
     console.log("Iniciando proceso");
     console.log("Cart", getCart.body.id);
     if (isRecoleccion) {
@@ -153,6 +167,7 @@ const addPaymentToOrders = (cart, customer) => __awaiter(void 0, void 0, void 0,
     }).execute();
     let versionCustomer = userUpdated.body.results[0].version;
     let objectCustomer = userUpdated.body.results[0];
+    console.log("Actualizando info de usuario");
     //Esto es para agregar items
     for (const line of cart.lineItems) {
         const attrType = (_f = (_e = line.variant.attributes) === null || _e === void 0 ? void 0 : _e.find(item => item.name == "tipo-paquete")) === null || _f === void 0 ? void 0 : _f.value["label"];
@@ -231,6 +246,7 @@ const addPaymentToOrders = (cart, customer) => __awaiter(void 0, void 0, void 0,
         }
     }
     let order = {};
+    console.log("Creando orden");
     if (isUNIZONA || isZONA || isInternational) {
         const mapToObject = (map) => {
             const obj = {};
@@ -285,6 +301,7 @@ const addPaymentToOrders = (cart, customer) => __awaiter(void 0, void 0, void 0,
         }).execute();
         order = createOrder.body;
     }
+    console.log("Anexando pago a orden", order.orderNumber);
     const addPaymentToOrder = yield client_1.apiRoot.orders().withId({ ID: order.id }).post({
         body: {
             version: order.version,
@@ -303,6 +320,7 @@ const addPaymentToOrders = (cart, customer) => __awaiter(void 0, void 0, void 0,
             ]
         }
     }).execute();
+    console.log("Proceso terminado");
     return {
         orderId: addPaymentToOrder.body.id,
         message: "",
