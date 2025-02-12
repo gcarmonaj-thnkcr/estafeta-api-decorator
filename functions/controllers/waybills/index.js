@@ -33,6 +33,7 @@ router.post("/waybills", (req, res) => __awaiter(void 0, void 0, void 0, functio
     }
     let resulWaylBill = [];
     for (const wayBillItem of WaybillService) {
+        console.log(wayBillItem.qr);
         const order = yield client_1.apiRoot.orders().search().post({
             body: {
                 query: {
@@ -44,6 +45,14 @@ router.post("/waybills", (req, res) => __awaiter(void 0, void 0, void 0, functio
                 }
             }
         }).execute();
+        if (order.body.total <= 0) {
+            resulWaylBill.push({
+                "resultCode": "1",
+                "resultDescription": "El QR no fue encontrado",
+            });
+            res.status(200).json(resulWaylBill[0]);
+            return;
+        }
         const searchOrder = yield client_1.apiRoot.orders().withId({ ID: order.body.hits[0].id }).get().execute();
         if (!searchOrder.statusCode || searchOrder.statusCode >= 300)
             return res.sendStatus(404);
@@ -51,14 +60,20 @@ router.post("/waybills", (req, res) => __awaiter(void 0, void 0, void 0, functio
         console.log(customObject);
         let servicesFind;
         try {
-            servicesFind = customObject[searchOrder.body.lineItems[0].id].find((item) => item.QR == wayBillItem.qr);
+            for (const id in customObject) {
+                servicesFind = customObject[id].find((item) => item.QR == wayBillItem.qr);
+                if (!servicesFind)
+                    continue;
+            }
         }
         catch (err) {
-            servicesFind = customObject[searchOrder.body.lineItems[0].id].guides.find((item) => item.QR == wayBillItem.qr);
+            for (const id in customObject) {
+                servicesFind = customObject[id].guides.find((item) => item.QR == wayBillItem.qr);
+                if (!servicesFind)
+                    continue;
+            }
         }
-        console.log(servicesFind.status);
-        if (!servicesFind.status || servicesFind.status == "DISPONIBLE") {
-            console.log("Entre");
+        if (!(servicesFind === null || servicesFind === void 0 ? void 0 : servicesFind.status) || (servicesFind === null || servicesFind === void 0 ? void 0 : servicesFind.status) == "DISPONIBLE") {
             servicesFind.status = "EN PROCESO";
             console.log("Cambio");
         }
@@ -69,7 +84,7 @@ router.post("/waybills", (req, res) => __awaiter(void 0, void 0, void 0, functio
             });
             continue;
         }
-        console.log("Response", customObject);
+        console.log(servicesFind);
         resulWaylBill.push({
             "resultCode": "0",
             "resultDescription": "Proceso completo",
@@ -121,10 +136,18 @@ router.put("/waybills", (req, res) => __awaiter(void 0, void 0, void 0, function
         const customObject = ((_a = searchOrder.body.custom) === null || _a === void 0 ? void 0 : _a.fields["services"]) && JSON.parse(searchOrder.body.custom.fields["services"]);
         let servicesFind;
         try {
-            servicesFind = customObject[searchOrder.body.lineItems[0].id].find((item) => item.QR == wayBillItem.qr);
+            for (const id in customObject) {
+                servicesFind = customObject[id].find((item) => item.QR == wayBillItem.qr);
+                if (!servicesFind)
+                    continue;
+            }
         }
         catch (err) {
-            servicesFind = customObject[searchOrder.body.lineItems[0].id].guides.find((item) => item.QR == wayBillItem.qr);
+            for (const id in customObject) {
+                servicesFind = customObject[id].guides.find((item) => item.QR == wayBillItem.qr);
+                if (!servicesFind)
+                    continue;
+            }
         }
         if (servicesFind.status) {
             switch (wayBillItem.statusFolioOrder) {
