@@ -23,7 +23,7 @@ function handleCotizacion(body) {
         const token = yield (0, auth_1.authToken)({ type: 'quote' });
         const config = {
             method: 'post',
-            url: 'https://wscotizador.estafeta.com/Cotizacion/rest/Cotizador/Cotizacion',
+            url: 'https://wscotizadorqa.estafeta.com/Cotizacion/rest/Cotizador/Cotizacion',
             headers: {
                 apikey: 'l7beefb34b43bc44ef8d318541258df87c',
                 'Content-Type': 'application/json',
@@ -36,7 +36,7 @@ function handleCotizacion(body) {
             return response.data;
         }
         catch (error) {
-            console.log(token, "TOKEN");
+            console.log(token, "TOKEN Cotizador");
             console.log(data, "MARIO");
             console.log('Error: iD', process.env.ClientIdQuote);
             console.log('Error: Secret', process.env.ClientSecretQuote);
