@@ -17,7 +17,7 @@ interface ITypeToken {
 
 let tokensCreateds = new Map<string, IToken>();
 
-const urlEstafeta = "https://api.estafeta.com/auth/oauth/v2/token"
+const urlEstafeta = "https://apiqa.estafeta.com:8443/auth/oauth/v2/token"
 const urlMicrosoft = "https://login.microsoftonline.com/2a3f6c70-006d-4bba-9bd9-2c200073ca62/oauth2/v2.0/token"
 
 export const authToken = async ({ type }: ITypeToken) => await validateToken({type})

@@ -64,7 +64,7 @@ function handleCotizacionInternacional(body) {
         }
         catch (error) {
             console.log('Error: iD', process.env.ClientIdQuote);
-            console.log('Error: Secret', process.env.ClientSecretQuot);
+            console.log('Error: Secret', process.env.ClientSecretQuote);
             console.error('Error: Cotizacion', error.message);
             return error.message;
         }

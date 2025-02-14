@@ -51,7 +51,7 @@ const axios_1 = __importDefault(require("axios"));
 const dotenv = __importStar(require("dotenv"));
 dotenv.config();
 let tokensCreateds = new Map();
-const urlEstafeta = "https://api.estafeta.com/auth/oauth/v2/token";
+const urlEstafeta = "https://apiqa.estafeta.com:8443/auth/oauth/v2/token";
 const urlMicrosoft = "https://login.microsoftonline.com/2a3f6c70-006d-4bba-9bd9-2c200073ca62/oauth2/v2.0/token";
 const authToken = (_a) => __awaiter(void 0, [_a], void 0, function* ({ type }) { return yield validateToken({ type }); });
 exports.authToken = authToken;
