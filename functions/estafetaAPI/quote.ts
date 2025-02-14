@@ -51,6 +51,7 @@ export async function handleCotizacionInternacional(body: any) {
     return response.data;
 
   } catch (error: any) {
+    console.log(token,"TOKEN")
     console.log('Error: iD', process.env.ClientIdQuote);
     console.log('Error: Secret', process.env.ClientSecretQuote);
     console.error('Error: Cotizacion', error.message);
