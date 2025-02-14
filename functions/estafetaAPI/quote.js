@@ -50,7 +50,7 @@ function handleCotizacionInternacional(body) {
             method: 'post',
             url: 'https://apimwscotizador.estafeta.com/Cotizacion/rest/Cotizador/InternationalQuotation?SALES_ORGANIZATION&CUSTOMER',
             headers: {
-                apikey: 'f3bb437a10d348c99eeeb0101de13013',
+                apikey: 'l7beefb34b43bc44ef8d318541258df87c',
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${token}`,
             },
