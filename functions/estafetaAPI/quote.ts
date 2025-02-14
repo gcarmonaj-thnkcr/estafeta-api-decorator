@@ -38,7 +38,7 @@ export async function handleCotizacionInternacional(body: any) {
   console.log(data)
   const config = {
     method: 'post',
-    url: 'https://apimwscotizador.estafeta.com/Cotizacion/rest/Cotizador/InternationalQuotation?SALES_ORGANIZATION&CUSTOMER',
+    url: 'https://apimwscotizadorqa.estafeta.com/Cotizacion/rest/Cotizador/InternationalQuotation?SALES_ORGANIZATION&CUSTOMER',
     headers: {
       apikey: '782b4f8f93934ab28e4c4ab33ca2f833',
       'Content-Type': 'application/json',
