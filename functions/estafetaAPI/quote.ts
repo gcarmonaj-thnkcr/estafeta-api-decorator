@@ -10,7 +10,7 @@ export async function handleCotizacion(body: any) {
     method: 'post',
     url: 'https://wscotizador.estafeta.com/Cotizacion/rest/Cotizador/Cotizacion',
     headers: {
-      apikey: 'l7beefb34b43bc44ef8d318541258df87c',
+      apikey: 'l7beefb34b43bc44ef8d318541258df87cs',
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
     },
