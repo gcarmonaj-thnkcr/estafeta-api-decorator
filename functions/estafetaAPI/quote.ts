@@ -21,6 +21,10 @@ export async function handleCotizacion(body: any) {
     const response = await axios.request(config);
     return response.data;
   } catch (error: any) {
+    console.log(token, "TOKEN");
+    console.log(data,"MARIO")
+    console.log('Error: iD', process.env.ClientIdQuote);
+    console.log('Error: Secret', process.env.ClientSecretQuote);
     console.error('Error: Cotizacion', error.response ? error.response.data : error.message);
     throw error;
   }
@@ -36,7 +40,7 @@ export async function handleCotizacionInternacional(body: any) {
     method: 'post',
     url: 'https://apimwscotizador.estafeta.com/Cotizacion/rest/Cotizador/InternationalQuotation?SALES_ORGANIZATION&CUSTOMER',
     headers: {
-      apikey: 'l7beefb34b43bc44ef8d318541258df87c',
+      apikey: '782b4f8f93934ab28e4c4ab33ca2f833',
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
     },
@@ -51,9 +55,10 @@ export async function handleCotizacionInternacional(body: any) {
     return response.data;
 
   } catch (error: any) {
-    console.log(token,"TOKEN")
-    console.log('Error: iD', process.env.ClientIdQuote);
-    console.log('Error: Secret', process.env.ClientSecretQuote);
+    console.log(token, "TOKEN int");
+    console.log(data,"MARIO int")
+    console.log('Error: iD', process.env.ClientIdQuoteInternacional);
+    console.log('Error: Secret', process.env.ClientSecretQuoteInternacional);
     console.error('Error: Cotizacion', error.message);
     return error.message;
   }
