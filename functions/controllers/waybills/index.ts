@@ -46,9 +46,15 @@ router.post("/waybills", async (req: Request, res: Response): Promise<any> =>{
     const customObject = searchOrder.body.custom?.fields["services"] && JSON.parse(searchOrder.body.custom.fields["services"])
     let servicesFind
     try{
-      servicesFind = customObject[searchOrder.body.lineItems[0].id].find((item: any) => item.QR == wayBillItem.qr)
+      for(const id in customObject){
+        servicesFind = customObject[id].find((item: any) => item.QR == wayBillItem.qr)
+        if(!servicesFind) continue
+      }
     } catch(err) {
-      servicesFind = customObject[searchOrder.body.lineItems[0].id].guides.find((item: any) => item.QR == wayBillItem.qr)
+      for(const id in customObject) { 
+        servicesFind = customObject[id].guides.find((item: any) => item.QR == wayBillItem.qr) 
+        if(!servicesFind) continue
+      }
     }
     if(!servicesFind.status ||  servicesFind.status == "DISPONIBLE"){
       servicesFind.status = "EN PROCESO"
@@ -115,9 +121,15 @@ router.put("/waybills", async (req: Request, res: Response): Promise<any> =>{
     const customObject = searchOrder.body.custom?.fields["services"] && JSON.parse(searchOrder.body.custom.fields["services"])
     let servicesFind
     try{
-      servicesFind = customObject[searchOrder.body.lineItems[0].id].find((item: any) => item.QR == wayBillItem.qr)
+      for(const id in customObject){
+        servicesFind = customObject[id].find((item: any) => item.QR == wayBillItem.qr)
+        if(!servicesFind) continue
+      }
     } catch(err) {
-      servicesFind = customObject[searchOrder.body.lineItems[0].id].guides.find((item: any) => item.QR == wayBillItem.qr)
+      for(const id in customObject) { 
+        servicesFind = customObject[id].guides.find((item: any) => item.QR == wayBillItem.qr) 
+        if(!servicesFind) continue
+      }
     }
     if(servicesFind.status){
       switch (wayBillItem.statusFolioOrder) {

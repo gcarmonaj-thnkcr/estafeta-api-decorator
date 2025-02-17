@@ -50,10 +50,18 @@ router.post("/waybills", (req, res) => __awaiter(void 0, void 0, void 0, functio
         const customObject = ((_a = searchOrder.body.custom) === null || _a === void 0 ? void 0 : _a.fields["services"]) && JSON.parse(searchOrder.body.custom.fields["services"]);
         let servicesFind;
         try {
-            servicesFind = customObject[searchOrder.body.lineItems[0].id].find((item) => item.QR == wayBillItem.qr);
+            for (const id in customObject) {
+                servicesFind = customObject[id].find((item) => item.QR == wayBillItem.qr);
+                if (!servicesFind)
+                    continue;
+            }
         }
         catch (err) {
-            servicesFind = customObject[searchOrder.body.lineItems[0].id].guides.find((item) => item.QR == wayBillItem.qr);
+            for (const id in customObject) {
+                servicesFind = customObject[id].guides.find((item) => item.QR == wayBillItem.qr);
+                if (!servicesFind)
+                    continue;
+            }
         }
         if (!servicesFind.status || servicesFind.status == "DISPONIBLE") {
             servicesFind.status = "EN PROCESO";
@@ -115,10 +123,18 @@ router.put("/waybills", (req, res) => __awaiter(void 0, void 0, void 0, function
         const customObject = ((_a = searchOrder.body.custom) === null || _a === void 0 ? void 0 : _a.fields["services"]) && JSON.parse(searchOrder.body.custom.fields["services"]);
         let servicesFind;
         try {
-            servicesFind = customObject[searchOrder.body.lineItems[0].id].find((item) => item.QR == wayBillItem.qr);
+            for (const id in customObject) {
+                servicesFind = customObject[id].find((item) => item.QR == wayBillItem.qr);
+                if (!servicesFind)
+                    continue;
+            }
         }
         catch (err) {
-            servicesFind = customObject[searchOrder.body.lineItems[0].id].guides.find((item) => item.QR == wayBillItem.qr);
+            for (const id in customObject) {
+                servicesFind = customObject[id].guides.find((item) => item.QR == wayBillItem.qr);
+                if (!servicesFind)
+                    continue;
+            }
         }
         if (servicesFind.status) {
             switch (wayBillItem.statusFolioOrder) {
