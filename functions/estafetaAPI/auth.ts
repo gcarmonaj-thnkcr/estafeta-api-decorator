@@ -102,16 +102,14 @@ const createToken = async (clientId: string, clientSecret: string, url: string, 
         'Authorization': `Basic ${auth}`
       }
     })
-    console.log("Token request",request.data)
     const token: IToken = {
       ...request.data,
       created_at: new Date()
     }
-    console.log(token)
     if (!token) return {} as IToken
     return token
   } catch (err: any) {
-    console.log("error token", err)
+    console.error("error token", err)
     return {} as IToken
   }
 }

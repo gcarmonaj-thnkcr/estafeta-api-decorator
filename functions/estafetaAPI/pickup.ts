@@ -19,9 +19,11 @@ export const newPickUp = async (pickupOrder: PickupRequest) => {
 
   try{
     const request = await axios.request(config)
+    console.log("Request pickups", request)
     debugger
     return request.data
   } catch(err: any) {
+    console.error("Error in pickup", err)
     return err.message
   }
 }

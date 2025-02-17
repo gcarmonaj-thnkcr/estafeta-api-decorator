@@ -31,10 +31,12 @@ const newPickUp = (pickupOrder) => __awaiter(void 0, void 0, void 0, function* (
     };
     try {
         const request = yield axios_1.default.request(config);
+        console.log("Request pickups", request);
         debugger;
         return request.data;
     }
     catch (err) {
+        console.error("Error in pickup", err);
         return err.message;
     }
 });
