@@ -13,6 +13,7 @@ router.post("/payment/webhook", async (req: Request, res: Response): Promise<any
     if(paymentInfo.transaction.method == "card") return res.sendStatus(200)
     console.log("------------------------")
     console.log(`Openpay webhook body: ${paymentInfo.transaction.id}`)
+    console.log(`Body`, paymentInfo)
     console.log("Pagado")
     const responsePayment = await addPaymentToOrder(paymentInfo)   
     if(responsePayment.message) {
