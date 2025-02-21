@@ -24,15 +24,13 @@ export const CreateFolios = async (quantityFolios: number, logger: any) => {
 
   try {
     const response = await axios.request(config);
-    logger.info(`Folios ${response}`)
+    logger.info(response)
     return {
       data: response.data,
       message: undefined,
     }
   } catch (error: any) {
-    debugger
-    logger.error(`Error Response: ${error.response}`);
-    logger.error(`Error Message: ${error.message}`);
+    logger.error(error)
     return {
       data: "",
       message: error.message

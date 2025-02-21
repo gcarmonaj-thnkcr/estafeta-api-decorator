@@ -35,16 +35,14 @@ const CreateFolios = (quantityFolios, logger) => __awaiter(void 0, void 0, void 
     };
     try {
         const response = yield axios_1.default.request(config);
-        logger.info(`Folios ${response}`);
+        logger.info(response);
         return {
             data: response.data,
             message: undefined,
         };
     }
     catch (error) {
-        debugger;
-        logger.error(`Error Response: ${error.response}`);
-        logger.error(`Error Message: ${error.message}`);
+        logger.error(error);
         return {
             data: "",
             message: error.message

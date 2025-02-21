@@ -102,12 +102,11 @@ export const WSPurchaseOrder = async ({ order, code, customer, idPaymentService,
   };
   try {
     const response = await axios.request(config);
-    logger.info(`Response purchase ${response.data}`)
+    logger.info(response.data)
     return response.data;
   } catch (error: any) {
     debugger
-    logger.error(`Error Response: ${error.response}`);
-    logger.error(`Error Message: ${error.message}`);
+    logger.error(error);
     throw error;
   }
 }

@@ -91,13 +91,12 @@ const WSPurchaseOrder = (_a) => __awaiter(void 0, [_a], void 0, function* ({ ord
     };
     try {
         const response = yield axios_1.default.request(config);
-        logger.info(`Response purchase ${response.data}`);
+        logger.info(response.data);
         return response.data;
     }
     catch (error) {
         debugger;
-        logger.error(`Error Response: ${error.response}`);
-        logger.error(`Error Message: ${error.message}`);
+        logger.error(error);
         throw error;
     }
 });

@@ -310,7 +310,7 @@ const addPaymentToOrdersRecoleccion = (data, order, customer) => __awaiter(void 
 });
 exports.addPaymentToOrdersRecoleccion = addPaymentToOrdersRecoleccion;
 const addPaymentToOrders = (data, order, customer) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y;
+    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _0;
     const loggerChild = logger_1.logger.child({ requestId: data.transaction.id });
     try {
         const quantityTotalGuides = 0;
@@ -571,6 +571,7 @@ const addPaymentToOrders = (data, order, customer) => __awaiter(void 0, void 0, 
                     ]
                 }
             }).execute();
+            loggerChild.info(`Orden creada: ${(_0 = (_z = addPaymentToOrder === null || addPaymentToOrder === void 0 ? void 0 : addPaymentToOrder.body) === null || _z === void 0 ? void 0 : _z.orderNumber) !== null && _0 !== void 0 ? _0 : ""}`);
             return {
                 orderId: addPaymentToOrder.body.id,
                 message: "",

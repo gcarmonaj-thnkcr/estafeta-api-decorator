@@ -612,7 +612,7 @@ export const addPaymentToOrders = async (data: ITransactionEvent, order: Order, 
           ]
         }
       }).execute()
-
+      loggerChild.info(`Orden creada: ${addPaymentToOrder?.body?.orderNumber ?? ""}`)
       return {
         orderId: addPaymentToOrder.body.id,
         message: "",
