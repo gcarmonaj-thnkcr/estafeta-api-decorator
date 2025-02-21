@@ -63,7 +63,7 @@ router.post("/waybills", (req, res) => __awaiter(void 0, void 0, void 0, functio
                     continue;
             }
         }
-        if (!servicesFind.status || servicesFind.status == "DISPONIBLE") {
+        if (!(servicesFind === null || servicesFind === void 0 ? void 0 : servicesFind.status) || (servicesFind === null || servicesFind === void 0 ? void 0 : servicesFind.status) == "DISPONIBLE") {
             servicesFind.status = "EN PROCESO";
         }
         else {
