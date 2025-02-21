@@ -40,6 +40,8 @@ const WSPurchaseOrder = (_a) => __awaiter(void 0, [_a], void 0, function* ({ ord
     const typeCart = getTypeCart(order);
     idPaymentService = idPaymentService.length > 10 ? idPaymentService.substring(0, 10) : idPaymentService;
     const purchaseLines = yield createLinePurchase(typeCart, order, code, quantityTotalGuides, customer, idPaymentService);
+    const timeNow = new Date();
+    const formattedDate = timeNow.toISOString().replace('T', ' ').slice(0, 19);
     if (!taxAmount)
         taxAmount = 16;
     const data = {
@@ -62,7 +64,7 @@ const WSPurchaseOrder = (_a) => __awaiter(void 0, [_a], void 0, function* ({ ord
                         "BankTypeName": "VISA",
                         "BankReferenceCode": "87D01189",
                         "PaymentAmount": order.totalPrice.centAmount / 100.00,
-                        "PaidDateTime": "2024-07-17 12:11:45",
+                        "PaidDateTime": formattedDate,
                         "PaymentCode": code
                     }
                 ],

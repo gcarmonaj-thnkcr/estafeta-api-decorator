@@ -51,6 +51,9 @@ export const WSPurchaseOrder = async ({ order, code, customer, idPaymentService,
   const typeCart = getTypeCart(order)
   idPaymentService = idPaymentService.length > 10 ? idPaymentService.substring(0, 10) : idPaymentService
   const purchaseLines = await createLinePurchase(typeCart, order, code, quantityTotalGuides, customer, idPaymentService)
+  const timeNow = new Date()
+  const formattedDate = timeNow.toISOString().replace('T', ' ').slice(0, 19);
+
   if(!taxAmount) taxAmount = 16 
   const data = {
     "purchaseOrder": [
@@ -72,7 +75,7 @@ export const WSPurchaseOrder = async ({ order, code, customer, idPaymentService,
             "BankTypeName": "VISA",
             "BankReferenceCode": "87D01189",
             "PaymentAmount": order.totalPrice.centAmount / 100.00,
-            "PaidDateTime": "2024-07-17 12:11:45",
+            "PaidDateTime": formattedDate,
             "PaymentCode": code
           }
         ],
