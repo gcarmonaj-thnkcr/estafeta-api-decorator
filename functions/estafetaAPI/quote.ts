@@ -1,5 +1,6 @@
 import axios from "axios";
 import { authToken } from "./auth";
+import { logger } from "../utils/logger";
 
 export async function handleCotizacion(body: any) {
   const data = body
@@ -44,14 +45,14 @@ export async function handleCotizacionInternacional(body: any) {
   };
 
   try {
-    console.log("Config",config)
+    logger.info(`Config ${config}`)
     const response = await axios.request(config);
 
-    console.log("Response international:",response.data)
+    logger.info(`Response international: ${response.data}`)
     return response.data;
 
   } catch (error: any) {
-    console.error('Error: Cotizacion', error.message);
+    logger.error(`Error: Cotizacion ${error.message}`);
     return error.message;
   }
 }

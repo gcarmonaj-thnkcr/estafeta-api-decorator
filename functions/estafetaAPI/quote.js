@@ -16,6 +16,7 @@ exports.handleCotizacion = handleCotizacion;
 exports.handleCotizacionInternacional = handleCotizacionInternacional;
 const axios_1 = __importDefault(require("axios"));
 const auth_1 = require("./auth");
+const logger_1 = require("../utils/logger");
 function handleCotizacion(body) {
     return __awaiter(this, void 0, void 0, function* () {
         const data = body;
@@ -57,13 +58,13 @@ function handleCotizacionInternacional(body) {
             data: JSON.stringify(data),
         };
         try {
-            console.log("Config", config);
+            logger_1.logger.info(`Config ${config}`);
             const response = yield axios_1.default.request(config);
-            console.log("Response international:", response.data);
+            logger_1.logger.info(`Response international: ${response.data}`);
             return response.data;
         }
         catch (error) {
-            console.error('Error: Cotizacion', error.message);
+            logger_1.logger.error(`Error: Cotizacion ${error.message}`);
             return error.message;
         }
     });
