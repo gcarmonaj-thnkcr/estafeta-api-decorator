@@ -32,7 +32,6 @@ export async function handleCotizacionInternacional(body: any) {
   const data = body
 
   const token = await authToken({ type: 'quoteInternacional' });
-  console.log(data)
   const config = {
     method: 'post',
     url: 'https://apimwscotizador.estafeta.com/Cotizacion/rest/Cotizador/InternationalQuotation?SALES_ORGANIZATION&CUSTOMER',
@@ -45,10 +44,10 @@ export async function handleCotizacionInternacional(body: any) {
   };
 
   try {
-    logger.info(`Config ${config}`)
+    logger.info(`Config ${JSON.stringify(config)}`)
     const response = await axios.request(config);
 
-    logger.info(`Response international: ${response.data}`)
+    logger.info(`Response international: ${JSON.stringify(response.data)}`)
     return response.data;
 
   } catch (error: any) {
