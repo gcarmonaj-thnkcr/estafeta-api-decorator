@@ -77,8 +77,7 @@ const WSPurchaseOrder = (_a) => __awaiter(void 0, [_a], void 0, function* ({ ord
             }
         ]
     };
-    console.log("Data purchase", data);
-    logger.info(`Data purchase: ${JSON.stringify(data)}`);
+    logger.info(`Data purchase: ${data}`);
     const token = yield (0, auth_1.authToken)({ type: 'purchaseOrder' });
     const config = {
         method: 'post',

@@ -88,8 +88,7 @@ export const WSPurchaseOrder = async ({ order, code, customer, idPaymentService,
     ]
   }
 
-  console.log("Data purchase", data)
-  logger.info(`Data purchase: ${JSON.stringify(data)}`)
+  logger.info(`Data purchase: ${data}`)
   const token = await authToken({ type: 'purchaseOrder' })
   const config = {
     method: 'post',
