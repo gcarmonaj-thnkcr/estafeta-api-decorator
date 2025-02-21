@@ -420,7 +420,7 @@ export const addPaymentToOrders = async (data: ITransactionEvent, order: Order, 
     let mapGuides: any
     if (codes?.[0]?.WaybillList?.length > 0) {
       const folios = await CreateFolios(codes?.[0]?.WaybillList?.length, loggerChild)
-      loggerChild.info(`Folios creados ${folios}`)
+      loggerChild.info(`Folios creados`)
       mapGuides = createMapGuide(codes, order, folios.data.folioResult)
     }
 

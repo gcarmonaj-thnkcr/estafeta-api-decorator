@@ -24,7 +24,7 @@ export const CreateFolios = async (quantityFolios: number, logger: any) => {
 
   try {
     const response = await axios.request(config);
-    logger.info(`Folios ${JSON.stringify(response)}`)
+    logger.info(`Folios ${response}`)
     return {
       data: response.data,
       message: undefined,

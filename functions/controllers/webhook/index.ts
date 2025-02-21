@@ -2,6 +2,7 @@ import { Router, Request, Response } from "express"
 import { ITransactionEvent } from "../../interfaces/payment"
 import { addPaymentToOrder } from "../../utils/addPayment"
 import { IPushTrackingRequest } from "../../interfaces/pushtracking"
+import { logger } from "../../utils/logger"
 
 const router = Router()
 
@@ -14,7 +15,7 @@ router.post("/payment/webhook", async (req: Request, res: Response): Promise<any
     
     const responsePayment = await addPaymentToOrder(paymentInfo)   
     if(responsePayment.message) {
-      console.log(responsePayment)
+      logger.error(responsePayment)
 
       return res.sendStatus(500)
     }

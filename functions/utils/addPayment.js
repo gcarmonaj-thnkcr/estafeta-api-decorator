@@ -384,7 +384,7 @@ const addPaymentToOrders = (data, order, customer) => __awaiter(void 0, void 0, 
         let mapGuides;
         if (((_b = (_a = codes === null || codes === void 0 ? void 0 : codes[0]) === null || _a === void 0 ? void 0 : _a.WaybillList) === null || _b === void 0 ? void 0 : _b.length) > 0) {
             const folios = yield (0, folios_1.CreateFolios)((_d = (_c = codes === null || codes === void 0 ? void 0 : codes[0]) === null || _c === void 0 ? void 0 : _c.WaybillList) === null || _d === void 0 ? void 0 : _d.length, loggerChild);
-            loggerChild.info(`Folios creados ${folios}`);
+            loggerChild.info(`Folios creados`);
             mapGuides = (0, exports.createMapGuide)(codes, order, folios.data.folioResult);
         }
         const userUpdated = yield client_1.apiRoot.customers().get({

@@ -35,7 +35,7 @@ const CreateFolios = (quantityFolios, logger) => __awaiter(void 0, void 0, void 
     };
     try {
         const response = yield axios_1.default.request(config);
-        logger.info(`Folios ${JSON.stringify(response)}`);
+        logger.info(`Folios ${response}`);
         return {
             data: response.data,
             message: undefined,
