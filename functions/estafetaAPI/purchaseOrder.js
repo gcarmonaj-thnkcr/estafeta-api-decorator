@@ -77,7 +77,7 @@ const WSPurchaseOrder = (_a) => __awaiter(void 0, [_a], void 0, function* ({ ord
             }
         ]
     };
-    logger.info(`Data purchase: ${data}`);
+    logger.info(`Data purchase: ${JSON.stringify(data)}`);
     const token = yield (0, auth_1.authToken)({ type: 'purchaseOrder' });
     const config = {
         method: 'post',
@@ -91,7 +91,7 @@ const WSPurchaseOrder = (_a) => __awaiter(void 0, [_a], void 0, function* ({ ord
     };
     try {
         const response = yield axios_1.default.request(config);
-        logger.info(`Response purchase ${JSON.stringify(response.data)}`);
+        logger.info(`Response purchase ${response.data}`);
         return response.data;
     }
     catch (error) {

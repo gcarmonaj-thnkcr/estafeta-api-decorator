@@ -88,7 +88,7 @@ export const WSPurchaseOrder = async ({ order, code, customer, idPaymentService,
     ]
   }
 
-  logger.info(`Data purchase: ${data}`)
+  logger.info(`Data purchase: ${JSON.stringify(data)}`)
   const token = await authToken({ type: 'purchaseOrder' })
   const config = {
     method: 'post',
@@ -102,7 +102,7 @@ export const WSPurchaseOrder = async ({ order, code, customer, idPaymentService,
   };
   try {
     const response = await axios.request(config);
-    logger.info(`Response purchase ${JSON.stringify(response.data)}`)
+    logger.info(`Response purchase ${response.data}`)
     return response.data;
   } catch (error: any) {
     debugger
