@@ -91,7 +91,7 @@ const WSPurchaseOrder = (_a) => __awaiter(void 0, [_a], void 0, function* ({ ord
     };
     try {
         const response = yield axios_1.default.request(config);
-        console.log("Response purchase", response.data);
+        console.log(`Response purchase ${idPaymentService}`, response.data);
         return response.data;
     }
     catch (error) {

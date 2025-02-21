@@ -322,7 +322,7 @@ const addPaymentToOrders = (data, order, customer) => __awaiter(void 0, void 0, 
         return;
     const orderSplit = orders.body.results[0].orderNumber.split('D');
     let newOrder = `${orderSplit[0]}D${String(parseInt(orderSplit[1]) + 1).padStart(6, "0")}`;
-    console.log("Pago registrado en ct");
+    console.log("Pago registrado en ct", data.transaction.id);
     const createPayment = yield client_1.apiRoot.payments().post({
         body: {
             key: data.transaction.id,
@@ -383,6 +383,7 @@ const addPaymentToOrders = (data, order, customer) => __awaiter(void 0, void 0, 
     let mapGuides;
     if (((_b = (_a = codes === null || codes === void 0 ? void 0 : codes[0]) === null || _a === void 0 ? void 0 : _a.WaybillList) === null || _b === void 0 ? void 0 : _b.length) > 0) {
         const folios = yield (0, folios_1.CreateFolios)((_d = (_c = codes === null || codes === void 0 ? void 0 : codes[0]) === null || _c === void 0 ? void 0 : _c.WaybillList) === null || _d === void 0 ? void 0 : _d.length);
+        console.log(`Folios creados ${data.transaction.id} ${folios}`);
         mapGuides = (0, exports.createMapGuide)(codes, order, folios.data.folioResult);
     }
     // const setGuidesLines = await apiRoot.carts().withId({ ID: cart.body.id }).post({

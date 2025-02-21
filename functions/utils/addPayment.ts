@@ -354,7 +354,7 @@ export const addPaymentToOrders = async (data: ITransactionEvent, order: Order, 
   if (!orders.body.results[0].orderNumber) return
   const orderSplit = orders.body.results[0].orderNumber.split('D')
   let newOrder = `${orderSplit[0]}D${String(parseInt(orderSplit[1]) + 1).padStart(6, "0")}`
-  console.log("Pago registrado en ct")
+  console.log("Pago registrado en ct", data.transaction.id)
   const createPayment = await apiRoot.payments().post({
     body: {
       key: data.transaction.id,
@@ -418,6 +418,7 @@ export const addPaymentToOrders = async (data: ITransactionEvent, order: Order, 
   let mapGuides: any
   if (codes?.[0]?.WaybillList?.length > 0) {
     const folios = await CreateFolios(codes?.[0]?.WaybillList?.length)
+    console.log(`Folios creados ${data.transaction.id} ${folios}`)
     mapGuides = createMapGuide(codes, order, folios.data.folioResult)
   }
 
