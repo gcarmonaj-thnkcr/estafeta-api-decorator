@@ -35,7 +35,7 @@ const getTypeCart = (order) => {
     return "USO";
 };
 let taxAmount = 16;
-const WSPurchaseOrder = (_a) => __awaiter(void 0, [_a], void 0, function* ({ order, code, customer, idPaymentService, methodName, quantityTotalGuides }) {
+const WSPurchaseOrder = (_a) => __awaiter(void 0, [_a], void 0, function* ({ order, code, customer, idPaymentService, methodName, quantityTotalGuides, logger }) {
     var _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q;
     const typeCart = getTypeCart(order);
     idPaymentService = idPaymentService.length > 10 ? idPaymentService.substring(0, 10) : idPaymentService;
@@ -78,6 +78,7 @@ const WSPurchaseOrder = (_a) => __awaiter(void 0, [_a], void 0, function* ({ ord
         ]
     };
     console.log("Data purchase", data);
+    logger.info(`Data purchase: ${JSON.stringify(data)}`);
     const token = yield (0, auth_1.authToken)({ type: 'purchaseOrder' });
     const config = {
         method: 'post',
@@ -91,13 +92,13 @@ const WSPurchaseOrder = (_a) => __awaiter(void 0, [_a], void 0, function* ({ ord
     };
     try {
         const response = yield axios_1.default.request(config);
-        console.log(`Response purchase ${idPaymentService}`, response.data);
+        logger.info(`Response purchase ${JSON.stringify(response.data)}`);
         return response.data;
     }
     catch (error) {
         debugger;
-        console.error('Error Response: ', error.response);
-        console.error('Error Message: ', error.message);
+        logger.error(`Error Response: ${error.response}`);
+        logger.error(`Error Message: ${error.message}`);
         throw error;
     }
 });

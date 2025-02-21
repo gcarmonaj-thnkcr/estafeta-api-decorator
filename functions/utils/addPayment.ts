@@ -8,6 +8,7 @@ import { WSPurchaseOrder } from "../estafetaAPI/purchaseOrder";
 import { CreateFolios } from "../estafetaAPI/folios";
 import { ILineGuide, PurchaseOrder } from "../interfaces/purchase";
 import { asignGuideToOrder } from "./asignarGuides";
+import { logger } from "./logger";
 
 interface IResponse {
   message: string | undefined;
@@ -16,15 +17,15 @@ interface IResponse {
 
 export const addPaymentToOrder = async (body: ITransactionEvent): Promise<IResponse> => {
   const order = await apiRoot.orders().withId({ ID: body.transaction.order_id }).get().execute()
-  
-  if(!order.statusCode || order.statusCode >= 300) return {
+
+  if (!order.statusCode || order.statusCode >= 300) return {
     message: "Error al encontrar la orden",
     response: undefined
   }
-  
-  const customer = await apiRoot.customers().withId({ID: order.body.customerId ?? ""}).get().execute()
 
-  if(!customer.statusCode || customer.statusCode >= 300) return {
+  const customer = await apiRoot.customers().withId({ ID: order.body.customerId ?? "" }).get().execute()
+
+  if (!customer.statusCode || customer.statusCode >= 300) return {
     message: "La orden no tiene asignado un customer",
     response: undefined
   }
@@ -35,10 +36,9 @@ export const addPaymentToOrder = async (body: ITransactionEvent): Promise<IRespo
   if (isRecoleccion) {
     response = await addPaymentToOrdersRecoleccion(body, order.body, customer.body)
   } else {
-    console.log("Iniciando pago")
     response = await addPaymentToOrders(body, order.body, customer.body)
   }
-    
+
   return {
     message: response.message,
     response
@@ -49,7 +49,7 @@ export const addPaymentToOrder = async (body: ITransactionEvent): Promise<IRespo
 export const addPaymentToOrdersRecoleccion = async (data: ITransactionEvent, order: Order, customer: Customer) => {
   let customerCopy = customer
   let orderVersion = order.version
-  
+
   const createPayment = await apiRoot.payments().post({
     body: {
       key: data.transaction.id,
@@ -80,7 +80,7 @@ export const addPaymentToOrdersRecoleccion = async (data: ITransactionEvent, ord
   }).execute()
 
   const pickupPackage: PickupPackage[] = []
-  const mapGuide: IMapGuide  = {}
+  const mapGuide: IMapGuide = {}
 
   const guides: IOrderSelected[] = JSON.parse(order.lineItems[0].custom?.fields["guia"])
   const date = order.lineItems[0].custom?.fields["adicionales"]
@@ -128,7 +128,7 @@ export const addPaymentToOrdersRecoleccion = async (data: ITransactionEvent, ord
 
   const purchaseOrder = purchaseResult.purchaseOrder
   const codes = purchaseOrder.resultPurchaseOrder
-  
+
   for (const guide of guides) {
     // const guide = items.custom?.fields["guia"]
     // const QR = items.custom?.fields["folio_md5"]
@@ -342,342 +342,286 @@ export const addPaymentToOrdersRecoleccion = async (data: ITransactionEvent, ord
 }
 
 export const addPaymentToOrders = async (data: ITransactionEvent, order: Order, customer: Customer) => {
-  const quantityTotalGuides = 0
+  const loggerChild = logger.child({ requestId: data.transaction.id })
+  try {
+    const quantityTotalGuides = 0
 
-  const orders = await apiRoot.orders().get({
-    queryArgs: {
-      sort: `createdAt desc`,
-      where: `orderNumber is defined`
-    }
-  }).execute()
 
-  if (!orders.body.results[0].orderNumber) return
-  const orderSplit = orders.body.results[0].orderNumber.split('D')
-  let newOrder = `${orderSplit[0]}D${String(parseInt(orderSplit[1]) + 1).padStart(6, "0")}`
-  console.log("Pago registrado en ct", data.transaction.id)
-  const createPayment = await apiRoot.payments().post({
-    body: {
-      key: data.transaction.id,
-      interfaceId: data.transaction.id,
-      amountPlanned: {
-        currencyCode: "MXN",
-        centAmount: data.transaction.amount * 100 | 0
-      },
-      paymentMethodInfo: {
-        paymentInterface: "OPENPAY",
-        method: data.transaction.description,
-        name: {
-          "es-MX": data.transaction.description
+    const orders = await apiRoot.orders().get({
+      queryArgs: {
+        sort: `createdAt desc`,
+        where: `orderNumber is defined`
+      }
+    }).execute()
+
+    if (!orders.body.results[0].orderNumber) return
+    const orderSplit = orders.body.results[0].orderNumber.split('D')
+    let newOrder = `${orderSplit[0]}D${String(parseInt(orderSplit[1]) + 1).padStart(6, "0")}`
+    loggerChild.info("Pago registrado en ct")
+    const createPayment = await apiRoot.payments().post({
+      body: {
+        key: data.transaction.id,
+        interfaceId: data.transaction.id,
+        amountPlanned: {
+          currencyCode: "MXN",
+          centAmount: data.transaction.amount * 100 | 0
+        },
+        paymentMethodInfo: {
+          paymentInterface: "OPENPAY",
+          method: data.transaction.description,
+          name: {
+            "es-MX": data.transaction.description
+          }
+        },
+        transactions: [
+          {
+            interactionId: data.transaction.id,
+            type: "Charge",
+            amount: {
+              currencyCode: "MXN",
+              centAmount: data.transaction.amount * 100 | 0,
+            },
+            state: "Success"
+          }
+        ]
+      }
+    }).execute()
+
+    const createPurchaseOrder = async (): Promise<any> => {
+      const purchaseOrder = await WSPurchaseOrder({ order: order, code: newOrder, idPaymentService: data.transaction.id, methodName: "Openpay", customer, quantityTotalGuides, logger: loggerChild })
+      if (purchaseOrder.result.Code > 0) {
+        if (purchaseOrder.result.Description.includes("REPEATED_TICKET")) {
+          const orderSplit = newOrder.split('D')
+          newOrder = `${orderSplit[0]}D${String(parseInt(orderSplit[1]) + 1).padStart(6, "0")}`
+          return await createPurchaseOrder();
         }
-      },
-      transactions: [
-        {
-          interactionId: data.transaction.id,
-          type: "Charge",
-          amount: {
-            currencyCode: "MXN",
-            centAmount: data.transaction.amount * 100 | 0,
-          },
-          state: "Success"
+        return {
+          purchaseOrder: undefined,
+          orderId: '',
+          message: purchaseOrder.result.Description
         }
-      ]
-    }
-  }).execute()
-
-  const createPurchaseOrder = async (): Promise<any> => {
-    const purchaseOrder = await WSPurchaseOrder({ order: order, code: newOrder, idPaymentService: data.transaction.id, methodName: "Openpay", customer, quantityTotalGuides })
-    if (purchaseOrder.result.Code > 0) {
-      if (purchaseOrder.result.Description.includes("REPEATED_TICKET")) {
-        const orderSplit = newOrder.split('D')
-        newOrder = `${orderSplit[0]}D${String(parseInt(orderSplit[1]) + 1).padStart(6, "0")}`
-        return await createPurchaseOrder();
       }
       return {
-        purchaseOrder: undefined,
+        purchaseOrder: purchaseOrder,
         orderId: '',
         message: purchaseOrder.result.Description
       }
     }
-    return {
-      purchaseOrder: purchaseOrder,
-      orderId: '',
-      message: purchaseOrder.result.Description
+
+    const purchaseResult = await createPurchaseOrder()
+
+    if (!purchaseResult.purchaseOrder) return {
+      message: purchaseResult.message,
+      orderId: "",
     }
-  }
+    const purchaseOrder = purchaseResult.purchaseOrder
 
-  const purchaseResult = await createPurchaseOrder()
-
-  if (!purchaseResult.purchaseOrder) return {
-    message: purchaseResult.message,
-    orderId: "",
-  }
-  console.log("Purchase order generado")
-  const purchaseOrder = purchaseResult.purchaseOrder
-
-  const codes = purchaseOrder.resultPurchaseOrder
-  let mapGuides: any
-  if (codes?.[0]?.WaybillList?.length > 0) {
-    const folios = await CreateFolios(codes?.[0]?.WaybillList?.length)
-    console.log(`Folios creados ${data.transaction.id} ${folios}`)
-    mapGuides = createMapGuide(codes, order, folios.data.folioResult)
-  }
-
-  // const setGuidesLines = await apiRoot.carts().withId({ ID: cart.body.id }).post({
-  //   body: {
-  //     version: versionCart,
-  //     actions: [
-  //       {
-  //         action: "setLineItemCustomField",
-  //         lineItemId: cart.body.lineItems.find(item => item.variant.attributes?.find(attr => attr.name == "tipo-paquete")?.value["label"] == "ZONA" || item.variant.attributes?.find(attr => attr.name == "tipo-paquete")?.value["label"] == "UNIZONA")?.id,
-  //         name: "guia",
-  //         value: JSON.stringify({codes})
-  //       }
-  //     ]
-  //   }
-  // }).execute()
-
-  const userUpdated = await apiRoot.customers().get({
-    queryArgs: {
-      where: `email in ("${customer.email}")`
-    }
-  }).execute()
-  let versionCustomer = userUpdated.body.results[0].version
-  let objectCustomer = userUpdated.body.results[0]
-  //Esto es para agregar items
-  for (const line of order.lineItems) {
-    const attrType = line.variant.attributes?.find(item => item.name == "tipo-paquete")?.value["label"]
-    if (attrType != "UNIZONA") continue
-    const attrQuantity = line.variant.attributes?.find(item => item.name == "quantity-items")?.value ?? 1
-    const attrService = line.variant.attributes?.find(item => item.name == "servicio")?.value["label"]
-    debugger
-    if (attrService == "DIA SIGUIENTE") {
-      const quantityGuideAvailables = objectCustomer.custom?.fields?.["quantity-guides-dia-siguiente"] ?? 0
-      const updateQuantityUser = await apiRoot.customers().withId({ ID: customer.id }).post({
-        body: {
-          version: versionCustomer,
-          actions: [
-            {
-              action: "setCustomField",
-              name: "quantity-guides-dia-siguiente",
-              value: quantityGuideAvailables  + (attrQuantity * line.quantity)
-            }
-          ]
-        }
-      }).execute()
-      versionCustomer = updateQuantityUser.body.version
-      objectCustomer = updateQuantityUser.body
-    }
-    else if (attrService == "TERRESTRE") {
-      const quantityGuideAvailables = objectCustomer.custom?.fields?.["quantity-guides-terrestres"] ?? 0
-      const updateQuantityUser = await apiRoot.customers().withId({ ID: customer.id }).post({
-        body: {
-          version: versionCustomer,
-          actions: [
-            {
-              action: "setCustomField",
-              name: "quantity-guides-terrestres",
-              value: quantityGuideAvailables + (attrQuantity * line.quantity)
-            }
-          ]
-        }
-      }).execute()
-      versionCustomer = updateQuantityUser.body.version
-      objectCustomer = updateQuantityUser.body
-    }
-    else if (attrService == "DOS DIAS") {
-      const quantityGuideAvailables = objectCustomer.custom?.fields?.["quantity-guides-dos-dias"] ?? 0
-      const updateQuantityUser = await apiRoot.customers().withId({ ID: customer.id }).post({
-        body: {
-          version: versionCustomer,
-          actions: [
-            {
-              action: "setCustomField",
-              name: "quantity-guides-dos-dias",
-              value: quantityGuideAvailables + (attrQuantity * line.quantity)
-            }
-          ]
-        }
-      }).execute()
-      versionCustomer = updateQuantityUser.body.version
-      objectCustomer = updateQuantityUser.body
+    const codes = purchaseOrder.resultPurchaseOrder
+    let mapGuides: any
+    if (codes?.[0]?.WaybillList?.length > 0) {
+      const folios = await CreateFolios(codes?.[0]?.WaybillList?.length, loggerChild)
+      loggerChild.info(`Folios creados ${folios}`)
+      mapGuides = createMapGuide(codes, order, folios.data.folioResult)
     }
 
-    else if (attrService == "12:30") {
-      const quantityGuideAvailables = objectCustomer.custom?.fields?.["quantity-guides-doce-treinta"] ?? 0
-      const updateQuantityUser = await apiRoot.customers().withId({ ID: customer.id }).post({
-        body: {
-          version: versionCustomer,
-          actions: [
-            {
-              action: "setCustomField",
-              name: "quantity-guides-doce-treinta",
-              value: quantityGuideAvailables  + (attrQuantity * line.quantity)
-            }
-          ]
-        }
-      }).execute()
-      versionCustomer = updateQuantityUser.body.version
-      objectCustomer = updateQuantityUser.body
-    }
-  } 
-  
-  const isZONA = order.lineItems.some(item => item.variant.attributes?.find(attr => attr.name == "tipo-paquete")?.value["label"] == "ZONA")
-  const isUNIZONA = order.lineItems.some(item => item.variant.attributes?.find(attr => attr.name == "tipo-paquete")?.value["label"] == "UNIZONA")
-  const isInternational = order.lineItems.some(item => item.variant.attributes?.find(attr => attr.name == "tipo-paquete")?.value["label"] == "ZONA INTERNACIONAL")
-
-  if (isUNIZONA || isZONA || isInternational) {
-    const mapToObject = (map: Map<any, any>) => {
-      const obj: any = {};
-      for (let [key, value] of map) {
-        obj[key] = value;
-      }
-      return obj;
-    };
-
-    const plainObjectGuides = mapToObject(mapGuides);
-
-    const addPaymentToOrder = await apiRoot.orders().withId({ ID: order.id }).post({
-    body: {
-      version: order.version,
-      actions: [
-        {
-          action: "addPayment",
-          payment: {
-            id: createPayment.body.id,
-            typeId: "payment"
-          }
-        },
-        {
-          action: "changePaymentState",
-          paymentState: "Paid"
-        },
-        {
-          action: "setCustomField",
-          name: "services",
-          value: JSON.stringify(plainObjectGuides)
-        },
-        {
-          action: "setCustomField",
-          name: "ordenSap",
-          value: codes[0].OrderSAP,
-        },
-        {
-          action: "setCustomField",
-          name: "invoice",
-          value: "No Facturada",
-        },
-        {
-          action: "setOrderNumber",
-          orderNumber: newOrder
-        },
-        {
-          action: "setCustomField",
-          name: "isCombo",
-          value: isUNIZONA ? true : false
-        }
-      ]
-    }
-  }).execute()
-  
-  return {
-    orderId: addPaymentToOrder.body.id,
-    message: "",
-    isUso: false,
-    isRecoleccion: false,
-  }
-
-    
-    /*
-    const createOrder = await apiRoot.orders().post({
-      body: {
-        version: versionCart,
-        id: cart.body.id,
-        orderNumber: newOrder,
-        custom: {
-          type: {
-            typeId: 'type',
-            key: "type-order"
-          },
-          fields: {
-            "type-order": "service",
-            "services": JSON.stringify(plainObjectGuides),
-            "ordenSap": codes[0].OrderSAP,
-            "invoice": "No Facturada"
-          }
-        }
+    const userUpdated = await apiRoot.customers().get({
+      queryArgs: {
+        where: `email in ("${customer.email}")`
       }
     }).execute()
-
-    order = createOrder.body
-    */
-  } else {
-    const asignarGuias = await asignGuideToOrder(customer, order)
-    const addPaymentToOrder = await apiRoot.orders().withId({ ID: order.id }).post({
-    body: {
-      version: order.version,
-      actions: [
-        {
-          action: "addPayment",
-          payment: {
-            id: createPayment.body.id,
-            typeId: "payment"
+    let versionCustomer = userUpdated.body.results[0].version
+    let objectCustomer = userUpdated.body.results[0]
+    //Esto es para agregar items
+    for (const line of order.lineItems) {
+      const attrType = line.variant.attributes?.find(item => item.name == "tipo-paquete")?.value["label"]
+      if (attrType != "UNIZONA") continue
+      const attrQuantity = line.variant.attributes?.find(item => item.name == "quantity-items")?.value ?? 1
+      const attrService = line.variant.attributes?.find(item => item.name == "servicio")?.value["label"]
+      debugger
+      if (attrService == "DIA SIGUIENTE") {
+        const quantityGuideAvailables = objectCustomer.custom?.fields?.["quantity-guides-dia-siguiente"] ?? 0
+        const updateQuantityUser = await apiRoot.customers().withId({ ID: customer.id }).post({
+          body: {
+            version: versionCustomer,
+            actions: [
+              {
+                action: "setCustomField",
+                name: "quantity-guides-dia-siguiente",
+                value: quantityGuideAvailables + (attrQuantity * line.quantity)
+              }
+            ]
           }
-        },
-        {
-          action: "changePaymentState",
-          paymentState: "Paid"
-        },
-        {
-          action: "setCustomField",
-          name: "services",
-          value: JSON.stringify(asignarGuias)
-        },
-        {
-          action: "setCustomField",
-          name: "ordenSap",
-          value: codes[0].OrderSAP,
-        },
-        {
-          action: "setCustomField",
-          name: "invoice",
-          value: "No Facturada",
-        },
-        {
-          action: "setOrderNumber",
-          orderNumber: newOrder
-        }
-      ]
-    }
-  }).execute()
-  
-  return {
-    orderId: addPaymentToOrder.body.id,
-    message: "",
-    isUso: false,
-    isRecoleccion: false,
-  }
-    /*
-    const createOrder = await apiRoot.orders().post({
-      body: {
-        version: versionCart,
-        id: cart.body.id,
-        orderNumber: newOrder,
-        custom: {
-          type: {
-            typeId: 'type',
-            key: "type-order"
-          },
-          fields: {
-            "services": JSON.stringify(asignarGuias),
-            "ordenSap": codes?.[0]?.OrderSAP ?? "",
-            "type-order": "bundle",
-            "invoice": "No Facturada"
-          }
-        }
+        }).execute()
+        versionCustomer = updateQuantityUser.body.version
+        objectCustomer = updateQuantityUser.body
       }
-    }).execute()
-    order = createOrder.body
-    */
+      else if (attrService == "TERRESTRE") {
+        const quantityGuideAvailables = objectCustomer.custom?.fields?.["quantity-guides-terrestres"] ?? 0
+        const updateQuantityUser = await apiRoot.customers().withId({ ID: customer.id }).post({
+          body: {
+            version: versionCustomer,
+            actions: [
+              {
+                action: "setCustomField",
+                name: "quantity-guides-terrestres",
+                value: quantityGuideAvailables + (attrQuantity * line.quantity)
+              }
+            ]
+          }
+        }).execute()
+        versionCustomer = updateQuantityUser.body.version
+        objectCustomer = updateQuantityUser.body
+      }
+      else if (attrService == "DOS DIAS") {
+        const quantityGuideAvailables = objectCustomer.custom?.fields?.["quantity-guides-dos-dias"] ?? 0
+        const updateQuantityUser = await apiRoot.customers().withId({ ID: customer.id }).post({
+          body: {
+            version: versionCustomer,
+            actions: [
+              {
+                action: "setCustomField",
+                name: "quantity-guides-dos-dias",
+                value: quantityGuideAvailables + (attrQuantity * line.quantity)
+              }
+            ]
+          }
+        }).execute()
+        versionCustomer = updateQuantityUser.body.version
+        objectCustomer = updateQuantityUser.body
+      }
+
+      else if (attrService == "12:30") {
+        const quantityGuideAvailables = objectCustomer.custom?.fields?.["quantity-guides-doce-treinta"] ?? 0
+        const updateQuantityUser = await apiRoot.customers().withId({ ID: customer.id }).post({
+          body: {
+            version: versionCustomer,
+            actions: [
+              {
+                action: "setCustomField",
+                name: "quantity-guides-doce-treinta",
+                value: quantityGuideAvailables + (attrQuantity * line.quantity)
+              }
+            ]
+          }
+        }).execute()
+        versionCustomer = updateQuantityUser.body.version
+        objectCustomer = updateQuantityUser.body
+      }
+    }
+
+    const isZONA = order.lineItems.some(item => item.variant.attributes?.find(attr => attr.name == "tipo-paquete")?.value["label"] == "ZONA")
+    const isUNIZONA = order.lineItems.some(item => item.variant.attributes?.find(attr => attr.name == "tipo-paquete")?.value["label"] == "UNIZONA")
+    const isInternational = order.lineItems.some(item => item.variant.attributes?.find(attr => attr.name == "tipo-paquete")?.value["label"] == "ZONA INTERNACIONAL")
+
+    if (isUNIZONA || isZONA || isInternational) {
+      const mapToObject = (map: Map<any, any>) => {
+        const obj: any = {};
+        for (let [key, value] of map) {
+          obj[key] = value;
+        }
+        return obj;
+      };
+
+      const plainObjectGuides = mapToObject(mapGuides);
+
+      const addPaymentToOrder = await apiRoot.orders().withId({ ID: order.id }).post({
+        body: {
+          version: order.version,
+          actions: [
+            {
+              action: "addPayment",
+              payment: {
+                id: createPayment.body.id,
+                typeId: "payment"
+              }
+            },
+            {
+              action: "changePaymentState",
+              paymentState: "Paid"
+            },
+            {
+              action: "setCustomField",
+              name: "services",
+              value: JSON.stringify(plainObjectGuides)
+            },
+            {
+              action: "setCustomField",
+              name: "ordenSap",
+              value: codes[0].OrderSAP,
+            },
+            {
+              action: "setCustomField",
+              name: "invoice",
+              value: "No Facturada",
+            },
+            {
+              action: "setOrderNumber",
+              orderNumber: newOrder
+            },
+            {
+              action: "setCustomField",
+              name: "isCombo",
+              value: isUNIZONA ? true : false
+            }
+          ]
+        }
+      }).execute()
+
+      return {
+        orderId: addPaymentToOrder.body.id,
+        message: "",
+        isUso: false,
+        isRecoleccion: false,
+      }
+    } else {
+      const asignarGuias = await asignGuideToOrder(customer, order)
+      const addPaymentToOrder = await apiRoot.orders().withId({ ID: order.id }).post({
+        body: {
+          version: order.version,
+          actions: [
+            {
+              action: "addPayment",
+              payment: {
+                id: createPayment.body.id,
+                typeId: "payment"
+              }
+            },
+            {
+              action: "changePaymentState",
+              paymentState: "Paid"
+            },
+            {
+              action: "setCustomField",
+              name: "services",
+              value: JSON.stringify(asignarGuias)
+            },
+            {
+              action: "setCustomField",
+              name: "ordenSap",
+              value: codes[0].OrderSAP,
+            },
+            {
+              action: "setCustomField",
+              name: "invoice",
+              value: "No Facturada",
+            },
+            {
+              action: "setOrderNumber",
+              orderNumber: newOrder
+            }
+          ]
+        }
+      }).execute()
+
+      return {
+        orderId: addPaymentToOrder.body.id,
+        message: "",
+        isUso: false,
+        isRecoleccion: false,
+      }
+    }
+  } catch (err: any) {
+    loggerChild.error(err)
   }
 }
 

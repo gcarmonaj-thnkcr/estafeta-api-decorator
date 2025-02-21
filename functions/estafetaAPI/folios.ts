@@ -1,7 +1,7 @@
 import axios from "axios";
 import { authToken } from "./auth";
 
-export const CreateFolios = async (quantityFolios: number) => {
+export const CreateFolios = async (quantityFolios: number, logger: any) => {
   const token = await authToken({ type: 'folios' })
 
   let data = JSON.stringify({
@@ -24,15 +24,15 @@ export const CreateFolios = async (quantityFolios: number) => {
 
   try {
     const response = await axios.request(config);
-    console.log("Folios", response)
+    logger.info(`Folios ${JSON.stringify(response)}`)
     return {
       data: response.data,
       message: undefined,
     }
   } catch (error: any) {
     debugger
-    console.error('Error Response: ', error.response);
-    console.error('Error Message: ', error.message);
+    logger.error(`Error Response: ${error.response}`);
+    logger.error(`Error Message: ${error.message}`);
     return {
       data: "",
       message: error.message

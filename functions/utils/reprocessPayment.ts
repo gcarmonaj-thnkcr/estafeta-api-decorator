@@ -4,6 +4,7 @@ import { WSPurchaseOrder } from "../estafetaAPI/purchaseOrder";
 import { CreateFolios } from "../estafetaAPI/folios";
 import { createMapGuide } from "./addPayment";
 import { asignGuideToOrder } from "./asignarGuides";
+import { logger } from "./logger";
 
 interface IResponse {
   status: number;
@@ -53,6 +54,7 @@ const generateId = (longitud: number = 20) => {
 }
 
 export const addPaymentToOrders = async (cart: Cart, customer: Customer) => {
+  const loggerC = logger.child({requestId: cart.id})
   const quantityTotalGuides = 0
   let versionCart = cart.version
   const orders = await apiRoot.orders().get({
@@ -135,7 +137,7 @@ export const addPaymentToOrders = async (cart: Cart, customer: Customer) => {
   const codes = purchaseOrder.resultPurchaseOrder
   let mapGuides: any
   if (codes?.[0]?.WaybillList?.length > 0) {
-    const folios = await CreateFolios(codes?.[0]?.WaybillList?.length)
+    const folios = await CreateFolios(codes?.[0]?.WaybillList?.length, loggerC)
     mapGuides = createMapGuide(codes, cart, folios.data.folioResult)
   }
 

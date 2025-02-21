@@ -15,7 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CreateFolios = void 0;
 const axios_1 = __importDefault(require("axios"));
 const auth_1 = require("./auth");
-const CreateFolios = (quantityFolios) => __awaiter(void 0, void 0, void 0, function* () {
+const CreateFolios = (quantityFolios, logger) => __awaiter(void 0, void 0, void 0, function* () {
     const token = yield (0, auth_1.authToken)({ type: 'folios' });
     let data = JSON.stringify({
         "applicationName": "TiendaEstafeta",
@@ -35,7 +35,7 @@ const CreateFolios = (quantityFolios) => __awaiter(void 0, void 0, void 0, funct
     };
     try {
         const response = yield axios_1.default.request(config);
-        console.log("Folios", response);
+        logger.info(`Folios ${JSON.stringify(response)}`);
         return {
             data: response.data,
             message: undefined,
@@ -43,8 +43,8 @@ const CreateFolios = (quantityFolios) => __awaiter(void 0, void 0, void 0, funct
     }
     catch (error) {
         debugger;
-        console.error('Error Response: ', error.response);
-        console.error('Error Message: ', error.message);
+        logger.error(`Error Response: ${error.response}`);
+        logger.error(`Error Message: ${error.message}`);
         return {
             data: "",
             message: error.message
