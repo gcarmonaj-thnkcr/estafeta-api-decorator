@@ -91,11 +91,10 @@ const WSPurchaseOrder = (_a) => __awaiter(void 0, [_a], void 0, function* ({ ord
     };
     try {
         const response = yield axios_1.default.request(config);
-        logger.info(response.data);
+        logger.info(JSON.stringify(response.data));
         return response.data;
     }
     catch (error) {
-        debugger;
         logger.error(error);
         throw error;
     }

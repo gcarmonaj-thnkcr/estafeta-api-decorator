@@ -312,6 +312,7 @@ exports.addPaymentToOrdersRecoleccion = addPaymentToOrdersRecoleccion;
 const addPaymentToOrders = (data, order, customer) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _0;
     const loggerChild = logger_1.logger.child({ requestId: data.transaction.id });
+    loggerChild.info(JSON.stringify(data));
     try {
         const quantityTotalGuides = 0;
         const orders = yield client_1.apiRoot.orders().get({

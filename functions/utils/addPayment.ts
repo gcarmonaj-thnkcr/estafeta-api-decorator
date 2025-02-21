@@ -343,6 +343,7 @@ export const addPaymentToOrdersRecoleccion = async (data: ITransactionEvent, ord
 
 export const addPaymentToOrders = async (data: ITransactionEvent, order: Order, customer: Customer) => {
   const loggerChild = logger.child({ requestId: data.transaction.id })
+  loggerChild.info(JSON.stringify(data))
   try {
     const quantityTotalGuides = 0
 
