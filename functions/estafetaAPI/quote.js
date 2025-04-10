@@ -23,9 +23,9 @@ function handleCotizacion(body) {
         const token = yield (0, auth_1.authToken)({ type: 'quote' });
         const config = {
             method: 'post',
-            url: 'https://wscotizador.estafeta.com/Cotizacion/rest/Cotizador/Cotizacion',
+            url: 'https://wscotizadorqa.estafeta.com/Cotizacion/rest/Cotizador/Cotizacion',
             headers: {
-                apikey: 'l78539fd322ef546f1885be202a6535157',
+                apikey: 'l7beefb34b43bc44ef8d318541258df87c',
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${token}`,
             },
@@ -36,6 +36,10 @@ function handleCotizacion(body) {
             return response.data;
         }
         catch (error) {
+            console.log(token, "TOKEN Cotizador");
+            console.log(data, "MARIO");
+            console.log('Error: iD', process.env.ClientIdQuote);
+            console.log('Error: Secret', process.env.ClientSecretQuote);
             console.error('Error: Cotizacion', error.response ? error.response.data : error.message);
             throw error;
         }
@@ -48,9 +52,9 @@ function handleCotizacionInternacional(body) {
         console.log(data);
         const config = {
             method: 'post',
-            url: 'https://apimwscotizador.estafeta.com/Cotizacion/rest/Cotizador/InternationalQuotation?SALES_ORGANIZATION&CUSTOMER',
+            url: 'https://apimwscotizadorqa.estafeta.com/Cotizacion/rest/Cotizador/InternationalQuotation?SALES_ORGANIZATION&CUSTOMER',
             headers: {
-                apikey: 'f3bb437a10d348c99eeeb0101de13013',
+                apikey: '782b4f8f93934ab28e4c4ab33ca2f833',
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${token}`,
             },
@@ -63,6 +67,10 @@ function handleCotizacionInternacional(body) {
             return response.data;
         }
         catch (error) {
+            console.log(token, "TOKEN int");
+            console.log(data, "MARIO int");
+            console.log('Error: iD', process.env.ClientIdQuoteInternacional);
+            console.log('Error: Secret', process.env.ClientSecretQuoteInternacional);
             console.error('Error: Cotizacion', error.message);
             return error.message;
         }
