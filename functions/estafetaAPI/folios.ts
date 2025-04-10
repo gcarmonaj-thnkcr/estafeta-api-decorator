@@ -1,7 +1,7 @@
 import axios from "axios";
 import { authToken } from "./auth";
 
-export const CreateFolios = async (quantityFolios: number) => {
+export const CreateFolios = async (quantityFolios: number, logger: any) => {
   const token = await authToken({ type: 'folios' })
 
   let data = JSON.stringify({
@@ -13,9 +13,9 @@ export const CreateFolios = async (quantityFolios: number) => {
 
   const config = {
     method: 'post',
-    url: 'https://wsbotrastreo.estafeta.com/Folios_IS/rest/FoliosManagement/CreateFolio',
+    url: process.env.URL_FOLIOS ?? "",
     headers: { 
-      'apikey': 'l7fa71f4ddb9b14ae3a4cf799269f3aed4', 
+      'apikey': process.env.API_KEY_FOLIOS, 
       'Content-Type': 'application/json', 
       'Authorization': `Bearer ${token}`, 
     },
@@ -24,15 +24,13 @@ export const CreateFolios = async (quantityFolios: number) => {
 
   try {
     const response = await axios.request(config);
-    debugger  
+    logger.info(JSON.stringify(response.data))
     return {
       data: response.data,
       message: undefined,
     }
   } catch (error: any) {
-    debugger
-    console.error('Error Response: ', error.response);
-    console.error('Error Message: ', error.message);
+    logger.error(error)
     return {
       data: "",
       message: error.message

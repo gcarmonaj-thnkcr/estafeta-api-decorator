@@ -1,6 +1,7 @@
 import express from "express";
 import serverless from "serverless-http";
 import cors from "cors";
+import morgan from 'morgan'
 import * as dotenv from 'dotenv'
 // import data from './mock_values.json' assert { type: 'json'}
 import pdvRouter from './controllers/pdv/index'
@@ -16,6 +17,7 @@ import reprocessRouter from './controllers/reprocess/index'
 const app = express();
 dotenv.config()
 
+app.use(morgan('combined'))
 app.use(cors());
 app.use(express.json())
 

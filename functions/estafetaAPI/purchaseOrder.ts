@@ -17,6 +17,7 @@ export interface IPurchaseOrder {
   methodName: string;
   customer: Customer;
   quantityTotalGuides: number;
+  logger?: any;
 }
 
 interface IPurchaseLine {
@@ -46,10 +47,13 @@ const getTypeCart = (order: Order | Cart) => {
 
 let taxAmount = 16
 
-export const WSPurchaseOrder = async ({ order, code, customer, idPaymentService, methodName, quantityTotalGuides }: IPurchaseOrder) => {
+export const WSPurchaseOrder = async ({ order, code, customer, idPaymentService, methodName, quantityTotalGuides, logger }: IPurchaseOrder) => {
   const typeCart = getTypeCart(order)
   idPaymentService = idPaymentService.length > 10 ? idPaymentService.substring(0, 10) : idPaymentService
   const purchaseLines = await createLinePurchase(typeCart, order, code, quantityTotalGuides, customer, idPaymentService)
+  const timeNow = new Date()
+  const formattedDate = timeNow.toISOString().replace('T', ' ').slice(0, 19);
+
   if(!taxAmount) taxAmount = 16 
   const data = {
     "purchaseOrder": [
@@ -71,7 +75,7 @@ export const WSPurchaseOrder = async ({ order, code, customer, idPaymentService,
             "BankTypeName": "VISA",
             "BankReferenceCode": "87D01189",
             "PaymentAmount": order.totalPrice.centAmount / 100.00,
-            "PaidDateTime": "2024-07-17 12:11:45",
+            "PaidDateTime": formattedDate,
             "PaymentCode": code
           }
         ],
@@ -87,13 +91,13 @@ export const WSPurchaseOrder = async ({ order, code, customer, idPaymentService,
     ]
   }
 
-  console.log(data)
+  logger.info(`Data purchase: ${JSON.stringify(data)}`)
   const token = await authToken({ type: 'purchaseOrder' })
   const config = {
     method: 'post',
-    url: 'https://apimiddlewareinvoice.estafeta.com/TiendaEstafetaAPI/rest/PurchasePortalOrder/Insert',
+    url: process.env.URL_PURCHASE ?? "",
     headers: {
-      APIKEY: '535bdfc24755428aac2d96dca5a158ee',
+      APIKEY: process.env.API_KEY_PURCHASE ?? "",
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
     },
@@ -101,13 +105,10 @@ export const WSPurchaseOrder = async ({ order, code, customer, idPaymentService,
   };
   try {
     const response = await axios.request(config);
-    debugger
-    console.log(response.data)
+    logger.info(JSON.stringify(response.data))
     return response.data;
   } catch (error: any) {
-    debugger
-    console.error('Error Response: ', error.response);
-    console.error('Error Message: ', error.message);
+    logger.error(error);
     throw error;
   }
 }

@@ -16,6 +16,7 @@ exports.handleCotizacion = handleCotizacion;
 exports.handleCotizacionInternacional = handleCotizacionInternacional;
 const axios_1 = __importDefault(require("axios"));
 const auth_1 = require("./auth");
+const logger_1 = require("../utils/logger");
 function handleCotizacion(body) {
     return __awaiter(this, void 0, void 0, function* () {
         const data = body;
@@ -23,9 +24,9 @@ function handleCotizacion(body) {
         const token = yield (0, auth_1.authToken)({ type: 'quote' });
         const config = {
             method: 'post',
-            url: 'https://wscotizadorqa.estafeta.com/Cotizacion/rest/Cotizador/Cotizacion',
+            url: process.env.URL_COTIZADOR,
             headers: {
-                apikey: 'l7beefb34b43bc44ef8d318541258df87c',
+                apikey: process.env.API_KEY_COTIZADOR,
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${token}`,
             },
@@ -49,29 +50,24 @@ function handleCotizacionInternacional(body) {
     return __awaiter(this, void 0, void 0, function* () {
         const data = body;
         const token = yield (0, auth_1.authToken)({ type: 'quoteInternacional' });
-        console.log(data);
         const config = {
             method: 'post',
-            url: 'https://apimwscotizadorqa.estafeta.com/Cotizacion/rest/Cotizador/InternationalQuotation?SALES_ORGANIZATION&CUSTOMER',
+            url: process.env.URL_COTIZADOR_INT,
             headers: {
-                apikey: '782b4f8f93934ab28e4c4ab33ca2f833',
+                apikey: process.env.API_KEY_COTIZADOR_INT,
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${token}`,
             },
             data: JSON.stringify(data),
         };
         try {
-            console.log("Config", config);
+            logger_1.logger.info(`Config ${JSON.stringify(config)}`);
             const response = yield axios_1.default.request(config);
-            console.log("Response international:", response.data);
+            logger_1.logger.info(`Response international: ${JSON.stringify(response.data)}`);
             return response.data;
         }
         catch (error) {
-            console.log(token, "TOKEN int");
-            console.log(data, "MARIO int");
-            console.log('Error: iD', process.env.ClientIdQuoteInternacional);
-            console.log('Error: Secret', process.env.ClientSecretQuoteInternacional);
-            console.error('Error: Cotizacion', error.message);
+            logger_1.logger.error(`Error: Cotizacion ${error.message}`);
             return error.message;
         }
     });

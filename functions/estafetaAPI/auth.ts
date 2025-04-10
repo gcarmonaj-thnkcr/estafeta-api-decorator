@@ -17,8 +17,10 @@ interface ITypeToken {
 
 let tokensCreateds = new Map<string, IToken>();
 
-const urlEstafeta = "https://apiqa.estafeta.com:8443/auth/oauth/v2/token"
+const urlEstafetaQA = "https://apiqa.estafeta.com:8443/auth/oauth/v2/token"
+const urlEstafetProd = "https://api.estafeta.com/auth/oauth/v2/token"
 const urlMicrosoft = "https://login.microsoftonline.com/2a3f6c70-006d-4bba-9bd9-2c200073ca62/oauth2/v2.0/token"
+const isProduction = process.env.ISPRODUCTION ?? "false"
 
 export const authToken = async ({ type }: ITypeToken) => await validateToken({type})
 
@@ -35,7 +37,7 @@ const Keys: IKeys = {
   'quote': {
     clientId: process.env.ClientIdQuote ?? "",
     clientSecret: process.env.ClientSecretQuote ?? "",
-    url: urlEstafeta,
+    url: isProduction == "true" ? urlEstafetProd : urlEstafetaQA,
   },
   'quoteInternacional':{
     clientId: process.env.ClientIdQuoteInternacional ?? "",
@@ -58,7 +60,7 @@ const Keys: IKeys = {
   'folios': {
     clientId: process.env.ClientIdFolios ?? "",
     clientSecret: process.env.ClientSecretFolios ?? "",
-    url: urlEstafeta,
+    url: isProduction == "true" ? urlEstafetProd : urlEstafetaQA ,
     scope: "execute"
   },
 }
@@ -102,16 +104,14 @@ const createToken = async (clientId: string, clientSecret: string, url: string, 
         'Authorization': `Basic ${auth}`
       }
     })
-    console.log("Token request",request.data)
     const token: IToken = {
       ...request.data,
       created_at: new Date()
     }
-    console.log(token)
     if (!token) return {} as IToken
     return token
   } catch (err: any) {
-    console.log("error token", err)
+    console.error("error token", err)
     return {} as IToken
   }
 }

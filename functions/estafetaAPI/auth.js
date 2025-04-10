@@ -15,23 +15,13 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
-var __importStar = (this && this.__importStar) || (function () {
-    var ownKeys = function(o) {
-        ownKeys = Object.getOwnPropertyNames || function (o) {
-            var ar = [];
-            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-            return ar;
-        };
-        return ownKeys(o);
-    };
-    return function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
-        __setModuleDefault(result, mod);
-        return result;
-    };
-})();
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -44,45 +34,47 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
+var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.authToken = void 0;
 const axios_1 = __importDefault(require("axios"));
 const dotenv = __importStar(require("dotenv"));
 dotenv.config();
 let tokensCreateds = new Map();
-const urlEstafeta = "https://apiqa.estafeta.com:8443/auth/oauth/v2/token";
+const urlEstafetaQA = "https://apiqa.estafeta.com:8443/auth/oauth/v2/token";
+const urlEstafetProd = "https://api.estafeta.com/auth/oauth/v2/token";
 const urlMicrosoft = "https://login.microsoftonline.com/2a3f6c70-006d-4bba-9bd9-2c200073ca62/oauth2/v2.0/token";
+const isProduction = (_a = process.env.ISPRODUCTION) !== null && _a !== void 0 ? _a : "false";
 const authToken = (_a) => __awaiter(void 0, [_a], void 0, function* ({ type }) { return yield validateToken({ type }); });
 exports.authToken = authToken;
 const Keys = {
     'quote': {
-        clientId: (_a = process.env.ClientIdQuote) !== null && _a !== void 0 ? _a : "",
-        clientSecret: (_b = process.env.ClientSecretQuote) !== null && _b !== void 0 ? _b : "",
-        url: urlEstafeta,
+        clientId: (_b = process.env.ClientIdQuote) !== null && _b !== void 0 ? _b : "",
+        clientSecret: (_c = process.env.ClientSecretQuote) !== null && _c !== void 0 ? _c : "",
+        url: isProduction == "true" ? urlEstafetProd : urlEstafetaQA,
     },
     'quoteInternacional': {
-        clientId: (_c = process.env.ClientIdQuoteInternacional) !== null && _c !== void 0 ? _c : "",
-        clientSecret: (_d = process.env.ClientSecretQuoteInternacional) !== null && _d !== void 0 ? _d : "",
+        clientId: (_d = process.env.ClientIdQuoteInternacional) !== null && _d !== void 0 ? _d : "",
+        clientSecret: (_e = process.env.ClientSecretQuoteInternacional) !== null && _e !== void 0 ? _e : "",
         url: urlMicrosoft,
         scope: "https://graph.microsoft.com/.default"
     },
     'purchaseOrder': {
-        clientId: (_e = process.env.ClientIdPurchase) !== null && _e !== void 0 ? _e : "",
-        clientSecret: (_f = process.env.ClientSecretPurchase) !== null && _f !== void 0 ? _f : "",
+        clientId: (_f = process.env.ClientIdPurchase) !== null && _f !== void 0 ? _f : "",
+        clientSecret: (_g = process.env.ClientSecretPurchase) !== null && _g !== void 0 ? _g : "",
         url: urlMicrosoft,
         scope: "https://graph.microsoft.com/.default"
     },
     'newPickUp': {
-        clientId: (_g = process.env.ClientIdPickUp) !== null && _g !== void 0 ? _g : "",
-        clientSecret: (_h = process.env.ClientSecredPickUp) !== null && _h !== void 0 ? _h : "",
+        clientId: (_h = process.env.ClientIdPickUp) !== null && _h !== void 0 ? _h : "",
+        clientSecret: (_j = process.env.ClientSecredPickUp) !== null && _j !== void 0 ? _j : "",
         url: urlMicrosoft,
         scope: "https://graph.microsoft.com/.default"
     },
     'folios': {
-        clientId: (_j = process.env.ClientIdFolios) !== null && _j !== void 0 ? _j : "",
-        clientSecret: (_k = process.env.ClientSecretFolios) !== null && _k !== void 0 ? _k : "",
-        url: urlEstafeta,
+        clientId: (_k = process.env.ClientIdFolios) !== null && _k !== void 0 ? _k : "",
+        clientSecret: (_l = process.env.ClientSecretFolios) !== null && _l !== void 0 ? _l : "",
+        url: isProduction == "true" ? urlEstafetProd : urlEstafetaQA,
         scope: "execute"
     },
 };
@@ -122,15 +114,13 @@ const createToken = (clientId, clientSecret, url, scope) => __awaiter(void 0, vo
                 'Authorization': `Basic ${auth}`
             }
         });
-        console.log("Token request", request.data);
         const token = Object.assign(Object.assign({}, request.data), { created_at: new Date() });
-        console.log(token);
         if (!token)
             return {};
         return token;
     }
     catch (err) {
-        console.log("error token", err);
+        console.error("error token", err);
         return {};
     }
 });

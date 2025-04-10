@@ -1,5 +1,6 @@
 import axios from "axios";
 import { authToken } from "./auth";
+import { logger } from "../utils/logger";
 
 export async function handleCotizacion(body: any) {
   const data = body
@@ -8,9 +9,9 @@ export async function handleCotizacion(body: any) {
   const token = await authToken({ type: 'quote'})
   const config = {
     method: 'post',
-    url: 'https://wscotizadorqa.estafeta.com/Cotizacion/rest/Cotizador/Cotizacion',
+    url: process.env.URL_COTIZADOR,
     headers: {
-      apikey: 'l7beefb34b43bc44ef8d318541258df87c',
+      apikey: process.env.API_KEY_COTIZADOR,
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
     },
@@ -35,12 +36,11 @@ export async function handleCotizacionInternacional(body: any) {
   const data = body
 
   const token = await authToken({ type: 'quoteInternacional' });
-  console.log(data)
   const config = {
     method: 'post',
-    url: 'https://apimwscotizadorqa.estafeta.com/Cotizacion/rest/Cotizador/InternationalQuotation?SALES_ORGANIZATION&CUSTOMER',
+    url: process.env.URL_COTIZADOR_INT,
     headers: {
-      apikey: '782b4f8f93934ab28e4c4ab33ca2f833',
+      apikey: process.env.API_KEY_COTIZADOR_INT,
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
     },
@@ -48,18 +48,14 @@ export async function handleCotizacionInternacional(body: any) {
   };
 
   try {
-    console.log("Config",config)
+    logger.info(`Config ${JSON.stringify(config)}`)
     const response = await axios.request(config);
 
-    console.log("Response international:",response.data)
+    logger.info(`Response international: ${JSON.stringify(response.data)}`)
     return response.data;
 
   } catch (error: any) {
-    console.log(token, "TOKEN int");
-    console.log(data,"MARIO int")
-    console.log('Error: iD', process.env.ClientIdQuoteInternacional);
-    console.log('Error: Secret', process.env.ClientSecretQuoteInternacional);
-    console.error('Error: Cotizacion', error.message);
+    logger.error(`Error: Cotizacion ${error.message}`);
     return error.message;
   }
 }

@@ -15,6 +15,7 @@ const purchaseOrder_1 = require("../estafetaAPI/purchaseOrder");
 const folios_1 = require("../estafetaAPI/folios");
 const addPayment_1 = require("./addPayment");
 const asignarGuides_1 = require("./asignarGuides");
+const logger_1 = require("./logger");
 const reprocessPayment = (idCart) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b;
     if (!idCart || idCart == "")
@@ -63,6 +64,7 @@ const generateId = (longitud = 20) => {
 };
 const addPaymentToOrders = (cart, customer) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _0;
+    const loggerC = logger_1.logger.child({ requestId: cart.id });
     const quantityTotalGuides = 0;
     let versionCart = cart.version;
     const orders = yield client_1.apiRoot.orders().get({
@@ -143,7 +145,7 @@ const addPaymentToOrders = (cart, customer) => __awaiter(void 0, void 0, void 0,
     const codes = purchaseOrder.resultPurchaseOrder;
     let mapGuides;
     if (((_b = (_a = codes === null || codes === void 0 ? void 0 : codes[0]) === null || _a === void 0 ? void 0 : _a.WaybillList) === null || _b === void 0 ? void 0 : _b.length) > 0) {
-        const folios = yield (0, folios_1.CreateFolios)((_d = (_c = codes === null || codes === void 0 ? void 0 : codes[0]) === null || _c === void 0 ? void 0 : _c.WaybillList) === null || _d === void 0 ? void 0 : _d.length);
+        const folios = yield (0, folios_1.CreateFolios)((_d = (_c = codes === null || codes === void 0 ? void 0 : codes[0]) === null || _c === void 0 ? void 0 : _c.WaybillList) === null || _d === void 0 ? void 0 : _d.length, loggerC);
         mapGuides = (0, addPayment_1.createMapGuide)(codes, cart, folios.data.folioResult);
     }
     console.log("Folios registrados", mapGuides);

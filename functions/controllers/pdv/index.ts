@@ -88,8 +88,8 @@ router.get("/pdv-services", validateToken, async (req: Request, res: Response): 
             "externalNum": origin.exteriorNumber,
             "indoreInformation": origin?.interiorNumber ?? "",
             "settlementTypeCode": "999",
-            "settlementTypeName": origin.settlement,
-            "SettlementTypeAbbName": origin.settlement.slice(0, 3),
+            "settlementTypeName": origin?.settlement,
+            "SettlementTypeAbbName": origin?.settlement?.slice(0, 3),
             "settlementName": origin.neighborhood,
             "twnshipCode": "",
             "twnshipName": origin.city,
@@ -111,9 +111,9 @@ router.get("/pdv-services", validateToken, async (req: Request, res: Response): 
             "recipient": {
               "eMailClient": destination.email, //email del destinatario
               "isPudo": servicesFind.isPudo ? "1" : "0",
-              "EquivalentCode": servicesFind.isPudo? destination.pudoinfo[0]?.EquivalentCode : "",
-              "TyoeLocationName": servicesFind.isPudo? destination.pudoinfo[0]?.SpaceOwnerName : "",
-              "SpaceOwnerName": servicesFind.isPudo? destination.pudoinfo[0]?.OwnerCode : "",
+              "EquivalentCode": servicesFind.isPudo? destination?.pudoinfo?.[0]?.EquivalentCode : "",
+              "TyoeLocationName": servicesFind.isPudo? destination?.pudoinfo?.[0]?.SpaceOwnerName : "",
+              "SpaceOwnerName": servicesFind.isPudo? destination?.pudoinfo?.[0]?.OwnerCode : "",
               "isSender": "0",
               "Alias": destination.alias,
               "TaxPayer": "",

@@ -35,11 +35,13 @@ const getTypeCart = (order) => {
     return "USO";
 };
 let taxAmount = 16;
-const WSPurchaseOrder = (_a) => __awaiter(void 0, [_a], void 0, function* ({ order, code, customer, idPaymentService, methodName, quantityTotalGuides }) {
-    var _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q;
+const WSPurchaseOrder = (_a) => __awaiter(void 0, [_a], void 0, function* ({ order, code, customer, idPaymentService, methodName, quantityTotalGuides, logger }) {
+    var _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s;
     const typeCart = getTypeCart(order);
     idPaymentService = idPaymentService.length > 10 ? idPaymentService.substring(0, 10) : idPaymentService;
     const purchaseLines = yield createLinePurchase(typeCart, order, code, quantityTotalGuides, customer, idPaymentService);
+    const timeNow = new Date();
+    const formattedDate = timeNow.toISOString().replace('T', ' ').slice(0, 19);
     if (!taxAmount)
         taxAmount = 16;
     const data = {
@@ -62,7 +64,7 @@ const WSPurchaseOrder = (_a) => __awaiter(void 0, [_a], void 0, function* ({ ord
                         "BankTypeName": "VISA",
                         "BankReferenceCode": "87D01189",
                         "PaymentAmount": order.totalPrice.centAmount / 100.00,
-                        "PaidDateTime": "2024-07-17 12:11:45",
+                        "PaidDateTime": formattedDate,
                         "PaymentCode": code
                     }
                 ],
@@ -77,13 +79,13 @@ const WSPurchaseOrder = (_a) => __awaiter(void 0, [_a], void 0, function* ({ ord
             }
         ]
     };
-    console.log(data);
+    logger.info(`Data purchase: ${JSON.stringify(data)}`);
     const token = yield (0, auth_1.authToken)({ type: 'purchaseOrder' });
     const config = {
         method: 'post',
-        url: 'https://apimiddlewareinvoice.estafeta.com/TiendaEstafetaAPI/rest/PurchasePortalOrder/Insert',
+        url: (_r = process.env.URL_PURCHASE) !== null && _r !== void 0 ? _r : "",
         headers: {
-            APIKEY: '535bdfc24755428aac2d96dca5a158ee',
+            APIKEY: (_s = process.env.API_KEY_PURCHASE) !== null && _s !== void 0 ? _s : "",
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
         },
@@ -91,14 +93,11 @@ const WSPurchaseOrder = (_a) => __awaiter(void 0, [_a], void 0, function* ({ ord
     };
     try {
         const response = yield axios_1.default.request(config);
-        debugger;
-        console.log(response.data);
+        logger.info(JSON.stringify(response.data));
         return response.data;
     }
     catch (error) {
-        debugger;
-        console.error('Error Response: ', error.response);
-        console.error('Error Message: ', error.message);
+        logger.error(error);
         throw error;
     }
 });

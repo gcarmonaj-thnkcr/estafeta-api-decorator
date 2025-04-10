@@ -15,7 +15,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CreateFolios = void 0;
 const axios_1 = __importDefault(require("axios"));
 const auth_1 = require("./auth");
-const CreateFolios = (quantityFolios) => __awaiter(void 0, void 0, void 0, function* () {
+const CreateFolios = (quantityFolios, logger) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     const token = yield (0, auth_1.authToken)({ type: 'folios' });
     let data = JSON.stringify({
         "applicationName": "TiendaEstafeta",
@@ -25,9 +26,9 @@ const CreateFolios = (quantityFolios) => __awaiter(void 0, void 0, void 0, funct
     });
     const config = {
         method: 'post',
-        url: 'https://wsbotrastreo.estafeta.com/Folios_IS/rest/FoliosManagement/CreateFolio',
+        url: (_a = process.env.URL_FOLIOS) !== null && _a !== void 0 ? _a : "",
         headers: {
-            'apikey': 'l7fa71f4ddb9b14ae3a4cf799269f3aed4',
+            'apikey': process.env.API_KEY_FOLIOS,
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`,
         },
@@ -35,16 +36,14 @@ const CreateFolios = (quantityFolios) => __awaiter(void 0, void 0, void 0, funct
     };
     try {
         const response = yield axios_1.default.request(config);
-        debugger;
+        logger.info(JSON.stringify(response.data));
         return {
             data: response.data,
             message: undefined,
         };
     }
     catch (error) {
-        debugger;
-        console.error('Error Response: ', error.response);
-        console.error('Error Message: ', error.message);
+        logger.error(error);
         return {
             data: "",
             message: error.message

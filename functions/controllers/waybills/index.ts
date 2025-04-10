@@ -65,7 +65,7 @@ router.post("/waybills", async (req: Request, res: Response): Promise<any> =>{
         if(!servicesFind) continue
       }
     }
-    if(!servicesFind?.status || servicesFind?.status == "DISPONIBLE"){
+    if(!servicesFind?.status ||  servicesFind?.status == "DISPONIBLE"){
       servicesFind.status = "EN PROCESO"
     } else {
       resulWaylBill.push({

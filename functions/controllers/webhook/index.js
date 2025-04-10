@@ -11,6 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const addPayment_1 = require("../../utils/addPayment");
+const logger_1 = require("../../utils/logger");
 const router = (0, express_1.Router)();
 router.post("/payment/webhook", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -19,16 +20,11 @@ router.post("/payment/webhook", (req, res) => __awaiter(void 0, void 0, void 0, 
             return res.sendStatus(200);
         if (paymentInfo.transaction.method == "card")
             return res.sendStatus(200);
-        console.log("------------------------");
-        console.log(`Openpay webhook body: ${paymentInfo.transaction.id}`);
-        console.log("Pagado");
         const responsePayment = yield (0, addPayment_1.addPaymentToOrder)(paymentInfo);
         if (responsePayment.message) {
-            console.log(responsePayment);
+            logger_1.logger.error(responsePayment);
             return res.sendStatus(500);
         }
-        console.log("Proceso culminado");
-        console.log("------------------------");
         return res.sendStatus(200);
     }
     catch (err) {
