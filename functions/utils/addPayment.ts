@@ -419,6 +419,15 @@ export const addPaymentToOrders = async (data: ITransactionEvent, order: Order, 
 
     const codes = purchaseOrder.resultPurchaseOrder
     let mapGuides: any
+    if(codes?.[0]?.WaybillList?.length <= 0){
+      return {
+        orderId: "",
+        message: "Campo waybillist is empty",
+        isUso: false,
+        isRecoleccion: false,
+      }
+    } 
+
     if (codes?.[0]?.WaybillList?.length > 0) {
       const folios = await CreateFolios(codes?.[0]?.WaybillList?.length, loggerChild)
       loggerChild.info(`Folios creados`)
