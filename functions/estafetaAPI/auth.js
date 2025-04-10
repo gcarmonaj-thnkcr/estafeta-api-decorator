@@ -45,6 +45,7 @@ const urlEstafetaQA = "https://apiqa.estafeta.com:8443/auth/oauth/v2/token";
 const urlEstafetProd = "https://api.estafeta.com/auth/oauth/v2/token";
 const urlMicrosoft = "https://login.microsoftonline.com/2a3f6c70-006d-4bba-9bd9-2c200073ca62/oauth2/v2.0/token";
 const isProduction = (_a = process.env.ISPRODUCTION) !== null && _a !== void 0 ? _a : "false";
+console.log(isProduction);
 const authToken = (_a) => __awaiter(void 0, [_a], void 0, function* ({ type }) { return yield validateToken({ type }); });
 exports.authToken = authToken;
 const Keys = {

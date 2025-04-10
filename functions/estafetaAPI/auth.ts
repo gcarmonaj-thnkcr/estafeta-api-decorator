@@ -22,6 +22,8 @@ const urlEstafetProd = "https://api.estafeta.com/auth/oauth/v2/token"
 const urlMicrosoft = "https://login.microsoftonline.com/2a3f6c70-006d-4bba-9bd9-2c200073ca62/oauth2/v2.0/token"
 const isProduction = process.env.ISPRODUCTION ?? "false"
 
+console.log(isProduction)
+
 export const authToken = async ({ type }: ITypeToken) => await validateToken({type})
 
 interface IKeys {
