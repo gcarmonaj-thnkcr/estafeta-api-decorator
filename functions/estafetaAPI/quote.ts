@@ -23,7 +23,6 @@ export async function handleCotizacion(body: any) {
     return response.data;
   } catch (error: any) {
     console.log(token, "TOKEN Cotizador");
-    console.log(data,"MARIO")
     console.log('Error: iD', process.env.ClientIdQuote);
     console.log('Error: Secret', process.env.ClientSecretQuote);
     console.error('Error: Cotizacion', error.response ? error.response.data : error.message);
