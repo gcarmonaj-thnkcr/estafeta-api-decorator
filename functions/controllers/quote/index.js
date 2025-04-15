@@ -20,7 +20,7 @@ router.post("/quote", (req, res) => __awaiter(void 0, void 0, void 0, function* 
         if (!req.body.IsRecoleccion) {
             for (const service of services.Quotation[0].Service) {
                 service.OverweightListPrice = 0;
-                service.InsuredCost = 16;
+                service.InsuredCost = 0;
                 service.DeliveryZone = 0;
                 service.FuelChargeOverweightListPrice = 0;
                 service.ForwardingLevelCostListPrice = 0;
