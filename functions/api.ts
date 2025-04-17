@@ -12,6 +12,7 @@ import loginRouter from './controllers/login/index'
 import webhookRouter from './controllers/webhook/index'
 import quoteRouter from './controllers/quote/index'
 import reprocessRouter from './controllers/reprocess/index'
+import reportRouter from "./controllers/report/index"
 
 
 const app = express();
@@ -29,6 +30,7 @@ app.use("/.netlify/functions/api", ordersRouter)
 app.use("/.netlify/functions/api", loginRouter)
 app.use("/.netlify/functions/api", quoteRouter)
 app.use("/.netlify/functions/api", reprocessRouter)
+app.use("/.netlify/functions/api", reportRouter)
 
 
 const port = process.env.PORT || 9000;
