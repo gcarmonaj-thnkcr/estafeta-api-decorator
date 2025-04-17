@@ -50,11 +50,12 @@ const mapReportExcel = async(orders: Order[]) => {
   for(const order of orders){
     const customer = await apiRoot.customers().withId({ID: order?.customerId ?? ""}).get().execute()
 
+    const quantityItems = order.lineItems.reduce((acc, item) => acc + item.quantity, 0)
     workSheet.addRow({
       orderNumber: order?.orderNumber ?? "", 
-      customerName: customer.body.firstName,
+      customerName: `${customer.body.firstName} ${customer.body.lastName}`,
       ordersLines: order.lineItems.length,
-      totalItems: 10,
+      totalItems: quantityItems,
       paymentStatus: order.paymentState,
       shipmentStatus: order.shipmentState,
       email: customer.body.email,

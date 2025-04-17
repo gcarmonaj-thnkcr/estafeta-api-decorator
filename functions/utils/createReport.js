@@ -58,11 +58,12 @@ const mapReportExcel = (orders) => __awaiter(void 0, void 0, void 0, function* (
     ];
     for (const order of orders) {
         const customer = yield client_1.apiRoot.customers().withId({ ID: (_a = order === null || order === void 0 ? void 0 : order.customerId) !== null && _a !== void 0 ? _a : "" }).get().execute();
+        const quantityItems = order.lineItems.reduce((acc, item) => acc + item.quantity, 0);
         workSheet.addRow({
             orderNumber: (_b = order === null || order === void 0 ? void 0 : order.orderNumber) !== null && _b !== void 0 ? _b : "",
-            customerName: customer.body.firstName,
+            customerName: `${customer.body.firstName} ${customer.body.lastName}`,
             ordersLines: order.lineItems.length,
-            totalItems: 10,
+            totalItems: quantityItems,
             paymentStatus: order.paymentState,
             shipmentStatus: order.shipmentState,
             email: customer.body.email,
