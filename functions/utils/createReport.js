@@ -41,7 +41,7 @@ const createReport = (dateState, dateEnd) => __awaiter(void 0, void 0, void 0, f
 });
 exports.createReport = createReport;
 const mapReportExcel = (orders) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b, _c, _d;
+    var _a, _b, _c, _d, _e, _f;
     const workBook = new exceljs_1.default.Workbook();
     const workSheet = workBook.addWorksheet("Reporte");
     workSheet.columns = [
@@ -57,6 +57,7 @@ const mapReportExcel = (orders) => __awaiter(void 0, void 0, void 0, function* (
         { header: 'Transaction Id', key: 'transactionId', width: 32 },
     ];
     for (const order of orders) {
+        console.log(order);
         const customer = yield client_1.apiRoot.customers().withId({ ID: (_a = order === null || order === void 0 ? void 0 : order.customerId) !== null && _a !== void 0 ? _a : "" }).get().execute();
         const quantityItems = order.lineItems.reduce((acc, item) => acc + item.quantity, 0);
         workSheet.addRow({
@@ -65,11 +66,11 @@ const mapReportExcel = (orders) => __awaiter(void 0, void 0, void 0, function* (
             ordersLines: order.lineItems.length,
             totalItems: quantityItems,
             paymentStatus: order.paymentState,
-            shipmentStatus: order.shipmentState,
+            shipmentStatus: (_c = order === null || order === void 0 ? void 0 : order.shipmentState) !== null && _c !== void 0 ? _c : "",
             email: customer.body.email,
             dateCreated: order.createdAt,
             dateModified: order.lastModifiedAt,
-            transactionId: (_d = (_c = order.paymentInfo) === null || _c === void 0 ? void 0 : _c.payments[0].obj) === null || _d === void 0 ? void 0 : _d.interfaceId
+            transactionId: (_f = (_e = (_d = order.paymentInfo) === null || _d === void 0 ? void 0 : _d.payments[0].obj) === null || _e === void 0 ? void 0 : _e.interfaceId) !== null && _f !== void 0 ? _f : ""
         });
     }
     return workBook;

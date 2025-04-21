@@ -48,6 +48,7 @@ const mapReportExcel = async(orders: Order[]) => {
   ];
 
   for(const order of orders){
+    console.log(order)
     const customer = await apiRoot.customers().withId({ID: order?.customerId ?? ""}).get().execute()
 
     const quantityItems = order.lineItems.reduce((acc, item) => acc + item.quantity, 0)
@@ -57,11 +58,11 @@ const mapReportExcel = async(orders: Order[]) => {
       ordersLines: order.lineItems.length,
       totalItems: quantityItems,
       paymentStatus: order.paymentState,
-      shipmentStatus: order.shipmentState,
+      shipmentStatus: order?.shipmentState ?? "",
       email: customer.body.email,
       dateCreated: order.createdAt,
       dateModified: order.lastModifiedAt,
-      transactionId: order.paymentInfo?.payments[0].obj?.interfaceId
+      transactionId: order.paymentInfo?.payments[0].obj?.interfaceId ?? ""
     })
   }
 
