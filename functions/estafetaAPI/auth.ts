@@ -39,7 +39,8 @@ const Keys: IKeys = {
   'quote': {
     clientId: process.env.ClientIdQuote ?? "",
     clientSecret: process.env.ClientSecretQuote ?? "",
-    url: isProduction == "true" ? urlEstafetProd : urlEstafetaQA,
+    url: urlMicrosoft,
+    scope: "https://graph.microsoft.com/.default"
   },
   'quoteInternacional':{
     clientId: process.env.ClientIdQuoteInternacional ?? "",
