@@ -41,7 +41,7 @@ const createReport = (dateState, dateEnd) => __awaiter(void 0, void 0, void 0, f
 });
 exports.createReport = createReport;
 const mapReportExcel = (orders) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b, _c, _d, _e, _f;
+    var _a, _b, _c, _d, _e, _f, _g, _h;
     const workBook = new exceljs_1.default.Workbook();
     const workSheet = workBook.addWorksheet("Reporte");
     workSheet.columns = [
@@ -57,20 +57,19 @@ const mapReportExcel = (orders) => __awaiter(void 0, void 0, void 0, function* (
         { header: 'Transaction Id', key: 'transactionId', width: 32 },
     ];
     for (const order of orders) {
-        console.log(order);
         const customer = yield client_1.apiRoot.customers().withId({ ID: (_a = order === null || order === void 0 ? void 0 : order.customerId) !== null && _a !== void 0 ? _a : "" }).get().execute();
         const quantityItems = order.lineItems.reduce((acc, item) => acc + item.quantity, 0);
         workSheet.addRow({
             orderNumber: (_b = order === null || order === void 0 ? void 0 : order.orderNumber) !== null && _b !== void 0 ? _b : "",
-            customerName: `${customer.body.firstName} ${customer.body.lastName}`,
+            customerName: `${customer.body.firstName} ${(_d = (_c = customer === null || customer === void 0 ? void 0 : customer.body) === null || _c === void 0 ? void 0 : _c.lastName) !== null && _d !== void 0 ? _d : ""}`,
             ordersLines: order.lineItems.length,
             totalItems: quantityItems,
             paymentStatus: order.paymentState,
-            shipmentStatus: (_c = order === null || order === void 0 ? void 0 : order.shipmentState) !== null && _c !== void 0 ? _c : "",
+            shipmentStatus: (_e = order === null || order === void 0 ? void 0 : order.shipmentState) !== null && _e !== void 0 ? _e : "",
             email: customer.body.email,
             dateCreated: order.createdAt,
             dateModified: order.lastModifiedAt,
-            transactionId: (_f = (_e = (_d = order.paymentInfo) === null || _d === void 0 ? void 0 : _d.payments[0].obj) === null || _e === void 0 ? void 0 : _e.interfaceId) !== null && _f !== void 0 ? _f : ""
+            transactionId: (_h = (_g = (_f = order.paymentInfo) === null || _f === void 0 ? void 0 : _f.payments[0].obj) === null || _g === void 0 ? void 0 : _g.interfaceId) !== null && _h !== void 0 ? _h : ""
         });
     }
     return workBook;
