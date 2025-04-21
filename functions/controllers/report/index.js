@@ -18,18 +18,27 @@ router.post("/report", (req, res) => __awaiter(void 0, void 0, void 0, function*
         return res.status(400).send({
             message: "Proporciona una fecha inicial o una fecha fin para el reporte"
         });
-    const report = yield (0, createReport_1.createReport)(dateStart, dateEnd);
-    if (report.status >= 300) {
-        return res.status(report.status).send({ message: report.message });
+    try {
+        const report = yield (0, createReport_1.createReport)(dateStart, dateEnd);
+        if (report.status >= 300) {
+            return res.status(report.status).send({ message: report.message });
+        }
+        if (!report.data) {
+            return res.status(report.status).send({ message: report.message });
+        }
+        const buffer = yield report.data.xlsx.writeBuffer();
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.setHeader('Content-Disposition', 'attachment; filename="reporte.xlsx"');
+        res.setHeader('Cache-Control', 'no-cache, no-store');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+        return res.send(Buffer.from(buffer));
     }
-    if (!report.data) {
-        return res.status(report.status).send({ message: report.message });
+    catch (err) {
+        console.error('Error en generación de reporte:', err);
+        return res.status(500).send({
+            message: "Error interno al generar el archivo Excel"
+        });
     }
-    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    res.setHeader('Content-Disposition', 'attachment; filename="reporte.xlsx"');
-    res.setHeader('Cache-Control', 'no-cache, no-store');
-    res.setHeader('Pragma', 'no-cache');
-    const buffer = yield report.data.xlsx.writeBuffer();
-    return res.send(Buffer.from(buffer));
 }));
 exports.default = router;
