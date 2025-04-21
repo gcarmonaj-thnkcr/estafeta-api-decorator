@@ -15,11 +15,14 @@ router.post("/report", async (req: Request, res: Response): Promise<any> => {
   if(!report.data) {
     return res.status(report.status).send({message: report.message})
   }
+
   res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
   res.setHeader('Content-Disposition', 'attachment; filename="reporte.xlsx"');
-  res.setHeader('Content-Type', 'application/octet-stream');
-  await report.data.xlsx.write(res);
-  res.end();
+  res.setHeader('Cache-Control', 'no-cache, no-store');
+  res.setHeader('Pragma', 'no-cache');
+
+  const buffer = await report.data.xlsx.writeBuffer();
+  return res.send(Buffer.from(buffer));
 })
 
 export default router
