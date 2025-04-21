@@ -22,13 +22,14 @@ router.post("/report", (req, res) => __awaiter(void 0, void 0, void 0, function*
     if (report.status >= 300) {
         return res.status(report.status).send({ message: report.message });
     }
-    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    res.setHeader('Content-Disposition', 'attachment; filename="reporte.xlsx"');
-    res.setHeader('Content-Transfer-Encoding', 'binary');
     if (!report.data) {
         return res.status(report.status).send({ message: report.message });
     }
     const buffer = yield report.data.xlsx.writeBuffer();
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', 'attachment; filename="reporte.xlsx"');
+    res.setHeader('Content-Transfer-Encoding', 'binary');
+    res.setHeader('Cache-Control', 'no-transform');
     res.send(Buffer.from(buffer));
 }));
 exports.default = router;
