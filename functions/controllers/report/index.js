@@ -13,7 +13,6 @@ const express_1 = require("express");
 const createReport_1 = require("../../utils/createReport");
 const router = (0, express_1.Router)();
 router.post("/report", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
     const { dateStart, dateEnd } = req.body;
     if (!dateStart || !dateEnd)
         return res.status(400).send({
@@ -25,7 +24,11 @@ router.post("/report", (req, res) => __awaiter(void 0, void 0, void 0, function*
     }
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     res.setHeader('Content-Disposition', 'attachment; filename="reporte.xlsx"');
-    yield ((_a = report.data) === null || _a === void 0 ? void 0 : _a.xlsx.write(res));
-    res.end();
+    res.setHeader('Content-Transfer-Encoding', 'binary');
+    if (!report.data) {
+        return res.status(report.status).send({ message: report.message });
+    }
+    const buffer = yield report.data.xlsx.writeBuffer();
+    res.send(Buffer.from(buffer));
 }));
 exports.default = router;

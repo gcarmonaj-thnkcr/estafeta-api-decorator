@@ -12,16 +12,14 @@ router.post("/report", async (req: Request, res: Response): Promise<any> => {
   if(report.status >= 300) {
     return res.status(report.status).send({message: report.message})
   }
-  res.setHeader(
-    'Content-Type',
-    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-  );
-  res.setHeader(
-    'Content-Disposition',
-    'attachment; filename="reporte.xlsx"'
-  );
-  await report.data?.xlsx.write(res)
-  res.end()
+  res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+  res.setHeader('Content-Disposition', 'attachment; filename="reporte.xlsx"');
+  res.setHeader('Content-Transfer-Encoding', 'binary');
+  if(!report.data) {
+    return res.status(report.status).send({message: report.message})
+  }
+  const buffer = await report.data.xlsx.writeBuffer();
+  res.send(Buffer.from(buffer));
 })
 
 export default router
