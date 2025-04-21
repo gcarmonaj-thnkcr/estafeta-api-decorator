@@ -29,10 +29,10 @@ router.post("/report", (req, res) => __awaiter(void 0, void 0, void 0, function*
         const buffer = yield report.data.xlsx.writeBuffer();
         res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         res.setHeader('Content-Disposition', 'attachment; filename="reporte.xlsx"');
-        res.setHeader('Cache-Control', 'no-cache, no-store');
-        res.setHeader('Pragma', 'no-cache');
-        res.setHeader('Expires', '0');
-        return res.send(Buffer.from(buffer));
+        res.setHeader('Content-Length', buffer.byteLength);
+        res.setHeader('Cache-Control', 'no-store');
+        res.setHeader('Connection', 'close');
+        res.status(200).end(buffer);
     }
     catch (err) {
         console.error('Error en generación de reporte:', err);
