@@ -101,7 +101,20 @@ export const addPaymentToOrders = async (cart: Cart, customer: Customer) => {
   }).execute()
   console.log("Pago registrado", createPayment.body.id) 
   const createPurchaseOrder = async (): Promise<any> => {
-    const purchaseOrder = await WSPurchaseOrder({ order: cart, code: newOrder, idPaymentService: id, methodName: "Openpay", customer, quantityTotalGuides })
+    const purchaseOrder = await WSPurchaseOrder(
+      { 
+        order: cart, 
+        code: newOrder, 
+        idPaymentService: id, 
+        methodName: "Openpay", 
+        customer, 
+        quantityTotalGuides, 
+        infoPayment: {
+          typePayment: "",
+          bankTypeName: "",
+          transactionalCode: ""
+        }
+      })
     
     if (purchaseOrder.result.Code > 0) {
       if (purchaseOrder.result.Description.includes("REPEATED_TICKET")) {

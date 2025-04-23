@@ -10,6 +10,12 @@ export interface ICardPayment {
   paymentType: string;
 }
 
+interface IInfoPayment {
+  typePayment: string;
+  transactionalCode: string;
+  bankTypeName: string;
+}
+
 export interface IPurchaseOrder {
   order: Order | Cart;
   code: string;
@@ -17,6 +23,7 @@ export interface IPurchaseOrder {
   methodName: string;
   customer: Customer;
   quantityTotalGuides: number;
+  infoPayment: IInfoPayment;
   logger?: any;
 }
 
@@ -47,7 +54,7 @@ const getTypeCart = (order: Order | Cart) => {
 
 let taxAmount = 16
 
-export const WSPurchaseOrder = async ({ order, code, customer, idPaymentService, methodName, quantityTotalGuides, logger }: IPurchaseOrder) => {
+export const WSPurchaseOrder = async ({ order, code, customer, idPaymentService, methodName, quantityTotalGuides, logger, infoPayment }: IPurchaseOrder) => {
   const typeCart = getTypeCart(order)
   idPaymentService = idPaymentService.length > 10 ? idPaymentService.substring(0, 10) : idPaymentService
   const purchaseLines = await createLinePurchase(typeCart, order, code, quantityTotalGuides, customer, idPaymentService)
@@ -69,10 +76,10 @@ export const WSPurchaseOrder = async ({ order, code, customer, idPaymentService,
             "CustomerCode": "000200087D",
             "TicketCode": idPaymentService,
             "PaymentMethodName": "Openpay",
-            "PaymentTypeName": "Credit",
-            "TransactionalCode": "OBA-04",
-            "PaymentCardNum": "424242XXXXXX4242",
-            "BankTypeName": "VISA",
+            "PaymentTypeName": infoPayment.typePayment,
+            "TransactionalCode": infoPayment.transactionalCode,
+            "PaymentCardNum": "",
+            "BankTypeName": infoPayment.bankTypeName,
             "BankReferenceCode": "87D01189",
             "PaymentAmount": order.totalPrice.centAmount / 100.00,
             "PaidDateTime": formattedDate,

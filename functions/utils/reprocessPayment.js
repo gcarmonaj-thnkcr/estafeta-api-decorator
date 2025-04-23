@@ -112,7 +112,19 @@ const addPaymentToOrders = (cart, customer) => __awaiter(void 0, void 0, void 0,
     }).execute();
     console.log("Pago registrado", createPayment.body.id);
     const createPurchaseOrder = () => __awaiter(void 0, void 0, void 0, function* () {
-        const purchaseOrder = yield (0, purchaseOrder_1.WSPurchaseOrder)({ order: cart, code: newOrder, idPaymentService: id, methodName: "Openpay", customer, quantityTotalGuides });
+        const purchaseOrder = yield (0, purchaseOrder_1.WSPurchaseOrder)({
+            order: cart,
+            code: newOrder,
+            idPaymentService: id,
+            methodName: "Openpay",
+            customer,
+            quantityTotalGuides,
+            infoPayment: {
+                typePayment: "",
+                bankTypeName: "",
+                transactionalCode: ""
+            }
+        });
         if (purchaseOrder.result.Code > 0) {
             if (purchaseOrder.result.Description.includes("REPEATED_TICKET")) {
                 const orderSplit = newOrder.split('D');

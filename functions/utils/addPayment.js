@@ -93,7 +93,19 @@ const addPaymentToOrdersRecoleccion = (data, order, customer) => __awaiter(void 
     const orderSplit = orders.body.results[0].orderNumber.split('D');
     let newOrder = `${orderSplit[0]}D${String(parseInt(orderSplit[1]) + 1).padStart(6, "0")}`;
     const createPurchaseOrder = () => __awaiter(void 0, void 0, void 0, function* () {
-        const purchaseOrder = yield (0, purchaseOrder_1.WSPurchaseOrder)({ order: order, code: newOrder, idPaymentService: data.transaction.id, methodName: "Openpay", customer, quantityTotalGuides });
+        const purchaseOrder = yield (0, purchaseOrder_1.WSPurchaseOrder)({
+            order: order,
+            code: newOrder,
+            idPaymentService: data.transaction.id,
+            methodName: "Openpay",
+            customer,
+            quantityTotalGuides,
+            infoPayment: {
+                typePayment: "",
+                bankTypeName: "",
+                transactionalCode: ""
+            }
+        });
         debugger;
         if (purchaseOrder.result.Code > 0) {
             if (purchaseOrder.result.Description.includes("REPEATED_TICKET")) {
@@ -355,7 +367,20 @@ const addPaymentToOrders = (data, order, customer) => __awaiter(void 0, void 0, 
             }
         }).execute();
         const createPurchaseOrder = () => __awaiter(void 0, void 0, void 0, function* () {
-            const purchaseOrder = yield (0, purchaseOrder_1.WSPurchaseOrder)({ order: order, code: newOrder, idPaymentService: data.transaction.id, methodName: "Openpay", customer, quantityTotalGuides, logger: loggerChild });
+            const purchaseOrder = yield (0, purchaseOrder_1.WSPurchaseOrder)({
+                order: order,
+                code: newOrder,
+                idPaymentService: data.transaction.id,
+                methodName: "Openpay",
+                customer,
+                quantityTotalGuides,
+                infoPayment: {
+                    typePayment: data.transaction.description == "Transferencia" ? "TE" : "Cash",
+                    bankTypeName: "",
+                    transactionalCode: data.transaction.description == "Transferencia" ? "TRANSFE-5" : "$$$$$$$-1"
+                },
+                logger: loggerChild
+            });
             if (purchaseOrder.result.Code > 0) {
                 if (purchaseOrder.result.Description.includes("REPEATED_TICKET")) {
                     const orderSplit = newOrder.split('D');

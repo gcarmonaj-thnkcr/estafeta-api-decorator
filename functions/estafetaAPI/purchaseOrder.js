@@ -35,7 +35,7 @@ const getTypeCart = (order) => {
     return "USO";
 };
 let taxAmount = 16;
-const WSPurchaseOrder = (_a) => __awaiter(void 0, [_a], void 0, function* ({ order, code, customer, idPaymentService, methodName, quantityTotalGuides, logger }) {
+const WSPurchaseOrder = (_a) => __awaiter(void 0, [_a], void 0, function* ({ order, code, customer, idPaymentService, methodName, quantityTotalGuides, logger, infoPayment }) {
     var _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s;
     const typeCart = getTypeCart(order);
     idPaymentService = idPaymentService.length > 10 ? idPaymentService.substring(0, 10) : idPaymentService;
@@ -58,10 +58,10 @@ const WSPurchaseOrder = (_a) => __awaiter(void 0, [_a], void 0, function* ({ ord
                         "CustomerCode": "000200087D",
                         "TicketCode": idPaymentService,
                         "PaymentMethodName": "Openpay",
-                        "PaymentTypeName": "Credit",
-                        "TransactionalCode": "OBA-04",
-                        "PaymentCardNum": "424242XXXXXX4242",
-                        "BankTypeName": "VISA",
+                        "PaymentTypeName": infoPayment.typePayment,
+                        "TransactionalCode": infoPayment.transactionalCode,
+                        "PaymentCardNum": "",
+                        "BankTypeName": infoPayment.bankTypeName,
                         "BankReferenceCode": "87D01189",
                         "PaymentAmount": order.totalPrice.centAmount / 100.00,
                         "PaidDateTime": formattedDate,
