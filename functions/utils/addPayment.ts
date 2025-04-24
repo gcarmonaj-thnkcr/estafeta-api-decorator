@@ -411,7 +411,7 @@ export const addPaymentToOrders = async (data: ITransactionEvent, order: Order, 
           customer, 
           quantityTotalGuides, 
           infoPayment: {
-            typePayment: "",
+            typePayment: data.transaction.description == "Transferencia" ? "TE" : "Cash",
             bankTypeName: data.transaction.description == "Transferencia" ? "TE" : "Cash",
             transactionalCode: data.transaction.description == "Transferencia" ? "TRANSFE-5" : "$$$$$$$-1"
           },

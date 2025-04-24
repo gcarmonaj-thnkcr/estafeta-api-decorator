@@ -76,7 +76,7 @@ export const WSPurchaseOrder = async ({ order, code, customer, idPaymentService,
             "CustomerCode": "000200087D",
             "TicketCode": idPaymentService,
             "PaymentMethodName": "Openpay",
-            "PaymentTypeName": infoPayment.typePayment,
+            "PaymentTypeName": infoPayment.typePayment, //Credit
             "TransactionalCode": infoPayment.transactionalCode,
             "PaymentCardNum": "",
             "BankTypeName": infoPayment.bankTypeName,

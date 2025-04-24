@@ -58,7 +58,7 @@ const WSPurchaseOrder = (_a) => __awaiter(void 0, [_a], void 0, function* ({ ord
                         "CustomerCode": "000200087D",
                         "TicketCode": idPaymentService,
                         "PaymentMethodName": "Openpay",
-                        "PaymentTypeName": infoPayment.typePayment,
+                        "PaymentTypeName": infoPayment.typePayment, //Credit
                         "TransactionalCode": infoPayment.transactionalCode,
                         "PaymentCardNum": "",
                         "BankTypeName": infoPayment.bankTypeName,
