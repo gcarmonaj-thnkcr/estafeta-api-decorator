@@ -375,8 +375,8 @@ const addPaymentToOrders = (data, order, customer) => __awaiter(void 0, void 0, 
                 customer,
                 quantityTotalGuides,
                 infoPayment: {
-                    typePayment: data.transaction.description == "Transferencia" ? "TE" : "Cash",
-                    bankTypeName: "",
+                    typePayment: "",
+                    bankTypeName: data.transaction.description == "Transferencia" ? "TE" : "Cash",
                     transactionalCode: data.transaction.description == "Transferencia" ? "TRANSFE-5" : "$$$$$$$-1"
                 },
                 logger: loggerChild
