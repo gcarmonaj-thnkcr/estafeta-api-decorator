@@ -41,7 +41,7 @@ const createReport = (dateState, dateEnd) => __awaiter(void 0, void 0, void 0, f
 });
 exports.createReport = createReport;
 const mapReportExcel = (orders) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b, _c, _d, _e, _f, _g, _h;
+    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
     const workBook = new exceljs_1.default.Workbook();
     const workSheet = workBook.addWorksheet("Reporte");
     workSheet.columns = [
@@ -55,6 +55,8 @@ const mapReportExcel = (orders) => __awaiter(void 0, void 0, void 0, function* (
         { header: 'Date Created', key: 'dateCreated', width: 32 },
         { header: 'Date Modified', key: 'dateModified', width: 32 },
         { header: 'Transaction Id', key: 'transactionId', width: 32 },
+        { header: 'Motor de Pago', key: 'motorPago', width: 32 },
+        { header: 'Total a Pagar', key: 'totalAmount', width: 32 },
     ];
     for (const order of orders) {
         const customer = yield client_1.apiRoot.customers().withId({ ID: (_a = order === null || order === void 0 ? void 0 : order.customerId) !== null && _a !== void 0 ? _a : "" }).get().execute();
@@ -69,7 +71,9 @@ const mapReportExcel = (orders) => __awaiter(void 0, void 0, void 0, function* (
             email: customer.body.email,
             dateCreated: order.createdAt,
             dateModified: order.lastModifiedAt,
-            transactionId: (_h = (_g = (_f = order.paymentInfo) === null || _f === void 0 ? void 0 : _f.payments[0].obj) === null || _g === void 0 ? void 0 : _g.interfaceId) !== null && _h !== void 0 ? _h : ""
+            transactionId: (_h = (_g = (_f = order.paymentInfo) === null || _f === void 0 ? void 0 : _f.payments[0].obj) === null || _g === void 0 ? void 0 : _g.interfaceId) !== null && _h !== void 0 ? _h : "",
+            motorPago: (_k = (_j = order.paymentInfo) === null || _j === void 0 ? void 0 : _j.payments[0].obj) === null || _k === void 0 ? void 0 : _k.paymentMethodInfo.paymentInterface,
+            totalAmount: order.totalPrice.centAmount / 100
         });
     }
     return workBook;

@@ -26,7 +26,6 @@ router.post("/report", (req, res) => __awaiter(void 0, void 0, void 0, function*
         if (!report.data) {
             return res.status(report.status).send({ message: report.message });
         }
-        const buffer = yield report.data.xlsx.writeBuffer();
         res.writeHead(200, {
             'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             'Content-Disposition': 'attachment; filename="reporte.xlsx"',

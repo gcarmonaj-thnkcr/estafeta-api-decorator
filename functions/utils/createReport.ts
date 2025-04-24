@@ -45,6 +45,8 @@ const mapReportExcel = async(orders: Order[]) => {
     { header: 'Date Created', key: 'dateCreated', width: 32 },
     { header: 'Date Modified', key: 'dateModified', width: 32 },
     { header: 'Transaction Id', key: 'transactionId', width: 32 },
+    { header: 'Motor de Pago', key: 'motorPago', width: 32 },
+    { header: 'Total a Pagar', key: 'totalAmount', width: 32 },
   ];
 
   for(const order of orders){
@@ -61,7 +63,9 @@ const mapReportExcel = async(orders: Order[]) => {
       email: customer.body.email,
       dateCreated: order.createdAt,
       dateModified: order.lastModifiedAt,
-      transactionId: order.paymentInfo?.payments[0].obj?.interfaceId ?? ""
+      transactionId: order.paymentInfo?.payments[0].obj?.interfaceId ?? "",
+      motorPago: order.paymentInfo?.payments[0].obj?.paymentMethodInfo.paymentInterface,
+      totalAmount: order.totalPrice.centAmount / 100
     })
   }
 
