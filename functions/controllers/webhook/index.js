@@ -16,6 +16,8 @@ const router = (0, express_1.Router)();
 router.post("/payment/webhook", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const paymentInfo = req.body;
+        console.log(req.body);
+        return res.sendStatus(200);
         if (paymentInfo.transaction.status != "completed")
             return res.sendStatus(200);
         if (paymentInfo.transaction.method == "card")
