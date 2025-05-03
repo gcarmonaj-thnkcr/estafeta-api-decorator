@@ -10,10 +10,20 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.handler = handler;
+const token_1 = require("./jsonToken/token");
 const createReport_1 = require("./utils/createReport");
 function handler(event) {
     return __awaiter(this, void 0, void 0, function* () {
+        var _a, _b;
         try {
+            const authHeader = ((_a = event.headers) === null || _a === void 0 ? void 0 : _a.authorization) || ((_b = event.headers) === null || _b === void 0 ? void 0 : _b.Authorization);
+            const tokenCheck = (0, token_1.validateTokenServerless)(authHeader);
+            if (!tokenCheck.valid) {
+                return {
+                    statusCode: 401,
+                    body: JSON.stringify({ message: tokenCheck.message || 'No autorizado.' })
+                };
+            }
             const { dateStart, dateEnd } = JSON.parse(event.body || '{}');
             if (!dateStart || !dateEnd) {
                 return {

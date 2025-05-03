@@ -1,7 +1,19 @@
+import { validateToken, validateTokenServerless } from './jsonToken/token';
 import { createReport } from './utils/createReport';
 
 export async function handler(event: any) {
   try {
+    
+    const authHeader = event.headers?.authorization || event.headers?.Authorization;
+    const tokenCheck = validateTokenServerless(authHeader);
+
+    if (!tokenCheck.valid) {
+      return {
+        statusCode: 401,
+        body: JSON.stringify({ message: tokenCheck.message || 'No autorizado.' })
+      };
+    }
+
     const { dateStart, dateEnd } = JSON.parse(event.body || '{}');
 
     if (!dateStart || !dateEnd) {

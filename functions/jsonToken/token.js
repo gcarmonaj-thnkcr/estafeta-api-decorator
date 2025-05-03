@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.validateToken = exports.generateToken = void 0;
+exports.validateTokenServerless = exports.validateToken = exports.generateToken = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const seed = "Thinkcare24";
 const generateToken = (clientId, clientSecret) => {
@@ -30,3 +30,17 @@ const validateToken = (req, res, next) => {
     });
 };
 exports.validateToken = validateToken;
+const validateTokenServerless = (authHeader) => {
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return { valid: false, message: 'Token no proporcionado o formato inválido.' };
+    }
+    const token = authHeader.split(' ')[1];
+    try {
+        const decoded = jsonwebtoken_1.default.verify(token, seed);
+        return { valid: true };
+    }
+    catch (err) {
+        return { valid: false, message: 'Token inválido.' };
+    }
+};
+exports.validateTokenServerless = validateTokenServerless;
