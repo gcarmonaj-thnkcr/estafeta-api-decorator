@@ -35,7 +35,9 @@ app.use("/.netlify/functions/api", reportRouter)
 
 const port = process.env.PORT || 9000;
 
-export const handler = serverless(app);
+export const handler = async(event: any, context: any) => {
+  return await serverless(app) (event, context)
+}
 
 app.listen(port, () => {
   console.log("Server listenning on port" + port)

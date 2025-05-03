@@ -35,3 +35,17 @@ export const validateToken = (req: Request, res: Response, next: NextFunction): 
 
 }
 
+export const validateTokenServerless = (authHeader: string | undefined): { valid: boolean; message?: string } => {
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return { valid: false, message: 'Token no proporcionado o formato inválido.' };
+  }
+
+  const token = authHeader.split(' ')[1];
+
+  try {
+    const decoded = jwt.verify(token, seed);
+    return { valid: true };
+  } catch (err) {
+    return { valid: false, message: 'Token inválido.' };
+  }
+};
