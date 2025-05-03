@@ -21,7 +21,6 @@ router.post("/report", async (req: Request, res: Response): Promise<any> => {
     const newBuffer = Buffer.from(buffer)
     const sBuffer = newBuffer.toString("base64")
 
-    res.send(200)
     return {
       statusCode: 200,
       headers: {

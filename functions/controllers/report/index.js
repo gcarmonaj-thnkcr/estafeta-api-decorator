@@ -29,7 +29,6 @@ router.post("/report", (req, res) => __awaiter(void 0, void 0, void 0, function*
         const buffer = yield report.data.xlsx.writeBuffer();
         const newBuffer = Buffer.from(buffer);
         const sBuffer = newBuffer.toString("base64");
-        res.send(200);
         return {
             statusCode: 200,
             headers: {
