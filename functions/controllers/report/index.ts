@@ -16,16 +16,13 @@ router.post("/report", async (req: Request, res: Response): Promise<any> => {
     if(!report.data) {
       return res.status(report.status).send({message: report.message})
     }
-    res.writeHead(200, {
-    'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    'Content-Disposition': 'attachment; filename="reporte.xlsx"',
-    'Cache-Control': 'no-store, must-revalidate',
-    'Pragma': 'no-cache',
-    'Expires': '0'
-    });
-    await report.data.xlsx.write(res);
-  
-  return res.end();
+
+    const buffer = await report.data.xlsx.writeBuffer();
+
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', 'attachment; filename="reporte.xlsx"');
+
+    res.end(buffer);
   } catch(err: any) {
     console.error('Error en generación de reporte:', err);
     return res.status(500).send({

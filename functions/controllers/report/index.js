@@ -26,15 +26,10 @@ router.post("/report", (req, res) => __awaiter(void 0, void 0, void 0, function*
         if (!report.data) {
             return res.status(report.status).send({ message: report.message });
         }
-        res.writeHead(200, {
-            'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            'Content-Disposition': 'attachment; filename="reporte.xlsx"',
-            'Cache-Control': 'no-store, must-revalidate',
-            'Pragma': 'no-cache',
-            'Expires': '0'
-        });
-        yield report.data.xlsx.write(res);
-        return res.end();
+        const buffer = yield report.data.xlsx.writeBuffer();
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.setHeader('Content-Disposition', 'attachment; filename="reporte.xlsx"');
+        res.end(buffer);
     }
     catch (err) {
         console.error('Error en generación de reporte:', err);
