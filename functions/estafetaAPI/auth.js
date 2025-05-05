@@ -52,8 +52,8 @@ const Keys = {
     'quote': {
         clientId: (_b = process.env.ClientIdQuote) !== null && _b !== void 0 ? _b : "",
         clientSecret: (_c = process.env.ClientSecretQuote) !== null && _c !== void 0 ? _c : "",
-        url: urlEstafetProd,
-        // scope: "https://graph.microsoft.com/.default"
+        url: urlMicrosoft,
+        scope: "https://graph.microsoft.com/.default"
     },
     'quoteInternacional': {
         clientId: (_d = process.env.ClientIdQuoteInternacional) !== null && _d !== void 0 ? _d : "",
