@@ -63,8 +63,8 @@ const Keys: IKeys = {
   'folios': {
     clientId: process.env.ClientIdFolios ?? "",
     clientSecret: process.env.ClientSecretFolios ?? "",
-    url: isProduction == "true" ? urlEstafetProd : urlMicrosoft ,
-    scope: isProduction == "true" ? "execute" : "https://graph.microsoft.com/.default"
+    url: urlMicrosoft ,
+    scope: "https://graph.microsoft.com/.default"
   },
 }
 

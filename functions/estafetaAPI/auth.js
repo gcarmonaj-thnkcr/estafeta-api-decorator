@@ -76,8 +76,8 @@ const Keys = {
     'folios': {
         clientId: (_k = process.env.ClientIdFolios) !== null && _k !== void 0 ? _k : "",
         clientSecret: (_l = process.env.ClientSecretFolios) !== null && _l !== void 0 ? _l : "",
-        url: isProduction == "true" ? urlEstafetProd : urlMicrosoft,
-        scope: isProduction == "true" ? "execute" : "https://graph.microsoft.com/.default"
+        url: urlMicrosoft,
+        scope: "https://graph.microsoft.com/.default"
     },
 };
 const validateToken = (_a) => __awaiter(void 0, [_a], void 0, function* ({ type }) {
