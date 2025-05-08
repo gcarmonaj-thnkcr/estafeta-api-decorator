@@ -92,7 +92,6 @@ router.post("/quote", (req, res) => __awaiter(void 0, void 0, void 0, function* 
         response = services;
     }
     else {
-        console.log("");
         return res.sendStatus(404);
     }
     return res.status(200).send(response);

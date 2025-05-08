@@ -84,7 +84,6 @@ router.post("/quote", async(req: Request, res: Response): Promise<any> => {
     }
     response = services
   } else {
-    console.log("")
     return res.sendStatus(404)
   }
   return res.status(200).send(response)
