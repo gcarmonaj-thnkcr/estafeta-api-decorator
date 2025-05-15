@@ -27,17 +27,9 @@ router.post("/report", (req, res) => __awaiter(void 0, void 0, void 0, function*
             return res.status(report.status).send({ message: report.message });
         }
         const buffer = yield report.data.xlsx.writeBuffer();
-        const newBuffer = Buffer.from(buffer);
-        const sBuffer = newBuffer.toString("base64");
-        return {
-            statusCode: 200,
-            headers: {
-                'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                'Content-Disposition': 'attachment; filename="reporte.xlsx"',
-            },
-            body: sBuffer,
-            isBase64Encoded: true
-        };
+        res.setHeader('Content-Disposition', 'attachment; filename=report.xlsx');
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.status(200).send(buffer);
     }
     catch (err) {
         console.error('Error en generación de reporte:', err);
