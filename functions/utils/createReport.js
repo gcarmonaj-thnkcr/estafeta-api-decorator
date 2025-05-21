@@ -32,7 +32,6 @@ const createReport = (dateState, dateEnd) => __awaiter(void 0, void 0, void 0, f
             where: `createdAt >= "${convertDateState}" and createdAt <= "${convertDateEndPlusOne}"`
         }
     }).execute();
-    console.log("orders", queryOrder);
     if (!queryOrder.statusCode || queryOrder.statusCode >= 300)
         return { status: (_a = queryOrder === null || queryOrder === void 0 ? void 0 : queryOrder.statusCode) !== null && _a !== void 0 ? _a : 404, message: "Orders not found" };
     if (queryOrder.body.results.length <= 0)
@@ -131,6 +130,7 @@ function processOrdersInBatches(orders_1) {
         }
         console.log("batches", batches);
         for (const batch of batches) {
+            console.log(batch);
             const customerPromises = batch.map(order => {
                 var _a;
                 return client_1.apiRoot.customers().withId({ ID: (_a = order === null || order === void 0 ? void 0 : order.customerId) !== null && _a !== void 0 ? _a : "" }).get().execute()
@@ -139,9 +139,9 @@ function processOrdersInBatches(orders_1) {
             const customers = yield Promise.all(customerPromises);
             batch.forEach((order, index) => {
                 var _a, _b, _c, _d, _e, _f, _g, _h, _j;
+                console.log(order.id);
                 const customer = customers[index];
                 const quantityItems = order.lineItems.reduce((acc, item) => acc + item.quantity, 0);
-                console.log("INdex", index);
                 workSheet.addRow({
                     orderNumber: (_a = order === null || order === void 0 ? void 0 : order.orderNumber) !== null && _a !== void 0 ? _a : "",
                     customerName: `${customer.body.firstName} ${(_c = (_b = customer === null || customer === void 0 ? void 0 : customer.body) === null || _b === void 0 ? void 0 : _b.lastName) !== null && _c !== void 0 ? _c : ""}`,
