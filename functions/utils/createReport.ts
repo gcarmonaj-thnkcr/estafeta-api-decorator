@@ -28,8 +28,6 @@ export const createReport = async (dateState: string, dateEnd: string): Promise<
     }
   }).execute()
 
-  console.log("orders", queryOrder)
-
 
   if(!queryOrder.statusCode || queryOrder.statusCode >= 300) return { status: queryOrder?.statusCode ?? 404, message: "Orders not found" }
   if(queryOrder.body.results.length <= 0) return { status: 404, message: "Orders not found" }
@@ -135,7 +133,7 @@ async function processOrdersInBatches(orders: Order[], batchSize = 10) {
   }
   console.log("batches", batches)
   for (const batch of batches) {
-
+    console.log(batch)
     const customerPromises = batch.map(order => 
       apiRoot.customers().withId({ID: order?.customerId ?? ""}).get().execute()
         .catch(() => ({ body: { firstName: '', lastName: '', email: '' } }))
@@ -145,6 +143,7 @@ async function processOrdersInBatches(orders: Order[], batchSize = 10) {
     
 
     batch.forEach((order, index) => {
+      console.log(order.id)
       const customer = customers[index];
       const quantityItems = order.lineItems.reduce((acc, item) => acc + item.quantity, 0);
       workSheet.addRow({
