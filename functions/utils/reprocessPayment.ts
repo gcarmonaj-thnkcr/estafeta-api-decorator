@@ -5,13 +5,16 @@ import { CreateFolios } from "../estafetaAPI/folios";
 import { createMapGuide } from "./addPayment";
 import { asignGuideToOrder } from "./asignarGuides";
 import { logger } from "./logger";
+import { getChargeByTransactionId } from "../openpay/charges";
+import { Transaction } from "../interfaces/openpay";
 
 interface IResponse {
   status: number;
   response: any;
 }
 
-export const reprocessPayment = async (idCart: string): Promise<IResponse> => {
+export const reprocessPayment = async (idCart: string, transactionId: string): Promise<IResponse> => {
+  const log = logger.child({requestId: transactionId})
   if(!idCart || idCart == "") return { response: "IdCart undefined", status: 500 }   
   let getCart = await apiRoot.carts().withId({ ID: idCart }).get().execute()
   if(!getCart.statusCode || getCart.statusCode >= 300) return { response: 'Cart not found', status: 404 }
@@ -32,13 +35,13 @@ export const reprocessPayment = async (idCart: string): Promise<IResponse> => {
   }
   const isRecoleccion = getCart.body.lineItems.some(item => item.variant.attributes?.find(attr => attr.name == "tipo-paquete")?.value["label"] == "RECOLECCION")
   let response: any 
-  console.log("-----------------")
-  console.log("Iniciando proceso")
-  console.log("Cart", getCart.body.id)
+  log.info("-----------------")
+  log.info("Iniciando proceso")
+  log.info(`cart ${getCart.body.id}`)
   if(isRecoleccion) {
 
   } else {
-    response = await addPaymentToOrders(getCart.body, customer.body)
+    response = await addPaymentToOrders(getCart.body, customer.body, transactionId)
     if(response?.message != "") return { response: response?.message, status: 500 }
   }
   return { response: response.orderId, status: 200 }
@@ -53,8 +56,8 @@ const generateId = (longitud: number = 20) => {
   return id;
 }
 
-export const addPaymentToOrders = async (cart: Cart, customer: Customer) => {
-  const loggerC = logger.child({requestId: cart.id})
+export const addPaymentToOrders = async (cart: Cart, customer: Customer, transactionId: string) => {
+  const loggerC = logger.child({requestId: transactionId})
   const quantityTotalGuides = 0
   let versionCart = cart.version
   const orders = await apiRoot.orders().get({
@@ -70,50 +73,78 @@ export const addPaymentToOrders = async (cart: Cart, customer: Customer) => {
   const isUNIZONA = cart.lineItems.some(item => item.variant.attributes?.find(attr => attr.name == "tipo-paquete")?.value["label"] == "UNIZONA")
   const isInternational = cart.lineItems.some(item => item.variant.attributes?.find(attr => attr.name == "tipo-paquete")?.value["label"] == "ZONA INTERNACIONAL")
   console.log("Registrando pago en ct")
-  const id = generateId()
-  const createPayment = await apiRoot.payments().post({
-    body: {
-      key: id,
-      interfaceId: id,
-      amountPlanned: {
-        currencyCode: "MXN",
-        centAmount:  cart.totalPrice.centAmount | 0
-      },
-      paymentMethodInfo: {
-        paymentInterface: "OPENPAY",
-        method: "Tarjeta",
-        name: {
-          "es-MX": "Tarjeta de Crédito"
-        }
-      },
-      transactions: [
-        {
-          interactionId: id,
-          type: "Charge",
-          amount: {
-            currencyCode: "MXN",
-            centAmount: cart.totalPrice.centAmount | 0,
-          },
-          state: "Success"
-        }
-      ]
+  const payments = await apiRoot.payments().get({
+    queryArgs: {
+      where: `key in ("${transactionId}")`
     }
   }).execute()
-  console.log("Pago registrado", createPayment.body.id) 
+  let idPayment = payments.body.results.length <= 0 ? "" : payments.body.results[0].id
+  let idTransaction = transactionId
+  if(payments.body.results.length <=0){
+    idTransaction = generateId()
+    const createPayment = await apiRoot.payments().post({
+      body: {
+        key: idTransaction,
+        interfaceId: idTransaction,
+        amountPlanned: {
+          currencyCode: "MXN",
+          centAmount:  cart.totalPrice.centAmount | 0
+        },
+        paymentMethodInfo: {
+          paymentInterface: "OPENPAY",
+          method: "Tarjeta",
+          name: {
+            "es-MX": "Tarjeta de Crédito"
+          }
+        },
+        transactions: [
+          {
+            interactionId: idTransaction,
+            type: "Charge",
+            amount: {
+            currencyCode: "MXN",
+              centAmount: cart.totalPrice.centAmount | 0,
+            },
+            state: "Success"
+          }
+        ]
+      }
+    }).execute()
+    idPayment = createPayment.body.id
+  }
+  
+  console.log("Pago registrado", idPayment) 
+  const { card }: Transaction = await getChargeByTransactionId(transactionId)
+  let transactionalCode = "OBA-04"
+
+  if(card.brand != "Aplazo" || card.brand != "Aplazo") {
+    switch (card.type) {
+      case "credit": 
+        transactionalCode = `OBA${card.card_number.slice(-4)}-04`
+      break;
+      case "debit":
+        transactionalCode = `OBA${card.card_number.slice(-4)}-28`
+      break;
+      default: 
+        transactionalCode = `AME${card.card_number.slice(-4)}-04`
+      break
+    }
+  }
   const createPurchaseOrder = async (): Promise<any> => {
     const purchaseOrder = await WSPurchaseOrder(
       { 
         order: cart, 
         code: newOrder, 
-        idPaymentService: id, 
+        idPaymentService: idPayment, 
         methodName: "Openpay", 
         customer, 
         quantityTotalGuides, 
         infoPayment: {
-          typePayment: "",
-          bankTypeName: "",
-          transactionalCode: ""
-        }
+          typePayment: card.type,
+          bankTypeName: card.brand.toUpperCase(),
+          transactionalCode: transactionalCode
+        },
+        logger: loggerC
       })
     
     if (purchaseOrder.result.Code > 0) {
@@ -322,7 +353,7 @@ export const addPaymentToOrders = async (cart: Cart, customer: Customer) => {
         {
           action: "addPayment",
           payment: {
-            id: createPayment.body.id,
+            id: idPayment,
             typeId: "payment"
           }
         },

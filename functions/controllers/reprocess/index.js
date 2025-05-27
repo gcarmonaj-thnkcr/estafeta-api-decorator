@@ -13,8 +13,8 @@ const express_1 = require("express");
 const reprocessPayment_1 = require("../../utils/reprocessPayment");
 const router = (0, express_1.Router)();
 router.post("/reprocess", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { id } = req.body;
-    const reprocess = yield (0, reprocessPayment_1.reprocessPayment)(id);
+    const { id, transactionId } = req.body;
+    const reprocess = yield (0, reprocessPayment_1.reprocessPayment)(id, transactionId);
     return res.status(reprocess.status).send({
         body: reprocess.response
     });
