@@ -36,7 +36,7 @@ const getTypeCart = (order) => {
 };
 let taxAmount = 16;
 const WSPurchaseOrder = (_a) => __awaiter(void 0, [_a], void 0, function* ({ order, code, customer, idPaymentService, methodName, quantityTotalGuides, logger, infoPayment }) {
-    var _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s;
+    var _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t;
     const typeCart = getTypeCart(order);
     idPaymentService = idPaymentService.length > 10 ? idPaymentService.substring(0, 10) : idPaymentService;
     const purchaseLines = yield createLinePurchase(typeCart, order, code, quantityTotalGuides, customer, idPaymentService);
@@ -60,7 +60,7 @@ const WSPurchaseOrder = (_a) => __awaiter(void 0, [_a], void 0, function* ({ ord
                         "PaymentMethodName": "Openpay",
                         "PaymentTypeName": infoPayment.typePayment, //Credit
                         "TransactionalCode": infoPayment.transactionalCode,
-                        "PaymentCardNum": "",
+                        "PaymentCardNum": (_c = infoPayment === null || infoPayment === void 0 ? void 0 : infoPayment.cardNum) !== null && _c !== void 0 ? _c : "",
                         "BankTypeName": infoPayment.bankTypeName,
                         "BankReferenceCode": "87D01189",
                         "PaymentAmount": order.totalPrice.centAmount / 100.00,
@@ -68,11 +68,11 @@ const WSPurchaseOrder = (_a) => __awaiter(void 0, [_a], void 0, function* ({ ord
                         "PaymentCode": code
                     }
                 ],
-                "DiscountCode": (_g = (_f = (_e = (_d = (_c = order === null || order === void 0 ? void 0 : order.discountCodes) === null || _c === void 0 ? void 0 : _c[0]) === null || _d === void 0 ? void 0 : _d.discountCode) === null || _e === void 0 ? void 0 : _e.obj) === null || _f === void 0 ? void 0 : _f.code.slice(0, 4)) !== null && _g !== void 0 ? _g : "0",
-                "DiscouentRate": ((_j = (_h = order.discountOnTotalPrice) === null || _h === void 0 ? void 0 : _h.discountedAmount) === null || _j === void 0 ? void 0 : _j.centAmount) ? 1 : 0,
+                "DiscountCode": (_h = (_g = (_f = (_e = (_d = order === null || order === void 0 ? void 0 : order.discountCodes) === null || _d === void 0 ? void 0 : _d[0]) === null || _e === void 0 ? void 0 : _e.discountCode) === null || _f === void 0 ? void 0 : _f.obj) === null || _g === void 0 ? void 0 : _g.code.slice(0, 4)) !== null && _h !== void 0 ? _h : "0",
+                "DiscouentRate": ((_k = (_j = order.discountOnTotalPrice) === null || _j === void 0 ? void 0 : _j.discountedAmount) === null || _k === void 0 ? void 0 : _k.centAmount) ? 1 : 0,
                 "ValueAddTaxRate": taxAmount,
-                "SubtotalOrderAmount": (order.totalPrice.centAmount + ((_m = (_l = (_k = order.discountOnTotalPrice) === null || _k === void 0 ? void 0 : _k.discountedAmount) === null || _l === void 0 ? void 0 : _l.centAmount) !== null && _m !== void 0 ? _m : 0)) / 100.00,
-                "DiscountAmount": ((_q = (_p = (_o = order.discountOnTotalPrice) === null || _o === void 0 ? void 0 : _o.discountedAmount) === null || _p === void 0 ? void 0 : _p.centAmount) !== null && _q !== void 0 ? _q : 0) / 100.00,
+                "SubtotalOrderAmount": (order.totalPrice.centAmount + ((_o = (_m = (_l = order.discountOnTotalPrice) === null || _l === void 0 ? void 0 : _l.discountedAmount) === null || _m === void 0 ? void 0 : _m.centAmount) !== null && _o !== void 0 ? _o : 0)) / 100.00,
+                "DiscountAmount": ((_r = (_q = (_p = order.discountOnTotalPrice) === null || _p === void 0 ? void 0 : _p.discountedAmount) === null || _q === void 0 ? void 0 : _q.centAmount) !== null && _r !== void 0 ? _r : 0) / 100.00,
                 "ValueAddTaxAmount": taxAmount,
                 "TotalOrderAmount": (order.totalPrice.centAmount) / 100.00,
                 "statusOorder": "Pagado"
@@ -83,9 +83,9 @@ const WSPurchaseOrder = (_a) => __awaiter(void 0, [_a], void 0, function* ({ ord
     const token = yield (0, auth_1.authToken)({ type: 'purchaseOrder' });
     const config = {
         method: 'post',
-        url: (_r = process.env.URL_PURCHASE) !== null && _r !== void 0 ? _r : "",
+        url: (_s = process.env.URL_PURCHASE) !== null && _s !== void 0 ? _s : "",
         headers: {
-            APIKEY: (_s = process.env.API_KEY_PURCHASE) !== null && _s !== void 0 ? _s : "",
+            APIKEY: (_t = process.env.API_KEY_PURCHASE) !== null && _t !== void 0 ? _t : "",
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
         },

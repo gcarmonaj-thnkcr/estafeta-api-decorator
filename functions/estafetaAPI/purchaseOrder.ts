@@ -14,6 +14,7 @@ interface IInfoPayment {
   typePayment: string;
   transactionalCode: string;
   bankTypeName: string;
+  cardNum?: string
 }
 
 export interface IPurchaseOrder {
@@ -78,7 +79,7 @@ export const WSPurchaseOrder = async ({ order, code, customer, idPaymentService,
             "PaymentMethodName": "Openpay",
             "PaymentTypeName": infoPayment.typePayment, //Credit
             "TransactionalCode": infoPayment.transactionalCode,
-            "PaymentCardNum": "",
+            "PaymentCardNum": infoPayment?.cardNum ?? "",
             "BankTypeName": infoPayment.bankTypeName,
             "BankReferenceCode": "87D01189",
             "PaymentAmount": order.totalPrice.centAmount / 100.00,

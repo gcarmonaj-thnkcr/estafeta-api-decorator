@@ -16,8 +16,10 @@ const folios_1 = require("../estafetaAPI/folios");
 const addPayment_1 = require("./addPayment");
 const asignarGuides_1 = require("./asignarGuides");
 const logger_1 = require("./logger");
-const reprocessPayment = (idCart) => __awaiter(void 0, void 0, void 0, function* () {
+const charges_1 = require("../openpay/charges");
+const reprocessPayment = (idCart, transactionId) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b;
+    const log = logger_1.logger.child({ requestId: transactionId });
     if (!idCart || idCart == "")
         return { response: "IdCart undefined", status: 500 };
     let getCart = yield client_1.apiRoot.carts().withId({ ID: idCart }).get().execute();
@@ -41,13 +43,13 @@ const reprocessPayment = (idCart) => __awaiter(void 0, void 0, void 0, function*
     }
     const isRecoleccion = getCart.body.lineItems.some(item => { var _a, _b; return ((_b = (_a = item.variant.attributes) === null || _a === void 0 ? void 0 : _a.find(attr => attr.name == "tipo-paquete")) === null || _b === void 0 ? void 0 : _b.value["label"]) == "RECOLECCION"; });
     let response;
-    console.log("-----------------");
-    console.log("Iniciando proceso");
-    console.log("Cart", getCart.body.id);
+    log.info("-----------------");
+    log.info("Iniciando proceso");
+    log.info(`cart ${getCart.body.id}`);
     if (isRecoleccion) {
     }
     else {
-        response = yield (0, exports.addPaymentToOrders)(getCart.body, customer.body);
+        response = yield (0, exports.addPaymentToOrders)(getCart.body, customer.body, transactionId);
         if ((response === null || response === void 0 ? void 0 : response.message) != "")
             return { response: response === null || response === void 0 ? void 0 : response.message, status: 500 };
     }
@@ -62,9 +64,9 @@ const generateId = (longitud = 20) => {
     }
     return id;
 };
-const addPaymentToOrders = (cart, customer) => __awaiter(void 0, void 0, void 0, function* () {
+const addPaymentToOrders = (cart, customer, transactionId) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _0;
-    const loggerC = logger_1.logger.child({ requestId: cart.id });
+    const loggerC = logger_1.logger.child({ requestId: transactionId });
     const quantityTotalGuides = 0;
     let versionCart = cart.version;
     const orders = yield client_1.apiRoot.orders().get({
@@ -81,49 +83,75 @@ const addPaymentToOrders = (cart, customer) => __awaiter(void 0, void 0, void 0,
     const isUNIZONA = cart.lineItems.some(item => { var _a, _b; return ((_b = (_a = item.variant.attributes) === null || _a === void 0 ? void 0 : _a.find(attr => attr.name == "tipo-paquete")) === null || _b === void 0 ? void 0 : _b.value["label"]) == "UNIZONA"; });
     const isInternational = cart.lineItems.some(item => { var _a, _b; return ((_b = (_a = item.variant.attributes) === null || _a === void 0 ? void 0 : _a.find(attr => attr.name == "tipo-paquete")) === null || _b === void 0 ? void 0 : _b.value["label"]) == "ZONA INTERNACIONAL"; });
     console.log("Registrando pago en ct");
-    const id = generateId();
-    const createPayment = yield client_1.apiRoot.payments().post({
-        body: {
-            key: id,
-            interfaceId: id,
-            amountPlanned: {
-                currencyCode: "MXN",
-                centAmount: cart.totalPrice.centAmount | 0
-            },
-            paymentMethodInfo: {
-                paymentInterface: "OPENPAY",
-                method: "Tarjeta",
-                name: {
-                    "es-MX": "Tarjeta de Crédito"
-                }
-            },
-            transactions: [
-                {
-                    interactionId: id,
-                    type: "Charge",
-                    amount: {
-                        currencyCode: "MXN",
-                        centAmount: cart.totalPrice.centAmount | 0,
-                    },
-                    state: "Success"
-                }
-            ]
+    const payments = yield client_1.apiRoot.payments().get({
+        queryArgs: {
+            where: `key in ("${transactionId}")`
         }
     }).execute();
-    console.log("Pago registrado", createPayment.body.id);
+    let idPayment = payments.body.results.length <= 0 ? "" : payments.body.results[0].id;
+    let idTransaction = transactionId;
+    if (payments.body.results.length <= 0) {
+        idTransaction = generateId();
+        const createPayment = yield client_1.apiRoot.payments().post({
+            body: {
+                key: idTransaction,
+                interfaceId: idTransaction,
+                amountPlanned: {
+                    currencyCode: "MXN",
+                    centAmount: cart.totalPrice.centAmount | 0
+                },
+                paymentMethodInfo: {
+                    paymentInterface: "OPENPAY",
+                    method: "Tarjeta",
+                    name: {
+                        "es-MX": "Tarjeta de Crédito"
+                    }
+                },
+                transactions: [
+                    {
+                        interactionId: idTransaction,
+                        type: "Charge",
+                        amount: {
+                            currencyCode: "MXN",
+                            centAmount: cart.totalPrice.centAmount | 0,
+                        },
+                        state: "Success"
+                    }
+                ]
+            }
+        }).execute();
+        idPayment = createPayment.body.id;
+    }
+    console.log("Pago registrado", idPayment);
+    const { card } = yield (0, charges_1.getChargeByTransactionId)(transactionId);
+    let transactionalCode = "OBA-04";
+    if (card.brand != "Aplazo" || card.brand != "Aplazo") {
+        switch (card.type) {
+            case "credit":
+                transactionalCode = `OBA${card.card_number.slice(-4)}-04`;
+                break;
+            case "debit":
+                transactionalCode = `OBA${card.card_number.slice(-4)}-28`;
+                break;
+            default:
+                transactionalCode = `AME${card.card_number.slice(-4)}-04`;
+                break;
+        }
+    }
     const createPurchaseOrder = () => __awaiter(void 0, void 0, void 0, function* () {
         const purchaseOrder = yield (0, purchaseOrder_1.WSPurchaseOrder)({
             order: cart,
             code: newOrder,
-            idPaymentService: id,
+            idPaymentService: idPayment,
             methodName: "Openpay",
             customer,
             quantityTotalGuides,
             infoPayment: {
-                typePayment: "",
-                bankTypeName: "",
-                transactionalCode: ""
-            }
+                typePayment: card.type,
+                bankTypeName: card.brand.toUpperCase(),
+                transactionalCode: transactionalCode
+            },
+            logger: loggerC
         });
         if (purchaseOrder.result.Code > 0) {
             if (purchaseOrder.result.Description.includes("REPEATED_TICKET")) {
@@ -323,7 +351,7 @@ const addPaymentToOrders = (cart, customer) => __awaiter(void 0, void 0, void 0,
                 {
                     action: "addPayment",
                     payment: {
-                        id: createPayment.body.id,
+                        id: idPayment,
                         typeId: "payment"
                     }
                 },
