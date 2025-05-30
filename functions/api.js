@@ -51,6 +51,7 @@ const index_6 = __importDefault(require("./controllers/webhook/index"));
 const index_7 = __importDefault(require("./controllers/quote/index"));
 const index_8 = __importDefault(require("./controllers/reprocess/index"));
 const index_9 = __importDefault(require("./controllers/report/index"));
+const index_10 = __importDefault(require("./controllers/customObjects/index"));
 const app = (0, express_1.default)();
 dotenv.config();
 app.use((0, morgan_1.default)('combined'));
@@ -65,6 +66,7 @@ app.use("/.netlify/functions/api", index_5.default);
 app.use("/.netlify/functions/api", index_7.default);
 app.use("/.netlify/functions/api", index_8.default);
 app.use("/.netlify/functions/api", index_9.default);
+app.use("/.netlify/functions/api", index_10.default);
 const port = process.env.PORT || 9000;
 const handler = (event, context) => __awaiter(void 0, void 0, void 0, function* () {
     return yield (0, serverless_http_1.default)(app)(event, context);

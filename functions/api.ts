@@ -13,7 +13,7 @@ import webhookRouter from './controllers/webhook/index'
 import quoteRouter from './controllers/quote/index'
 import reprocessRouter from './controllers/reprocess/index'
 import reportRouter from "./controllers/report/index"
-
+import customObjects from './controllers/customObjects/index'
 
 const app = express();
 dotenv.config()
@@ -31,6 +31,7 @@ app.use("/.netlify/functions/api", loginRouter)
 app.use("/.netlify/functions/api", quoteRouter)
 app.use("/.netlify/functions/api", reprocessRouter)
 app.use("/.netlify/functions/api", reportRouter)
+app.use("/.netlify/functions/api", customObjects)
 
 
 const port = process.env.PORT || 9000;

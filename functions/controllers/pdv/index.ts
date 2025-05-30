@@ -2,6 +2,9 @@ import { Router, Request, Response } from "express";
 import { validateToken } from "../../jsonToken/token";
 import { apiRoot } from "../../commercetools/client";
 import { FormaterDate } from "../../utils/formaterDate";
+import axios from "axios";
+import { Order } from "@commercetools/platform-sdk";
+import { getCustomObjectByQr } from "../../utils/customObjectsFunction";
 
 const router = Router()
 
@@ -20,27 +23,38 @@ router.get("/pdv-services", validateToken, async (req: Request, res: Response): 
       }
     }).execute()
 
+    let searchOrder: Order = {} as Order
+    let userId: string = ""
+    if(order.body.hits.length <= 0){
+      //@ts-ignore
+      const order = await getCustomObjectByQr(qr)
+      searchOrder = order.order    
+      userId = order.user 
+    } else {
+      const getOrder = await apiRoot.orders().withId({ID: order.body.hits[0].id}).get().execute()
+      if(!getOrder.statusCode || getOrder.statusCode >= 300) return res.sendStatus(404)
+      searchOrder = getOrder.body
+      userId = searchOrder?.customerId ?? ""
+    } 
     
-    if(order.body.hits.length <= 0) return res.sendStatus(404)
-    
-    const searchOrder = await apiRoot.orders().withId({ID: order.body.hits[0].id}).get().execute()
-    if(!searchOrder.statusCode || searchOrder.statusCode >= 300) return res.sendStatus(404)
-    const customer = await apiRoot.customers().withId({ID: searchOrder.body?.customerId ?? ""}).get().execute()
-    const customObject = searchOrder.body.custom?.fields["services"] && JSON.parse(searchOrder.body.custom.fields["services"])
+    const customer = await apiRoot.customers().withId({ID: userId}).get().execute()
+    const customObject = searchOrder.custom?.fields["services"] && JSON.parse(searchOrder.custom.fields["services"])
     let servicesFind;
     try{
-      const lineItems = searchOrder.body.lineItems.filter(item => item.variant.attributes?.length ?? 0 > 0)
+      const lineItems = searchOrder.lineItems.filter(item => item.variant.attributes?.length ?? 0 > 0)
       for(const line of lineItems) {
         servicesFind = customObject[line.id].find((item: any) => item.QR == qr)   
+        console.log(servicesFind)
         if(servicesFind) break
       }
     } catch(err) {
-      const lineItems = searchOrder.body.lineItems.filter(item => item.variant.attributes?.length ?? 0 > 0)
+      const lineItems = searchOrder.lineItems.filter(item => item.variant.attributes?.length ?? 0 > 0)
       for(const line of lineItems) {
         servicesFind = customObject[line.id].guides.find((item: any) => item.QR == qr)   
         if(servicesFind) break
       }
     }
+    console.log(servicesFind)
     const { origin, destination } = servicesFind.address
 
     const betweenRoadsOrigin = origin?.optionalAddress1?.includes("?") ? origin.optionalAddress1.split("?") : [origin.optionalAddress1];
@@ -48,10 +62,10 @@ router.get("/pdv-services", validateToken, async (req: Request, res: Response): 
 
     const responseObject = {
       "pdvService": {
-        "storeServiceOrder": searchOrder.body.id,
-        "PurchaseOrder": searchOrder.body.orderNumber ?? searchOrder.body.custom?.fields?.["pickupNumber"] ?? "",
+        "storeServiceOrder": searchOrder.id,
+        "PurchaseOrder": searchOrder.orderNumber ?? searchOrder.custom?.fields?.["pickupNumber"] ?? "",
         "waybill": !servicesFind.status || servicesFind.status == "CANCELADO" ? "" : servicesFind?.guide,
-        "idcaStoreClient": searchOrder.body.customerId,
+        "idcaStoreClient": searchOrder.customerId,
         "eMailClient": customer.body.email,
         "idcaServiceWarranty": servicesFind.guide[13],
         "idcaServiceModality": servicesFind.guide[14],
@@ -69,8 +83,8 @@ router.get("/pdv-services", validateToken, async (req: Request, res: Response): 
         "QRCodeMD5": servicesFind.QR,
         "TarriffFractionCode": "0",
         "consultaId": "99999999", /// Revisarlo con Memo
-        "createdDate": FormaterDate(searchOrder.body.createdAt, false),
-        "availabledDate": `${FormaterDate(new Date(searchOrder.body.createdAt).toISOString(), false)} - ${FormaterDate(new Date(new Date(searchOrder.body.createdAt).setDate(new Date(searchOrder.body.createdAt).getDate() + 30)).toISOString(), false)}`,
+        "createdDate": FormaterDate(searchOrder.createdAt, false),
+        "availabledDate": `${FormaterDate(new Date(searchOrder.createdAt).toISOString(), false)} - ${FormaterDate(new Date(new Date(searchOrder.createdAt).setDate(new Date(searchOrder.createdAt).getDate() + 30)).toISOString(), false)}`,
         "sender": {
             "eMailClient": origin.email, //email del remitente
             "isPudo": origin.isPudo ? "1" : "0",
