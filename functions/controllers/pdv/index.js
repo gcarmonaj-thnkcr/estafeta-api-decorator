@@ -46,6 +46,7 @@ router.get("/pdv-services", token_1.validateToken, (req, res) => __awaiter(void 
         searchOrder = getOrder.body;
         userId = (_a = searchOrder === null || searchOrder === void 0 ? void 0 : searchOrder.customerId) !== null && _a !== void 0 ? _a : "";
     }
+    console.log(searchOrder.id);
     const customer = yield client_1.apiRoot.customers().withId({ ID: userId }).get().execute();
     const customObject = ((_b = searchOrder.custom) === null || _b === void 0 ? void 0 : _b.fields["services"]) && JSON.parse(searchOrder.custom.fields["services"]);
     let servicesFind;

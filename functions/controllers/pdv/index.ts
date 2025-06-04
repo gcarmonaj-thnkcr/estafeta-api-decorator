@@ -36,7 +36,7 @@ router.get("/pdv-services", validateToken, async (req: Request, res: Response): 
       searchOrder = getOrder.body
       userId = searchOrder?.customerId ?? ""
     } 
-    
+    console.log(searchOrder.id) 
     const customer = await apiRoot.customers().withId({ID: userId}).get().execute()
     const customObject = searchOrder.custom?.fields["services"] && JSON.parse(searchOrder.custom.fields["services"])
     let servicesFind;

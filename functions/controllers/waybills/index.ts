@@ -54,15 +54,20 @@ router.post("/waybills", async (req: Request, res: Response): Promise<any> =>{
     if(!searchOrder.statusCode || searchOrder.statusCode >= 300) return res.sendStatus(404)
     const customObject = searchOrder.body.custom?.fields["services"] && JSON.parse(searchOrder.body.custom.fields["services"])
     let servicesFind
+    let idItem = ""
     try{
       for(const id in customObject){
         servicesFind = customObject[id].find((item: any) => item.QR == wayBillItem.qr)
         if(!servicesFind) continue
+        idItem = id
+        break
       }
     } catch(err) {
       for(const id in customObject) { 
         servicesFind = customObject[id].guides.find((item: any) => item.QR == wayBillItem.qr) 
         if(!servicesFind) continue
+        idItem = id
+        break
       }
     }
     if(!servicesFind?.status ||  servicesFind?.status == "DISPONIBLE"){
@@ -74,7 +79,9 @@ router.post("/waybills", async (req: Request, res: Response): Promise<any> =>{
       })
       continue;
     }
-    console.log(servicesFind)
+    customObject[idItem].guides[0] = servicesFind 
+    console.log("Actualizado", servicesFind)
+    console.log(customObject)
     resulWaylBill.push({
         "resultCode": "0",
         "resultDescription": "Proceso completo",
