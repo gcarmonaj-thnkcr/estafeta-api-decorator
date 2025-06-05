@@ -81,6 +81,7 @@ router.get('/orders/:id', (request, reply) => __awaiter(void 0, void 0, void 0, 
         }
         const orders = [];
         for (const order of customObjectsOrders.body.results) {
+            order.value.order.createdAt = order.createdAt;
             orders.push(order.value);
         }
         reply.send(orders);
@@ -118,6 +119,7 @@ router.get('/order/user/:id', (request, reply) => __awaiter(void 0, void 0, void
         }
         const orders = [];
         for (const order of customObjectsOrders.body.results) {
+            order.value.order.createdAt = order.createdAt;
             orders.push(order.value);
         }
         const orderItems = Object.values(orders.reduce((acc, item) => {

@@ -76,6 +76,7 @@ router.post('/order', async (request, reply): Promise<any> => {
         }
         const orders = []
         for(const order of customObjectsOrders.body.results) {
+          order.value.order.createdAt = order.createdAt
           orders.push(order.value)
         }
         reply.send(orders);
@@ -113,6 +114,7 @@ router.post('/order', async (request, reply): Promise<any> => {
             }
             const orders = []
             for(const order of customObjectsOrders.body.results) {
+              order.value.order.createdAt = order.createdAt
               orders.push(order.value)
             }
             const orderItems = Object.values(
