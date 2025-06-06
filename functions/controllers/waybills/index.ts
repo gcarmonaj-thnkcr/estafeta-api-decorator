@@ -1,6 +1,8 @@
 import { Router, Request, Response } from "express";
 import { apiRoot } from "../../commercetools/client";
 import { totalmem } from "os";
+import { Order } from "@commercetools/platform-sdk";
+import { getCustomObjectByQr } from "../../utils/customObjectsFunction";
 
 const router = Router()
 
@@ -42,17 +44,26 @@ router.post("/waybills", async (req: Request, res: Response): Promise<any> =>{
         }
       }
     }).execute() 
-    if(order.body.total <=0) {
-        resulWaylBill.push({
-        "resultCode": "1",
-        "resultDescription": "El QR no fue encontrado",
-      })
-     res.status(200).json(resulWaylBill[0]);
-     return 
+
+    let searchOrder: Order = {} as Order
+    let userId: string = ""
+    let idOrder: string = ""
+
+    if(order.body.hits.length <= 0){
+      //@ts-ignore
+      const order = await getCustomObjectByQr(wayBillItem.qr)
+      searchOrder = order.order    
+      userId = order.user 
+      idOrder = order.order.id
+    } else {
+      const getOrder = await apiRoot.orders().withId({ID: order.body.hits[0].id}).get().execute()
+      if(!getOrder.statusCode || getOrder.statusCode >= 300) return res.sendStatus(404)
+      searchOrder = getOrder.body
+      userId = searchOrder?.customerId ?? ""
+      idOrder = searchOrder.id
     }
-    const searchOrder = await apiRoot.orders().withId({ID: order.body.hits[0].id}).get().execute()
-    if(!searchOrder.statusCode || searchOrder.statusCode >= 300) return res.sendStatus(404)
-    const customObject = searchOrder.body.custom?.fields["services"] && JSON.parse(searchOrder.body.custom.fields["services"])
+
+    const customObject = searchOrder.custom?.fields["services"] && JSON.parse(searchOrder.custom.fields["services"])
     let servicesFind
     let idItem = ""
     try{
@@ -87,9 +98,11 @@ router.post("/waybills", async (req: Request, res: Response): Promise<any> =>{
         "resultDescription": "Proceso completo",
         "ResultWaybill": servicesFind.guide,
     }) 
-    await apiRoot.orders().withId({ID: searchOrder.body.id}).post({
+
+    try {
+      await apiRoot.orders().withId({ID: searchOrder.id}).post({
        body: {
-         version: searchOrder.body.version,
+         version: searchOrder.version,
          actions: [
            {
              action: "setCustomField",
@@ -98,7 +111,43 @@ router.post("/waybills", async (req: Request, res: Response): Promise<any> =>{
            }
          ]
        }
-    }).execute()
+      }).execute()
+    } catch(_) {
+      const order = await apiRoot.customObjects().get({
+        queryArgs: {
+          where: `value (idOrden in ("${idOrder}"))`
+        }
+      }).execute()
+
+      for (const orden of order.body.results) {
+        let ordenN: Order = {
+        ...searchOrder,
+        custom: {
+          type: {
+            id: searchOrder.custom?.type?.id ?? "",
+            typeId: searchOrder.custom?.type?.typeId ?? "type"
+          },
+          fields: {
+            ...searchOrder.custom?.fields,
+            services: JSON.stringify(customObject)
+          }
+        }
+      }
+        const customObjectOrder = await apiRoot.customObjects().post({
+          body: {
+            container: "orders",
+            key: orden.value.qr,
+            value: {
+              order: ordenN,
+              qr: orden.value.qr,
+              user: orden.value.user,
+              idOrden: orden.value.orderId
+            }
+          }
+        }).execute()
+      }
+    }
+    
   }
 
   //Si esta disonible cambiar a enproceso y retornar datos del waybill
@@ -133,9 +182,26 @@ router.put("/waybills", async (req: Request, res: Response): Promise<any> =>{
         }
       }
     }).execute() 
-    const searchOrder = await apiRoot.orders().withId({ID: order.body.hits[0].id}).get().execute()
-    if(!searchOrder.statusCode || searchOrder.statusCode >= 300) return res.sendStatus(404)
-    const customObject = searchOrder.body.custom?.fields["services"] && JSON.parse(searchOrder.body.custom.fields["services"])
+
+    let searchOrder: Order = {} as Order
+    let userId: string = ""
+    let idOrder: string = ""
+
+    if(order.body.hits.length <= 0){
+      //@ts-ignore
+      const order = await getCustomObjectByQr(wayBillItem.qr)
+      searchOrder = order.order    
+      userId = order.user 
+      idOrder = order.order.id
+    } else {
+      const getOrder = await apiRoot.orders().withId({ID: order.body.hits[0].id}).get().execute()
+      if(!getOrder.statusCode || getOrder.statusCode >= 300) return res.sendStatus(404)
+      searchOrder = getOrder.body
+      userId = searchOrder?.customerId ?? ""
+      idOrder = searchOrder.id
+    }
+
+    const customObject = searchOrder.custom?.fields["services"] && JSON.parse(searchOrder.custom.fields["services"])
     let servicesFind
     try{
       for(const id in customObject){
@@ -175,18 +241,55 @@ router.put("/waybills", async (req: Request, res: Response): Promise<any> =>{
             }
         ]
     }) 
-    await apiRoot.orders().withId({ID: searchOrder.body.id}).post({
-      body: {
-        version: searchOrder.body.version,
-        actions: [
-          {
-            action: "setCustomField",
-            name: "services",
-            value: JSON.stringify(customObject)
+    
+    try {
+      await apiRoot.orders().withId({ID: searchOrder.id}).post({
+       body: {
+         version: searchOrder.version,
+         actions: [
+           {
+             action: "setCustomField",
+             name: "services",
+             value: JSON.stringify(customObject)
+           }
+         ]
+       }
+      }).execute()
+    } catch(_) {
+      const order = await apiRoot.customObjects().get({
+        queryArgs: {
+          where: `value (idOrden in ("${idOrder}"))`
+        }
+      }).execute()
+
+      for (const orden of order.body.results) {
+        let ordenN: Order = {
+        ...searchOrder,
+        custom: {
+          type: {
+            id: searchOrder.custom?.type?.id ?? "",
+            typeId: searchOrder.custom?.type?.typeId ?? "type"
+          },
+          fields: {
+            ...searchOrder.custom?.fields,
+            services: JSON.stringify(customObject)
           }
-        ]
+        }
       }
-    }).execute()
+        const customObjectOrder = await apiRoot.customObjects().post({
+          body: {
+            container: "orders",
+            key: orden.value.qr,
+            value: {
+              order: ordenN,
+              qr: orden.value.qr,
+              user: orden.value.user,
+              idOrden: orden.value.orderId
+            }
+          }
+        }).execute()
+      }
+    }
   }
 
   res.status(200).json(resulWaylBill[0]);
