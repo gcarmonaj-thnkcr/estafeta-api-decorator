@@ -19,19 +19,30 @@ const asignarGuides_1 = require("./asignarGuides");
 const logger_1 = require("./logger");
 const addPaymentToOrder = (body) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
-    const order = yield client_1.apiRoot.orders().withId({ ID: body.transaction.order_id }).get().execute();
+    const order = yield client_1.apiRoot
+        .orders()
+        .withId({ ID: body.transaction.order_id })
+        .get()
+        .execute();
     if (!order.statusCode || order.statusCode >= 300)
         return {
             message: "Error al encontrar la orden",
-            response: undefined
+            response: undefined,
         };
-    const customer = yield client_1.apiRoot.customers().withId({ ID: (_a = order.body.customerId) !== null && _a !== void 0 ? _a : "" }).get().execute();
+    const customer = yield client_1.apiRoot
+        .customers()
+        .withId({ ID: (_a = order.body.customerId) !== null && _a !== void 0 ? _a : "" })
+        .get()
+        .execute();
     if (!customer.statusCode || customer.statusCode >= 300)
         return {
             message: "La orden no tiene asignado un customer",
-            response: undefined
+            response: undefined,
         };
-    const isRecoleccion = order.body.lineItems.some(item => { var _a, _b; return ((_b = (_a = item.variant.attributes) === null || _a === void 0 ? void 0 : _a.find(attr => attr.name == "tipo-paquete")) === null || _b === void 0 ? void 0 : _b.value["label"]) == "RECOLECCION"; });
+    const isRecoleccion = order.body.lineItems.some((item) => {
+        var _a, _b;
+        return ((_b = (_a = item.variant.attributes) === null || _a === void 0 ? void 0 : _a.find((attr) => attr.name == "tipo-paquete")) === null || _b === void 0 ? void 0 : _b.value["label"]) == "RECOLECCION";
+    });
     let response;
     if (isRecoleccion) {
         response = yield (0, exports.addPaymentToOrdersRecoleccion)(body, order.body, customer.body);
@@ -41,7 +52,7 @@ const addPaymentToOrder = (body) => __awaiter(void 0, void 0, void 0, function* 
     }
     return {
         message: response.message,
-        response
+        response,
     };
 });
 exports.addPaymentToOrder = addPaymentToOrder;
@@ -49,20 +60,22 @@ const addPaymentToOrdersRecoleccion = (data, order, customer) => __awaiter(void 
     var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _0, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _20;
     let customerCopy = customer;
     let orderVersion = order.version;
-    const createPayment = yield client_1.apiRoot.payments().post({
+    const createPayment = yield client_1.apiRoot
+        .payments()
+        .post({
         body: {
             key: data.transaction.id,
             interfaceId: data.transaction.id,
             amountPlanned: {
                 currencyCode: "MXN",
-                centAmount: data.transaction.amount * 100 | 0
+                centAmount: (data.transaction.amount * 100) | 0,
             },
             paymentMethodInfo: {
                 paymentInterface: "OPENPAY",
                 method: data.transaction.description,
                 name: {
                     "es-MX": data.transaction.description,
-                }
+                },
             },
             transactions: [
                 {
@@ -70,27 +83,31 @@ const addPaymentToOrdersRecoleccion = (data, order, customer) => __awaiter(void 
                     type: "Charge",
                     amount: {
                         currencyCode: "MXN",
-                        centAmount: data.transaction.amount * 100 | 0,
+                        centAmount: (data.transaction.amount * 100) | 0,
                     },
-                    state: "Success"
-                }
-            ]
-        }
-    }).execute();
+                    state: "Success",
+                },
+            ],
+        },
+    })
+        .execute();
     const pickupPackage = [];
     const mapGuide = {};
     const guides = JSON.parse((_a = order.lineItems[0].custom) === null || _a === void 0 ? void 0 : _a.fields["guia"]);
     const date = (_b = order.lineItems[0].custom) === null || _b === void 0 ? void 0 : _b.fields["adicionales"];
-    const orders = yield client_1.apiRoot.orders().get({
+    const orders = yield client_1.apiRoot
+        .orders()
+        .get({
         queryArgs: {
             sort: `createdAt desc`,
-            where: `orderNumber is defined`
-        }
-    }).execute();
+            where: `orderNumber is defined`,
+        },
+    })
+        .execute();
     if (!orders.body.results[0].orderNumber)
         return;
     const quantityTotalGuides = 0;
-    const orderSplit = orders.body.results[0].orderNumber.split('D');
+    const orderSplit = orders.body.results[0].orderNumber.split("D");
     let newOrder = `${orderSplit[0]}D${String(parseInt(orderSplit[1]) + 1).padStart(6, "0")}`;
     const createPurchaseOrder = () => __awaiter(void 0, void 0, void 0, function* () {
         const purchaseOrder = yield (0, purchaseOrder_1.WSPurchaseOrder)({
@@ -103,26 +120,26 @@ const addPaymentToOrdersRecoleccion = (data, order, customer) => __awaiter(void 
             infoPayment: {
                 typePayment: "",
                 bankTypeName: "",
-                transactionalCode: ""
-            }
+                transactionalCode: "",
+            },
         });
         debugger;
         if (purchaseOrder.result.Code > 0) {
             if (purchaseOrder.result.Description.includes("REPEATED_TICKET")) {
-                const orderSplit = newOrder.split('D');
+                const orderSplit = newOrder.split("D");
                 newOrder = `${orderSplit[0]}D${String(parseInt(orderSplit[1]) + 1).padStart(6, "0")}`;
                 return yield createPurchaseOrder();
             }
             return {
                 purchaseOrder: undefined,
-                orderId: '',
-                message: purchaseOrder.result.Description
+                orderId: "",
+                message: purchaseOrder.result.Description,
             };
         }
         return {
             purchaseOrder: purchaseOrder,
-            orderId: '',
-            message: purchaseOrder.result.Description
+            orderId: "",
+            message: purchaseOrder.result.Description,
         };
     });
     const purchaseResult = yield createPurchaseOrder();
@@ -137,8 +154,12 @@ const addPaymentToOrdersRecoleccion = (data, order, customer) => __awaiter(void 
         // const guide = items.custom?.fields["guia"]
         // const QR = items.custom?.fields["folio_md5"]
         // date = items.custom?.fields["adicionales"]
-        const orden = yield client_1.apiRoot.orders().withId({ ID: guide.orderId }).get().execute();
-        const product = orden.body.lineItems.find(item => item.id == guide.id);
+        const orden = yield client_1.apiRoot
+            .orders()
+            .withId({ ID: guide.orderId })
+            .get()
+            .execute();
+        const product = orden.body.lineItems.find((item) => item.id == guide.id);
         if (!mapGuide[order.lineItems[0].id]) {
             mapGuide[order.lineItems[0].id] = [];
         }
@@ -146,18 +167,22 @@ const addPaymentToOrdersRecoleccion = (data, order, customer) => __awaiter(void 
         const servicio = JSON.parse((_o = orden.body.custom) === null || _o === void 0 ? void 0 : _o.fields["services"]);
         servicio[guide.id].guides = servicio[guide.id].guides.filter((item) => item.guide != guide.guia);
         //Actualizamos la orden
-        yield client_1.apiRoot.orders().withId({ ID: guide.orderId }).post({
+        yield client_1.apiRoot
+            .orders()
+            .withId({ ID: guide.orderId })
+            .post({
             body: {
                 version: orden.body.version,
                 actions: [
                     {
                         action: "setCustomField",
                         name: "services",
-                        value: JSON.stringify(servicio)
-                    }
-                ]
-            }
-        }).execute();
+                        value: JSON.stringify(servicio),
+                    },
+                ],
+            },
+        })
+            .execute();
         const packagesItems = {
             PackageType: "PKG",
             Length: 46.5,
@@ -165,7 +190,7 @@ const addPaymentToOrdersRecoleccion = (data, order, customer) => __awaiter(void 
             Height: 40,
             Weight: 8,
             Quantity: 300,
-            Description: "PAQUETES"
+            Description: "PAQUETES",
         };
         pickupPackage.push(packagesItems);
     }
@@ -194,7 +219,7 @@ const addPaymentToOrdersRecoleccion = (data, order, customer) => __awaiter(void 
             EmailAddress: (_18 = (_17 = order.shippingAddress) === null || _17 === void 0 ? void 0 : _17.email) !== null && _18 !== void 0 ? _18 : "",
             PhoneNumber: (_20 = (_19 = order.shippingAddress) === null || _19 === void 0 ? void 0 : _19.phone) !== null && _20 !== void 0 ? _20 : "",
         },
-        PickupPackageList: pickupPackage
+        PickupPackageList: pickupPackage,
     };
     const requestPickup = yield (0, pickup_1.newPickUp)(newPickUpModel);
     if (!requestPickup.Success) {
@@ -202,7 +227,7 @@ const addPaymentToOrdersRecoleccion = (data, order, customer) => __awaiter(void 
             orderId: "",
             message: requestPickup.ErrorList.join(","),
             isRecoleccion: false,
-            isUso: false
+            isUso: false,
         };
     }
     /*
@@ -290,7 +315,10 @@ const addPaymentToOrdersRecoleccion = (data, order, customer) => __awaiter(void 
       }
     }
     */
-    const addPaymentToOrder = yield client_1.apiRoot.orders().withId({ ID: order.id }).post({
+    const addPaymentToOrder = yield client_1.apiRoot
+        .orders()
+        .withId({ ID: order.id })
+        .post({
         body: {
             version: order.version,
             actions: [
@@ -298,60 +326,66 @@ const addPaymentToOrdersRecoleccion = (data, order, customer) => __awaiter(void 
                     action: "addPayment",
                     payment: {
                         id: createPayment.body.id,
-                        typeId: "payment"
-                    }
+                        typeId: "payment",
+                    },
                 },
                 {
                     action: "changePaymentState",
-                    paymentState: "Paid"
+                    paymentState: "Paid",
                 },
                 {
-                    action: 'setCustomField',
-                    name: 'ordenSap',
-                    value: codes[0].OrderSAP
-                }
-            ]
-        }
-    }).execute();
+                    action: "setCustomField",
+                    name: "ordenSap",
+                    value: codes[0].OrderSAP,
+                },
+            ],
+        },
+    })
+        .execute();
     return {
         orderId: addPaymentToOrder.body.id,
         message: undefined,
         isRecoleccion: false,
-        isUso: false
+        isUso: false,
     };
 });
 exports.addPaymentToOrdersRecoleccion = addPaymentToOrdersRecoleccion;
 const addPaymentToOrders = (data, order, customer) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _0, _1, _2;
+    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _0;
     const loggerChild = logger_1.logger.child({ requestId: data.transaction.id });
     loggerChild.info(JSON.stringify(data));
     try {
         const quantityTotalGuides = 0;
-        const orders = yield client_1.apiRoot.orders().get({
+        const orders = yield client_1.apiRoot
+            .orders()
+            .get({
             queryArgs: {
                 sort: `createdAt desc`,
-                where: `orderNumber is defined`
-            }
-        }).execute();
+                where: `orderNumber is defined`,
+            },
+        })
+            .execute();
         if (!orders.body.results[0].orderNumber)
             return;
-        const orderSplit = orders.body.results[0].orderNumber.split('D');
+        const orderSplit = orders.body.results[0].orderNumber.split("D");
         let newOrder = `${orderSplit[0]}D${String(parseInt(orderSplit[1]) + 1).padStart(6, "0")}`;
         loggerChild.info("Pago registrado en ct");
-        const createPayment = yield client_1.apiRoot.payments().post({
+        const createPayment = yield client_1.apiRoot
+            .payments()
+            .post({
             body: {
                 key: data.transaction.id,
                 interfaceId: data.transaction.id,
                 amountPlanned: {
                     currencyCode: "MXN",
-                    centAmount: data.transaction.amount * 100 | 0
+                    centAmount: (data.transaction.amount * 100) | 0,
                 },
                 paymentMethodInfo: {
                     paymentInterface: "OPENPAY",
                     method: data.transaction.description,
                     name: {
-                        "es-MX": data.transaction.description
-                    }
+                        "es-MX": data.transaction.description,
+                    },
                 },
                 transactions: [
                     {
@@ -359,13 +393,14 @@ const addPaymentToOrders = (data, order, customer) => __awaiter(void 0, void 0, 
                         type: "Charge",
                         amount: {
                             currencyCode: "MXN",
-                            centAmount: data.transaction.amount * 100 | 0,
+                            centAmount: (data.transaction.amount * 100) | 0,
                         },
-                        state: "Success"
-                    }
-                ]
-            }
-        }).execute();
+                        state: "Success",
+                    },
+                ],
+            },
+        })
+            .execute();
         const createPurchaseOrder = () => __awaiter(void 0, void 0, void 0, function* () {
             const purchaseOrder = yield (0, purchaseOrder_1.WSPurchaseOrder)({
                 order: order,
@@ -377,26 +412,28 @@ const addPaymentToOrders = (data, order, customer) => __awaiter(void 0, void 0, 
                 infoPayment: {
                     typePayment: data.transaction.description == "Transferencia" ? "TE" : "Cash",
                     bankTypeName: data.transaction.description == "Transferencia" ? "TE" : "Cash",
-                    transactionalCode: data.transaction.description == "Transferencia" ? "TRANSFE-03" : "$$$$$$$-01"
+                    transactionalCode: data.transaction.description == "Transferencia"
+                        ? "TRANSFE-03"
+                        : "$$$$$$$-01",
                 },
-                logger: loggerChild
+                logger: loggerChild,
             });
             if (purchaseOrder.result.Code > 0) {
                 if (purchaseOrder.result.Description.includes("REPEATED_TICKET")) {
-                    const orderSplit = newOrder.split('D');
+                    const orderSplit = newOrder.split("D");
                     newOrder = `${orderSplit[0]}D${String(parseInt(orderSplit[1]) + 1).padStart(6, "0")}`;
                     return yield createPurchaseOrder();
                 }
                 return {
                     purchaseOrder: undefined,
-                    orderId: '',
-                    message: purchaseOrder.result.Description
+                    orderId: "",
+                    message: purchaseOrder.result.Description,
                 };
             }
             return {
                 purchaseOrder: purchaseOrder,
-                orderId: '',
-                message: purchaseOrder.result.Description
+                orderId: "",
+                message: purchaseOrder.result.Description,
             };
         });
         const purchaseResult = yield createPurchaseOrder();
@@ -408,106 +445,126 @@ const addPaymentToOrders = (data, order, customer) => __awaiter(void 0, void 0, 
         const purchaseOrder = purchaseResult.purchaseOrder;
         const codes = purchaseOrder.resultPurchaseOrder;
         let mapGuides;
-        if (((_b = (_a = codes === null || codes === void 0 ? void 0 : codes[0]) === null || _a === void 0 ? void 0 : _a.WaybillList) === null || _b === void 0 ? void 0 : _b.length) <= 0) {
-            return {
-                orderId: "",
-                message: "Campo waybillist is empty",
-                isUso: false,
-                isRecoleccion: false,
-            };
-        }
-        if (((_d = (_c = codes === null || codes === void 0 ? void 0 : codes[0]) === null || _c === void 0 ? void 0 : _c.WaybillList) === null || _d === void 0 ? void 0 : _d.length) > 0) {
-            const folios = yield (0, folios_1.CreateFolios)((_f = (_e = codes === null || codes === void 0 ? void 0 : codes[0]) === null || _e === void 0 ? void 0 : _e.WaybillList) === null || _f === void 0 ? void 0 : _f.length, loggerChild);
+        if (((_b = (_a = codes === null || codes === void 0 ? void 0 : codes[0]) === null || _a === void 0 ? void 0 : _a.WaybillList) === null || _b === void 0 ? void 0 : _b.length) > 0) {
+            const folios = yield (0, folios_1.CreateFolios)((_d = (_c = codes === null || codes === void 0 ? void 0 : codes[0]) === null || _c === void 0 ? void 0 : _c.WaybillList) === null || _d === void 0 ? void 0 : _d.length, loggerChild);
             loggerChild.info(`Folios creados`);
             mapGuides = (0, exports.createMapGuide)(codes, order, folios.data.folioResult);
         }
-        const userUpdated = yield client_1.apiRoot.customers().get({
+        const userUpdated = yield client_1.apiRoot
+            .customers()
+            .get({
             queryArgs: {
-                where: `email in ("${customer.email}")`
-            }
-        }).execute();
+                where: `email in ("${customer.email}")`,
+            },
+        })
+            .execute();
         let versionCustomer = userUpdated.body.results[0].version;
         let objectCustomer = userUpdated.body.results[0];
         //Esto es para agregar items
         for (const line of order.lineItems) {
-            const attrType = (_h = (_g = line.variant.attributes) === null || _g === void 0 ? void 0 : _g.find(item => item.name == "tipo-paquete")) === null || _h === void 0 ? void 0 : _h.value["label"];
+            const attrType = (_f = (_e = line.variant.attributes) === null || _e === void 0 ? void 0 : _e.find((item) => item.name == "tipo-paquete")) === null || _f === void 0 ? void 0 : _f.value["label"];
             if (attrType != "UNIZONA")
                 continue;
-            const attrQuantity = (_l = (_k = (_j = line.variant.attributes) === null || _j === void 0 ? void 0 : _j.find(item => item.name == "quantity-items")) === null || _k === void 0 ? void 0 : _k.value) !== null && _l !== void 0 ? _l : 1;
-            const attrService = (_o = (_m = line.variant.attributes) === null || _m === void 0 ? void 0 : _m.find(item => item.name == "servicio")) === null || _o === void 0 ? void 0 : _o.value["label"];
+            const attrQuantity = (_j = (_h = (_g = line.variant.attributes) === null || _g === void 0 ? void 0 : _g.find((item) => item.name == "quantity-items")) === null || _h === void 0 ? void 0 : _h.value) !== null && _j !== void 0 ? _j : 1;
+            const attrService = (_l = (_k = line.variant.attributes) === null || _k === void 0 ? void 0 : _k.find((item) => item.name == "servicio")) === null || _l === void 0 ? void 0 : _l.value["label"];
             debugger;
             if (attrService == "DIA SIGUIENTE") {
-                const quantityGuideAvailables = (_r = (_q = (_p = objectCustomer.custom) === null || _p === void 0 ? void 0 : _p.fields) === null || _q === void 0 ? void 0 : _q["quantity-guides-dia-siguiente"]) !== null && _r !== void 0 ? _r : 0;
-                const updateQuantityUser = yield client_1.apiRoot.customers().withId({ ID: customer.id }).post({
+                const quantityGuideAvailables = (_p = (_o = (_m = objectCustomer.custom) === null || _m === void 0 ? void 0 : _m.fields) === null || _o === void 0 ? void 0 : _o["quantity-guides-dia-siguiente"]) !== null && _p !== void 0 ? _p : 0;
+                const updateQuantityUser = yield client_1.apiRoot
+                    .customers()
+                    .withId({ ID: customer.id })
+                    .post({
                     body: {
                         version: versionCustomer,
                         actions: [
                             {
                                 action: "setCustomField",
                                 name: "quantity-guides-dia-siguiente",
-                                value: quantityGuideAvailables + (attrQuantity * line.quantity)
-                            }
-                        ]
-                    }
-                }).execute();
+                                value: quantityGuideAvailables + attrQuantity * line.quantity,
+                            },
+                        ],
+                    },
+                })
+                    .execute();
                 versionCustomer = updateQuantityUser.body.version;
                 objectCustomer = updateQuantityUser.body;
             }
             else if (attrService == "TERRESTRE") {
-                const quantityGuideAvailables = (_u = (_t = (_s = objectCustomer.custom) === null || _s === void 0 ? void 0 : _s.fields) === null || _t === void 0 ? void 0 : _t["quantity-guides-terrestres"]) !== null && _u !== void 0 ? _u : 0;
-                const updateQuantityUser = yield client_1.apiRoot.customers().withId({ ID: customer.id }).post({
+                const quantityGuideAvailables = (_s = (_r = (_q = objectCustomer.custom) === null || _q === void 0 ? void 0 : _q.fields) === null || _r === void 0 ? void 0 : _r["quantity-guides-terrestres"]) !== null && _s !== void 0 ? _s : 0;
+                const updateQuantityUser = yield client_1.apiRoot
+                    .customers()
+                    .withId({ ID: customer.id })
+                    .post({
                     body: {
                         version: versionCustomer,
                         actions: [
                             {
                                 action: "setCustomField",
                                 name: "quantity-guides-terrestres",
-                                value: quantityGuideAvailables + (attrQuantity * line.quantity)
-                            }
-                        ]
-                    }
-                }).execute();
+                                value: quantityGuideAvailables + attrQuantity * line.quantity,
+                            },
+                        ],
+                    },
+                })
+                    .execute();
                 versionCustomer = updateQuantityUser.body.version;
                 objectCustomer = updateQuantityUser.body;
             }
             else if (attrService == "DOS DIAS") {
-                const quantityGuideAvailables = (_x = (_w = (_v = objectCustomer.custom) === null || _v === void 0 ? void 0 : _v.fields) === null || _w === void 0 ? void 0 : _w["quantity-guides-dos-dias"]) !== null && _x !== void 0 ? _x : 0;
-                const updateQuantityUser = yield client_1.apiRoot.customers().withId({ ID: customer.id }).post({
+                const quantityGuideAvailables = (_v = (_u = (_t = objectCustomer.custom) === null || _t === void 0 ? void 0 : _t.fields) === null || _u === void 0 ? void 0 : _u["quantity-guides-dos-dias"]) !== null && _v !== void 0 ? _v : 0;
+                const updateQuantityUser = yield client_1.apiRoot
+                    .customers()
+                    .withId({ ID: customer.id })
+                    .post({
                     body: {
                         version: versionCustomer,
                         actions: [
                             {
                                 action: "setCustomField",
                                 name: "quantity-guides-dos-dias",
-                                value: quantityGuideAvailables + (attrQuantity * line.quantity)
-                            }
-                        ]
-                    }
-                }).execute();
+                                value: quantityGuideAvailables + attrQuantity * line.quantity,
+                            },
+                        ],
+                    },
+                })
+                    .execute();
                 versionCustomer = updateQuantityUser.body.version;
                 objectCustomer = updateQuantityUser.body;
             }
             else if (attrService == "12:30") {
-                const quantityGuideAvailables = (_0 = (_z = (_y = objectCustomer.custom) === null || _y === void 0 ? void 0 : _y.fields) === null || _z === void 0 ? void 0 : _z["quantity-guides-doce-treinta"]) !== null && _0 !== void 0 ? _0 : 0;
-                const updateQuantityUser = yield client_1.apiRoot.customers().withId({ ID: customer.id }).post({
+                const quantityGuideAvailables = (_y = (_x = (_w = objectCustomer.custom) === null || _w === void 0 ? void 0 : _w.fields) === null || _x === void 0 ? void 0 : _x["quantity-guides-doce-treinta"]) !== null && _y !== void 0 ? _y : 0;
+                const updateQuantityUser = yield client_1.apiRoot
+                    .customers()
+                    .withId({ ID: customer.id })
+                    .post({
                     body: {
                         version: versionCustomer,
                         actions: [
                             {
                                 action: "setCustomField",
                                 name: "quantity-guides-doce-treinta",
-                                value: quantityGuideAvailables + (attrQuantity * line.quantity)
-                            }
-                        ]
-                    }
-                }).execute();
+                                value: quantityGuideAvailables + attrQuantity * line.quantity,
+                            },
+                        ],
+                    },
+                })
+                    .execute();
                 versionCustomer = updateQuantityUser.body.version;
                 objectCustomer = updateQuantityUser.body;
             }
         }
-        const isZONA = order.lineItems.some(item => { var _a, _b; return ((_b = (_a = item.variant.attributes) === null || _a === void 0 ? void 0 : _a.find(attr => attr.name == "tipo-paquete")) === null || _b === void 0 ? void 0 : _b.value["label"]) == "ZONA"; });
-        const isUNIZONA = order.lineItems.some(item => { var _a, _b; return ((_b = (_a = item.variant.attributes) === null || _a === void 0 ? void 0 : _a.find(attr => attr.name == "tipo-paquete")) === null || _b === void 0 ? void 0 : _b.value["label"]) == "UNIZONA"; });
-        const isInternational = order.lineItems.some(item => { var _a, _b; return ((_b = (_a = item.variant.attributes) === null || _a === void 0 ? void 0 : _a.find(attr => attr.name == "tipo-paquete")) === null || _b === void 0 ? void 0 : _b.value["label"]) == "ZONA INTERNACIONAL"; });
+        const isZONA = order.lineItems.some((item) => {
+            var _a, _b;
+            return ((_b = (_a = item.variant.attributes) === null || _a === void 0 ? void 0 : _a.find((attr) => attr.name == "tipo-paquete")) === null || _b === void 0 ? void 0 : _b.value["label"]) == "ZONA";
+        });
+        const isUNIZONA = order.lineItems.some((item) => {
+            var _a, _b;
+            return ((_b = (_a = item.variant.attributes) === null || _a === void 0 ? void 0 : _a.find((attr) => attr.name == "tipo-paquete")) === null || _b === void 0 ? void 0 : _b.value["label"]) == "UNIZONA";
+        });
+        const isInternational = order.lineItems.some((item) => {
+            var _a, _b;
+            return ((_b = (_a = item.variant.attributes) === null || _a === void 0 ? void 0 : _a.find((attr) => attr.name == "tipo-paquete")) === null || _b === void 0 ? void 0 : _b.value["label"]) == "ZONA INTERNACIONAL";
+        });
         if (isUNIZONA || isZONA || isInternational) {
             const mapToObject = (map) => {
                 const obj = {};
@@ -517,7 +574,10 @@ const addPaymentToOrders = (data, order, customer) => __awaiter(void 0, void 0, 
                 return obj;
             };
             const plainObjectGuides = mapToObject(mapGuides);
-            const addPaymentToOrder = yield client_1.apiRoot.orders().withId({ ID: order.id }).post({
+            const addPaymentToOrder = yield client_1.apiRoot
+                .orders()
+                .withId({ ID: order.id })
+                .post({
                 body: {
                     version: order.version,
                     actions: [
@@ -525,17 +585,17 @@ const addPaymentToOrders = (data, order, customer) => __awaiter(void 0, void 0, 
                             action: "addPayment",
                             payment: {
                                 id: createPayment.body.id,
-                                typeId: "payment"
-                            }
+                                typeId: "payment",
+                            },
                         },
                         {
                             action: "changePaymentState",
-                            paymentState: "Paid"
+                            paymentState: "Paid",
                         },
                         {
                             action: "setCustomField",
                             name: "services",
-                            value: JSON.stringify(plainObjectGuides)
+                            value: JSON.stringify(plainObjectGuides),
                         },
                         {
                             action: "setCustomField",
@@ -549,16 +609,17 @@ const addPaymentToOrders = (data, order, customer) => __awaiter(void 0, void 0, 
                         },
                         {
                             action: "setOrderNumber",
-                            orderNumber: newOrder
+                            orderNumber: newOrder,
                         },
                         {
                             action: "setCustomField",
                             name: "isCombo",
-                            value: isUNIZONA ? true : false
-                        }
-                    ]
-                }
-            }).execute();
+                            value: isUNIZONA ? true : false,
+                        },
+                    ],
+                },
+            })
+                .execute();
             return {
                 orderId: addPaymentToOrder.body.id,
                 message: "",
@@ -568,7 +629,10 @@ const addPaymentToOrders = (data, order, customer) => __awaiter(void 0, void 0, 
         }
         else {
             const asignarGuias = yield (0, asignarGuides_1.asignGuideToOrder)(customer, order);
-            const addPaymentToOrder = yield client_1.apiRoot.orders().withId({ ID: order.id }).post({
+            const addPaymentToOrder = yield client_1.apiRoot
+                .orders()
+                .withId({ ID: order.id })
+                .post({
                 body: {
                     version: order.version,
                     actions: [
@@ -576,17 +640,17 @@ const addPaymentToOrders = (data, order, customer) => __awaiter(void 0, void 0, 
                             action: "addPayment",
                             payment: {
                                 id: createPayment.body.id,
-                                typeId: "payment"
-                            }
+                                typeId: "payment",
+                            },
                         },
                         {
                             action: "changePaymentState",
-                            paymentState: "Paid"
+                            paymentState: "Paid",
                         },
                         {
                             action: "setCustomField",
                             name: "services",
-                            value: JSON.stringify(asignarGuias)
+                            value: JSON.stringify(asignarGuias),
                         },
                         {
                             action: "setCustomField",
@@ -600,12 +664,13 @@ const addPaymentToOrders = (data, order, customer) => __awaiter(void 0, void 0, 
                         },
                         {
                             action: "setOrderNumber",
-                            orderNumber: newOrder
-                        }
-                    ]
-                }
-            }).execute();
-            loggerChild.info(`Orden creada: ${(_2 = (_1 = addPaymentToOrder === null || addPaymentToOrder === void 0 ? void 0 : addPaymentToOrder.body) === null || _1 === void 0 ? void 0 : _1.orderNumber) !== null && _2 !== void 0 ? _2 : ""}`);
+                            orderNumber: newOrder,
+                        },
+                    ],
+                },
+            })
+                .execute();
+            loggerChild.info(`Orden creada: ${(_0 = (_z = addPaymentToOrder === null || addPaymentToOrder === void 0 ? void 0 : addPaymentToOrder.body) === null || _z === void 0 ? void 0 : _z.orderNumber) !== null && _0 !== void 0 ? _0 : ""}`);
             return {
                 orderId: addPaymentToOrder.body.id,
                 message: "",
@@ -629,8 +694,8 @@ const createMapGuide = (guides, order, folios) => {
     for (const line of order.lineItems) {
         if (line.price.value.centAmount <= 0)
             continue;
-        const type = (_d = (_c = (_b = line === null || line === void 0 ? void 0 : line.variant) === null || _b === void 0 ? void 0 : _b.attributes) === null || _c === void 0 ? void 0 : _c.find(attr => attr.name == "tipo-paquete")) === null || _d === void 0 ? void 0 : _d.value["label"];
-        const services = (_g = (_f = (_e = line === null || line === void 0 ? void 0 : line.variant) === null || _e === void 0 ? void 0 : _e.attributes) === null || _f === void 0 ? void 0 : _f.find(attr => attr.name == "servicio")) === null || _g === void 0 ? void 0 : _g.value["label"];
+        const type = (_d = (_c = (_b = line === null || line === void 0 ? void 0 : line.variant) === null || _b === void 0 ? void 0 : _b.attributes) === null || _c === void 0 ? void 0 : _c.find((attr) => attr.name == "tipo-paquete")) === null || _d === void 0 ? void 0 : _d.value["label"];
+        const services = (_g = (_f = (_e = line === null || line === void 0 ? void 0 : line.variant) === null || _e === void 0 ? void 0 : _e.attributes) === null || _f === void 0 ? void 0 : _f.find((attr) => attr.name == "servicio")) === null || _g === void 0 ? void 0 : _g.value["label"];
         if (!type)
             continue;
         // Crear objeto ILineGuide y asignar guides como array vacío
@@ -669,7 +734,7 @@ const createMapGuide = (guides, order, folios) => {
             const lineGuide = lineGuides.get(id);
             if (!lineGuide)
                 continue;
-            const origenDestino = order.lineItems.find(item => item.id == id);
+            const origenDestino = order.lineItems.find((item) => item.id == id);
             // Asegurarse de que guides esté inicializado antes de hacer push
             (_k = lineGuide.guides) === null || _k === void 0 ? void 0 : _k.push(Object.assign({ guide: guia.Code, trackingCode: guia.TrackingCode, QR: ((_l = folios === null || folios === void 0 ? void 0 : folios[0]) === null || _l === void 0 ? void 0 : _l.folioMD5) ? `Q3SQR${folios[0].folioMD5}` : "0", isItemDimensionsExceeded: (_m = origenDestino === null || origenDestino === void 0 ? void 0 : origenDestino.custom) === null || _m === void 0 ? void 0 : _m.fields["isItemDimensionsExceeded"], isItemWeightExceeded: (_o = origenDestino === null || origenDestino === void 0 ? void 0 : origenDestino.custom) === null || _o === void 0 ? void 0 : _o.fields["isItemWeightExceeded"], isPackage: (_p = origenDestino === null || origenDestino === void 0 ? void 0 : origenDestino.custom) === null || _p === void 0 ? void 0 : _p.fields["isPackage"], isPudo: (_q = origenDestino === null || origenDestino === void 0 ? void 0 : origenDestino.custom) === null || _q === void 0 ? void 0 : _q.fields["isPudo"], itemHeight: (_r = origenDestino === null || origenDestino === void 0 ? void 0 : origenDestino.custom) === null || _r === void 0 ? void 0 : _r.fields["itemHeight"], itemLength: (_s = origenDestino === null || origenDestino === void 0 ? void 0 : origenDestino.custom) === null || _s === void 0 ? void 0 : _s.fields["itemLength"], itemVolumen: (_t = origenDestino === null || origenDestino === void 0 ? void 0 : origenDestino.custom) === null || _t === void 0 ? void 0 : _t.fields["itemVolumen"], itemWeight: (_u = origenDestino === null || origenDestino === void 0 ? void 0 : origenDestino.custom) === null || _u === void 0 ? void 0 : _u.fields["itemWeight"], itemWidth: (_v = origenDestino === null || origenDestino === void 0 ? void 0 : origenDestino.custom) === null || _v === void 0 ? void 0 : _v.fields["itemWidth"], Recoleccion: (_w = origenDestino === null || origenDestino === void 0 ? void 0 : origenDestino.custom) === null || _w === void 0 ? void 0 : _w.fields["Recoleccion"], address: JSON.parse((_z = (_y = (_x = origenDestino === null || origenDestino === void 0 ? void 0 : origenDestino.custom) === null || _x === void 0 ? void 0 : _x.fields) === null || _y === void 0 ? void 0 : _y["origen-destino"]) !== null && _z !== void 0 ? _z : "{}") }, (0, validity_1.getValidityData)(false, (_0 = origenDestino === null || origenDestino === void 0 ? void 0 : origenDestino.custom) === null || _0 === void 0 ? void 0 : _0.fields["isPudo"])));
         }

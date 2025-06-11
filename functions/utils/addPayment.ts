@@ -1,7 +1,12 @@
 import type { Cart, Customer, Order } from "@commercetools/platform-sdk";
 import { apiRoot } from "../commercetools/client";
 import { ITransactionEvent } from "../interfaces/payment";
-import { IMapGuide, IOrderSelected, PickupPackage, PickupRequest } from "../interfaces/pickupModel";
+import {
+  IMapGuide,
+  IOrderSelected,
+  PickupPackage,
+  PickupRequest,
+} from "../interfaces/pickupModel";
 import { getValidityData } from "./validity";
 import { newPickUp } from "../estafetaAPI/pickup";
 import { WSPurchaseOrder } from "../estafetaAPI/purchaseOrder";
@@ -15,146 +20,182 @@ interface IResponse {
   response: any;
 }
 
-export const addPaymentToOrder = async (body: ITransactionEvent): Promise<IResponse> => {
-  const order = await apiRoot.orders().withId({ ID: body.transaction.order_id }).get().execute()
+export const addPaymentToOrder = async (
+  body: ITransactionEvent,
+): Promise<IResponse> => {
+  const order = await apiRoot
+    .orders()
+    .withId({ ID: body.transaction.order_id })
+    .get()
+    .execute();
 
-  if (!order.statusCode || order.statusCode >= 300) return {
-    message: "Error al encontrar la orden",
-    response: undefined
-  }
+  if (!order.statusCode || order.statusCode >= 300)
+    return {
+      message: "Error al encontrar la orden",
+      response: undefined,
+    };
 
-  const customer = await apiRoot.customers().withId({ ID: order.body.customerId ?? "" }).get().execute()
+  const customer = await apiRoot
+    .customers()
+    .withId({ ID: order.body.customerId ?? "" })
+    .get()
+    .execute();
 
-  if (!customer.statusCode || customer.statusCode >= 300) return {
-    message: "La orden no tiene asignado un customer",
-    response: undefined
-  }
+  if (!customer.statusCode || customer.statusCode >= 300)
+    return {
+      message: "La orden no tiene asignado un customer",
+      response: undefined,
+    };
 
-  const isRecoleccion = order.body.lineItems.some(item => item.variant.attributes?.find(attr => attr.name == "tipo-paquete")?.value["label"] == "RECOLECCION")
+  const isRecoleccion = order.body.lineItems.some(
+    (item) =>
+      item.variant.attributes?.find((attr) => attr.name == "tipo-paquete")
+        ?.value["label"] == "RECOLECCION",
+  );
 
-  let response: any
+  let response: any;
   if (isRecoleccion) {
-    response = await addPaymentToOrdersRecoleccion(body, order.body, customer.body)
+    response = await addPaymentToOrdersRecoleccion(
+      body,
+      order.body,
+      customer.body,
+    );
   } else {
-    response = await addPaymentToOrders(body, order.body, customer.body)
+    response = await addPaymentToOrders(body, order.body, customer.body);
   }
 
   return {
     message: response.message,
-    response
-  }
-}
+    response,
+  };
+};
 
+export const addPaymentToOrdersRecoleccion = async (
+  data: ITransactionEvent,
+  order: Order,
+  customer: Customer,
+) => {
+  let customerCopy = customer;
+  let orderVersion = order.version;
 
-export const addPaymentToOrdersRecoleccion = async (data: ITransactionEvent, order: Order, customer: Customer) => {
-  let customerCopy = customer
-  let orderVersion = order.version
-
-  const createPayment = await apiRoot.payments().post({
-    body: {
-      key: data.transaction.id,
-      interfaceId: data.transaction.id,
-      amountPlanned: {
-        currencyCode: "MXN",
-        centAmount: data.transaction.amount * 100 | 0
-      },
-      paymentMethodInfo: {
-        paymentInterface: "OPENPAY",
-        method: data.transaction.description,
-        name: {
-          "es-MX": data.transaction.description,
-        }
-      },
-      transactions: [
-        {
-          interactionId: data.transaction.id,
-          type: "Charge",
-          amount: {
-            currencyCode: "MXN",
-            centAmount: data.transaction.amount * 100 | 0,
+  const createPayment = await apiRoot
+    .payments()
+    .post({
+      body: {
+        key: data.transaction.id,
+        interfaceId: data.transaction.id,
+        amountPlanned: {
+          currencyCode: "MXN",
+          centAmount: (data.transaction.amount * 100) | 0,
+        },
+        paymentMethodInfo: {
+          paymentInterface: "OPENPAY",
+          method: data.transaction.description,
+          name: {
+            "es-MX": data.transaction.description,
           },
-          state: "Success"
-        }
-      ]
-    }
-  }).execute()
+        },
+        transactions: [
+          {
+            interactionId: data.transaction.id,
+            type: "Charge",
+            amount: {
+              currencyCode: "MXN",
+              centAmount: (data.transaction.amount * 100) | 0,
+            },
+            state: "Success",
+          },
+        ],
+      },
+    })
+    .execute();
 
-  const pickupPackage: PickupPackage[] = []
-  const mapGuide: IMapGuide = {}
+  const pickupPackage: PickupPackage[] = [];
+  const mapGuide: IMapGuide = {};
 
-  const guides: IOrderSelected[] = JSON.parse(order.lineItems[0].custom?.fields["guia"])
-  const date = order.lineItems[0].custom?.fields["adicionales"]
+  const guides: IOrderSelected[] = JSON.parse(
+    order.lineItems[0].custom?.fields["guia"],
+  );
+  const date = order.lineItems[0].custom?.fields["adicionales"];
 
-  const orders = await apiRoot.orders().get({
-    queryArgs: {
-      sort: `createdAt desc`,
-      where: `orderNumber is defined`
-    }
-  }).execute()
+  const orders = await apiRoot
+    .orders()
+    .get({
+      queryArgs: {
+        sort: `createdAt desc`,
+        where: `orderNumber is defined`,
+      },
+    })
+    .execute();
 
-  if (!orders.body.results[0].orderNumber) return
-  const quantityTotalGuides = 0
-  const orderSplit = orders.body.results[0].orderNumber.split('D')
-  let newOrder = `${orderSplit[0]}D${String(parseInt(orderSplit[1]) + 1).padStart(6, "0")}`
+  if (!orders.body.results[0].orderNumber) return;
+  const quantityTotalGuides = 0;
+  const orderSplit = orders.body.results[0].orderNumber.split("D");
+  let newOrder = `${orderSplit[0]}D${String(parseInt(orderSplit[1]) + 1).padStart(6, "0")}`;
 
   const createPurchaseOrder = async (): Promise<any> => {
-    const purchaseOrder = await WSPurchaseOrder(
-      { 
-        order: order, 
-        code: newOrder, 
-        idPaymentService: data.transaction.id, 
-        methodName: "Openpay", 
-        customer, 
-        quantityTotalGuides, 
-        infoPayment: {
-          typePayment: "",
-          bankTypeName: "",
-          transactionalCode: ""
-        }
-      })
-    debugger
+    const purchaseOrder = await WSPurchaseOrder({
+      order: order,
+      code: newOrder,
+      idPaymentService: data.transaction.id,
+      methodName: "Openpay",
+      customer,
+      quantityTotalGuides,
+      infoPayment: {
+        typePayment: "",
+        bankTypeName: "",
+        transactionalCode: "",
+      },
+    });
+    debugger;
     if (purchaseOrder.result.Code > 0) {
       if (purchaseOrder.result.Description.includes("REPEATED_TICKET")) {
-        const orderSplit = newOrder.split('D')
-        newOrder = `${orderSplit[0]}D${String(parseInt(orderSplit[1]) + 1).padStart(6, "0")}`
+        const orderSplit = newOrder.split("D");
+        newOrder = `${orderSplit[0]}D${String(parseInt(orderSplit[1]) + 1).padStart(6, "0")}`;
         return await createPurchaseOrder();
       }
       return {
         purchaseOrder: undefined,
-        orderId: '',
-        message: purchaseOrder.result.Description
-      }
+        orderId: "",
+        message: purchaseOrder.result.Description,
+      };
     }
     return {
       purchaseOrder: purchaseOrder,
-      orderId: '',
-      message: purchaseOrder.result.Description
-    }
-  }
+      orderId: "",
+      message: purchaseOrder.result.Description,
+    };
+  };
 
-  const purchaseResult = await createPurchaseOrder()
+  const purchaseResult = await createPurchaseOrder();
 
-  if (!purchaseResult.purchaseOrder) return {
-    message: purchaseResult.message,
-    orderId: "",
-  }
+  if (!purchaseResult.purchaseOrder)
+    return {
+      message: purchaseResult.message,
+      orderId: "",
+    };
 
-  const purchaseOrder = purchaseResult.purchaseOrder
-  const codes = purchaseOrder.resultPurchaseOrder
+  const purchaseOrder = purchaseResult.purchaseOrder;
+  const codes = purchaseOrder.resultPurchaseOrder;
 
   for (const guide of guides) {
     // const guide = items.custom?.fields["guia"]
     // const QR = items.custom?.fields["folio_md5"]
     // date = items.custom?.fields["adicionales"]
-    const orden = await apiRoot.orders().withId({ ID: guide.orderId }).get().execute()
-    const product = orden.body.lineItems.find(item => item.id == guide.id)
+    const orden = await apiRoot
+      .orders()
+      .withId({ ID: guide.orderId })
+      .get()
+      .execute();
+    const product = orden.body.lineItems.find((item) => item.id == guide.id);
     if (!mapGuide[order.lineItems[0].id]) {
       mapGuide[order.lineItems[0].id] = [];
     }
     mapGuide[order.lineItems[0].id].push({
       guide: guide.guia,
       QR: guide.qr,
-      isItemDimensionsExceeded: product?.custom?.fields["isItemDimensionsExceeded"],
+      isItemDimensionsExceeded:
+        product?.custom?.fields["isItemDimensionsExceeded"],
       isItemWeightExceeded: product?.custom?.fields["isItemWeightExceeded"],
       isPackage: product?.custom?.fields["isPackage"],
       isPudo: product?.custom?.fields["isPudo"],
@@ -166,27 +207,32 @@ export const addPaymentToOrdersRecoleccion = async (data: ITransactionEvent, ord
       Recoleccion: product?.custom?.fields["Recoleccion"],
       address: guide.address,
       servicio: guide.typeGuide,
-      ...getValidityData(true)
-    })
+      ...getValidityData(true),
+    });
 
-    const servicio = JSON.parse(orden.body.custom?.fields["services"])
-    servicio[guide.id].guides = servicio[guide.id].guides.filter((item: any) => item.guide != guide.guia)
+    const servicio = JSON.parse(orden.body.custom?.fields["services"]);
+    servicio[guide.id].guides = servicio[guide.id].guides.filter(
+      (item: any) => item.guide != guide.guia,
+    );
 
     //Actualizamos la orden
 
-    await apiRoot.orders().withId({ ID: guide.orderId }).post({
-      body: {
-        version: orden.body.version,
-        actions: [
-          {
-            action: "setCustomField",
-            name: "services",
-            value: JSON.stringify(servicio)
-          }
-        ]
-      }
-    }).execute()
-
+    await apiRoot
+      .orders()
+      .withId({ ID: guide.orderId })
+      .post({
+        body: {
+          version: orden.body.version,
+          actions: [
+            {
+              action: "setCustomField",
+              name: "services",
+              value: JSON.stringify(servicio),
+            },
+          ],
+        },
+      })
+      .execute();
 
     const packagesItems: PickupPackage = {
       PackageType: "PKG",
@@ -195,14 +241,17 @@ export const addPaymentToOrdersRecoleccion = async (data: ITransactionEvent, ord
       Height: 40,
       Weight: 8,
       Quantity: 300,
-      Description: "PAQUETES"
-    }
-    pickupPackage.push(packagesItems)
+      Description: "PAQUETES",
+    };
+    pickupPackage.push(packagesItems);
   }
 
   const newPickUpModel: PickupRequest = {
     AccountNumber: "5909118",
-    RequesterName: order.shippingAddress?.firstName ?? "" + order.shippingAddress?.lastName ?? "",
+    RequesterName:
+      order.shippingAddress?.firstName ??
+      "" + order.shippingAddress?.lastName ??
+      "",
     RequesterEmail: order.shippingAddress?.email ?? "",
     PickupType: "MP",
     PickupDayPart: "PM",
@@ -221,21 +270,23 @@ export const addPaymentToOrdersRecoleccion = async (data: ITransactionEvent, ord
       ReferenceData: order.shippingAddress?.additionalAddressInfo ?? "",
     },
     PickupAlert_Primary: {
-      Name: order.shippingAddress?.firstName ?? "" + order.shippingAddress?.lastName ?? "",
+      Name:
+        order.shippingAddress?.firstName ??
+        "" + order.shippingAddress?.lastName ??
+        "",
       EmailAddress: order.shippingAddress?.email ?? "",
       PhoneNumber: order.shippingAddress?.phone ?? "",
     },
-    PickupPackageList: pickupPackage
-  }
-  const requestPickup = await newPickUp(newPickUpModel)
+    PickupPackageList: pickupPackage,
+  };
+  const requestPickup = await newPickUp(newPickUpModel);
   if (!requestPickup.Success) {
     return {
       orderId: "",
-      message: requestPickup.ErrorList.join(",")
-      ,
+      message: requestPickup.ErrorList.join(","),
       isRecoleccion: false,
-      isUso: false
-    }
+      isUso: false,
+    };
   }
 
   /*
@@ -323,233 +374,282 @@ export const addPaymentToOrdersRecoleccion = async (data: ITransactionEvent, ord
     }
   }
   */
-  const addPaymentToOrder = await apiRoot.orders().withId({ ID: order.id }).post({
-    body: {
-      version: order.version,
-      actions: [
-        {
-          action: "addPayment",
-          payment: {
-            id: createPayment.body.id,
-            typeId: "payment"
-          }
-        },
-        {
-          action: "changePaymentState",
-          paymentState: "Paid"
-        },
-        {
-          action: 'setCustomField',
-          name: 'ordenSap',
-          value: codes[0].OrderSAP
-        }
-      ]
-    }
-  }).execute()
+  const addPaymentToOrder = await apiRoot
+    .orders()
+    .withId({ ID: order.id })
+    .post({
+      body: {
+        version: order.version,
+        actions: [
+          {
+            action: "addPayment",
+            payment: {
+              id: createPayment.body.id,
+              typeId: "payment",
+            },
+          },
+          {
+            action: "changePaymentState",
+            paymentState: "Paid",
+          },
+          {
+            action: "setCustomField",
+            name: "ordenSap",
+            value: codes[0].OrderSAP,
+          },
+        ],
+      },
+    })
+    .execute();
   return {
     orderId: addPaymentToOrder.body.id,
     message: undefined,
     isRecoleccion: false,
-    isUso: false
-  }
-}
+    isUso: false,
+  };
+};
 
-export const addPaymentToOrders = async (data: ITransactionEvent, order: Order, customer: Customer) => {
-  const loggerChild = logger.child({ requestId: data.transaction.id })
-  loggerChild.info(JSON.stringify(data))
+export const addPaymentToOrders = async (
+  data: ITransactionEvent,
+  order: Order,
+  customer: Customer,
+) => {
+  const loggerChild = logger.child({ requestId: data.transaction.id });
+  loggerChild.info(JSON.stringify(data));
   try {
-    const quantityTotalGuides = 0
+    const quantityTotalGuides = 0;
 
-
-    const orders = await apiRoot.orders().get({
-      queryArgs: {
-        sort: `createdAt desc`,
-        where: `orderNumber is defined`
-      }
-    }).execute()
-
-    if (!orders.body.results[0].orderNumber) return
-    const orderSplit = orders.body.results[0].orderNumber.split('D')
-    let newOrder = `${orderSplit[0]}D${String(parseInt(orderSplit[1]) + 1).padStart(6, "0")}`
-    loggerChild.info("Pago registrado en ct")
-    const createPayment = await apiRoot.payments().post({
-      body: {
-        key: data.transaction.id,
-        interfaceId: data.transaction.id,
-        amountPlanned: {
-          currencyCode: "MXN",
-          centAmount: data.transaction.amount * 100 | 0
+    const orders = await apiRoot
+      .orders()
+      .get({
+        queryArgs: {
+          sort: `createdAt desc`,
+          where: `orderNumber is defined`,
         },
-        paymentMethodInfo: {
-          paymentInterface: "OPENPAY",
-          method: data.transaction.description,
-          name: {
-            "es-MX": data.transaction.description
-          }
-        },
-        transactions: [
-          {
-            interactionId: data.transaction.id,
-            type: "Charge",
-            amount: {
-              currencyCode: "MXN",
-              centAmount: data.transaction.amount * 100 | 0,
+      })
+      .execute();
+
+    if (!orders.body.results[0].orderNumber) return;
+    const orderSplit = orders.body.results[0].orderNumber.split("D");
+    let newOrder = `${orderSplit[0]}D${String(parseInt(orderSplit[1]) + 1).padStart(6, "0")}`;
+    loggerChild.info("Pago registrado en ct");
+    const createPayment = await apiRoot
+      .payments()
+      .post({
+        body: {
+          key: data.transaction.id,
+          interfaceId: data.transaction.id,
+          amountPlanned: {
+            currencyCode: "MXN",
+            centAmount: (data.transaction.amount * 100) | 0,
+          },
+          paymentMethodInfo: {
+            paymentInterface: "OPENPAY",
+            method: data.transaction.description,
+            name: {
+              "es-MX": data.transaction.description,
             },
-            state: "Success"
-          }
-        ]
-      }
-    }).execute()
+          },
+          transactions: [
+            {
+              interactionId: data.transaction.id,
+              type: "Charge",
+              amount: {
+                currencyCode: "MXN",
+                centAmount: (data.transaction.amount * 100) | 0,
+              },
+              state: "Success",
+            },
+          ],
+        },
+      })
+      .execute();
 
     const createPurchaseOrder = async (): Promise<any> => {
-      const purchaseOrder = await WSPurchaseOrder(
-        { 
-          order: order, 
-          code: newOrder, 
-          idPaymentService: data.transaction.id, 
-          methodName: "Openpay", 
-          customer, 
-          quantityTotalGuides, 
-          infoPayment: {
-            typePayment: data.transaction.description == "Transferencia" ? "TE" : "Cash",
-            bankTypeName: data.transaction.description == "Transferencia" ? "TE" : "Cash",
-            transactionalCode: data.transaction.description == "Transferencia" ? "TRANSFE-03" : "$$$$$$$-01"
-          },
-          logger: loggerChild 
-        }
-      )
+      const purchaseOrder = await WSPurchaseOrder({
+        order: order,
+        code: newOrder,
+        idPaymentService: data.transaction.id,
+        methodName: "Openpay",
+        customer,
+        quantityTotalGuides,
+        infoPayment: {
+          typePayment:
+            data.transaction.description == "Transferencia" ? "TE" : "Cash",
+          bankTypeName:
+            data.transaction.description == "Transferencia" ? "TE" : "Cash",
+          transactionalCode:
+            data.transaction.description == "Transferencia"
+              ? "TRANSFE-03"
+              : "$$$$$$$-01",
+        },
+        logger: loggerChild,
+      });
       if (purchaseOrder.result.Code > 0) {
         if (purchaseOrder.result.Description.includes("REPEATED_TICKET")) {
-          const orderSplit = newOrder.split('D')
-          newOrder = `${orderSplit[0]}D${String(parseInt(orderSplit[1]) + 1).padStart(6, "0")}`
+          const orderSplit = newOrder.split("D");
+          newOrder = `${orderSplit[0]}D${String(parseInt(orderSplit[1]) + 1).padStart(6, "0")}`;
           return await createPurchaseOrder();
         }
         return {
           purchaseOrder: undefined,
-          orderId: '',
-          message: purchaseOrder.result.Description
-        }
+          orderId: "",
+          message: purchaseOrder.result.Description,
+        };
       }
       return {
         purchaseOrder: purchaseOrder,
-        orderId: '',
-        message: purchaseOrder.result.Description
-      }
-    }
-
-    const purchaseResult = await createPurchaseOrder()
-
-    if (!purchaseResult.purchaseOrder) return {
-      message: purchaseResult.message,
-      orderId: "",
-    }
-    const purchaseOrder = purchaseResult.purchaseOrder
-
-    const codes = purchaseOrder.resultPurchaseOrder
-    let mapGuides: any
-    if(codes?.[0]?.WaybillList?.length <= 0){
-      return {
         orderId: "",
-        message: "Campo waybillist is empty",
-        isUso: false,
-        isRecoleccion: false,
-      }
-    } 
+        message: purchaseOrder.result.Description,
+      };
+    };
+
+    const purchaseResult = await createPurchaseOrder();
+
+    if (!purchaseResult.purchaseOrder)
+      return {
+        message: purchaseResult.message,
+        orderId: "",
+      };
+    const purchaseOrder = purchaseResult.purchaseOrder;
+
+    const codes = purchaseOrder.resultPurchaseOrder;
+    let mapGuides: any;
 
     if (codes?.[0]?.WaybillList?.length > 0) {
-      const folios = await CreateFolios(codes?.[0]?.WaybillList?.length, loggerChild)
-      loggerChild.info(`Folios creados`)
-      mapGuides = createMapGuide(codes, order, folios.data.folioResult)
+      const folios = await CreateFolios(
+        codes?.[0]?.WaybillList?.length,
+        loggerChild,
+      );
+      loggerChild.info(`Folios creados`);
+      mapGuides = createMapGuide(codes, order, folios.data.folioResult);
     }
 
-    const userUpdated = await apiRoot.customers().get({
-      queryArgs: {
-        where: `email in ("${customer.email}")`
-      }
-    }).execute()
-    let versionCustomer = userUpdated.body.results[0].version
-    let objectCustomer = userUpdated.body.results[0]
+    const userUpdated = await apiRoot
+      .customers()
+      .get({
+        queryArgs: {
+          where: `email in ("${customer.email}")`,
+        },
+      })
+      .execute();
+    let versionCustomer = userUpdated.body.results[0].version;
+    let objectCustomer = userUpdated.body.results[0];
     //Esto es para agregar items
     for (const line of order.lineItems) {
-      const attrType = line.variant.attributes?.find(item => item.name == "tipo-paquete")?.value["label"]
-      if (attrType != "UNIZONA") continue
-      const attrQuantity = line.variant.attributes?.find(item => item.name == "quantity-items")?.value ?? 1
-      const attrService = line.variant.attributes?.find(item => item.name == "servicio")?.value["label"]
-      debugger
+      const attrType = line.variant.attributes?.find(
+        (item) => item.name == "tipo-paquete",
+      )?.value["label"];
+      if (attrType != "UNIZONA") continue;
+      const attrQuantity =
+        line.variant.attributes?.find((item) => item.name == "quantity-items")
+          ?.value ?? 1;
+      const attrService = line.variant.attributes?.find(
+        (item) => item.name == "servicio",
+      )?.value["label"];
+      debugger;
       if (attrService == "DIA SIGUIENTE") {
-        const quantityGuideAvailables = objectCustomer.custom?.fields?.["quantity-guides-dia-siguiente"] ?? 0
-        const updateQuantityUser = await apiRoot.customers().withId({ ID: customer.id }).post({
-          body: {
-            version: versionCustomer,
-            actions: [
-              {
-                action: "setCustomField",
-                name: "quantity-guides-dia-siguiente",
-                value: quantityGuideAvailables + (attrQuantity * line.quantity)
-              }
-            ]
-          }
-        }).execute()
-        versionCustomer = updateQuantityUser.body.version
-        objectCustomer = updateQuantityUser.body
-      }
-      else if (attrService == "TERRESTRE") {
-        const quantityGuideAvailables = objectCustomer.custom?.fields?.["quantity-guides-terrestres"] ?? 0
-        const updateQuantityUser = await apiRoot.customers().withId({ ID: customer.id }).post({
-          body: {
-            version: versionCustomer,
-            actions: [
-              {
-                action: "setCustomField",
-                name: "quantity-guides-terrestres",
-                value: quantityGuideAvailables + (attrQuantity * line.quantity)
-              }
-            ]
-          }
-        }).execute()
-        versionCustomer = updateQuantityUser.body.version
-        objectCustomer = updateQuantityUser.body
-      }
-      else if (attrService == "DOS DIAS") {
-        const quantityGuideAvailables = objectCustomer.custom?.fields?.["quantity-guides-dos-dias"] ?? 0
-        const updateQuantityUser = await apiRoot.customers().withId({ ID: customer.id }).post({
-          body: {
-            version: versionCustomer,
-            actions: [
-              {
-                action: "setCustomField",
-                name: "quantity-guides-dos-dias",
-                value: quantityGuideAvailables + (attrQuantity * line.quantity)
-              }
-            ]
-          }
-        }).execute()
-        versionCustomer = updateQuantityUser.body.version
-        objectCustomer = updateQuantityUser.body
-      }
-
-      else if (attrService == "12:30") {
-        const quantityGuideAvailables = objectCustomer.custom?.fields?.["quantity-guides-doce-treinta"] ?? 0
-        const updateQuantityUser = await apiRoot.customers().withId({ ID: customer.id }).post({
-          body: {
-            version: versionCustomer,
-            actions: [
-              {
-                action: "setCustomField",
-                name: "quantity-guides-doce-treinta",
-                value: quantityGuideAvailables + (attrQuantity * line.quantity)
-              }
-            ]
-          }
-        }).execute()
-        versionCustomer = updateQuantityUser.body.version
-        objectCustomer = updateQuantityUser.body
+        const quantityGuideAvailables =
+          objectCustomer.custom?.fields?.["quantity-guides-dia-siguiente"] ?? 0;
+        const updateQuantityUser = await apiRoot
+          .customers()
+          .withId({ ID: customer.id })
+          .post({
+            body: {
+              version: versionCustomer,
+              actions: [
+                {
+                  action: "setCustomField",
+                  name: "quantity-guides-dia-siguiente",
+                  value: quantityGuideAvailables + attrQuantity * line.quantity,
+                },
+              ],
+            },
+          })
+          .execute();
+        versionCustomer = updateQuantityUser.body.version;
+        objectCustomer = updateQuantityUser.body;
+      } else if (attrService == "TERRESTRE") {
+        const quantityGuideAvailables =
+          objectCustomer.custom?.fields?.["quantity-guides-terrestres"] ?? 0;
+        const updateQuantityUser = await apiRoot
+          .customers()
+          .withId({ ID: customer.id })
+          .post({
+            body: {
+              version: versionCustomer,
+              actions: [
+                {
+                  action: "setCustomField",
+                  name: "quantity-guides-terrestres",
+                  value: quantityGuideAvailables + attrQuantity * line.quantity,
+                },
+              ],
+            },
+          })
+          .execute();
+        versionCustomer = updateQuantityUser.body.version;
+        objectCustomer = updateQuantityUser.body;
+      } else if (attrService == "DOS DIAS") {
+        const quantityGuideAvailables =
+          objectCustomer.custom?.fields?.["quantity-guides-dos-dias"] ?? 0;
+        const updateQuantityUser = await apiRoot
+          .customers()
+          .withId({ ID: customer.id })
+          .post({
+            body: {
+              version: versionCustomer,
+              actions: [
+                {
+                  action: "setCustomField",
+                  name: "quantity-guides-dos-dias",
+                  value: quantityGuideAvailables + attrQuantity * line.quantity,
+                },
+              ],
+            },
+          })
+          .execute();
+        versionCustomer = updateQuantityUser.body.version;
+        objectCustomer = updateQuantityUser.body;
+      } else if (attrService == "12:30") {
+        const quantityGuideAvailables =
+          objectCustomer.custom?.fields?.["quantity-guides-doce-treinta"] ?? 0;
+        const updateQuantityUser = await apiRoot
+          .customers()
+          .withId({ ID: customer.id })
+          .post({
+            body: {
+              version: versionCustomer,
+              actions: [
+                {
+                  action: "setCustomField",
+                  name: "quantity-guides-doce-treinta",
+                  value: quantityGuideAvailables + attrQuantity * line.quantity,
+                },
+              ],
+            },
+          })
+          .execute();
+        versionCustomer = updateQuantityUser.body.version;
+        objectCustomer = updateQuantityUser.body;
       }
     }
 
-    const isZONA = order.lineItems.some(item => item.variant.attributes?.find(attr => attr.name == "tipo-paquete")?.value["label"] == "ZONA")
-    const isUNIZONA = order.lineItems.some(item => item.variant.attributes?.find(attr => attr.name == "tipo-paquete")?.value["label"] == "UNIZONA")
-    const isInternational = order.lineItems.some(item => item.variant.attributes?.find(attr => attr.name == "tipo-paquete")?.value["label"] == "ZONA INTERNACIONAL")
+    const isZONA = order.lineItems.some(
+      (item) =>
+        item.variant.attributes?.find((attr) => attr.name == "tipo-paquete")
+          ?.value["label"] == "ZONA",
+    );
+    const isUNIZONA = order.lineItems.some(
+      (item) =>
+        item.variant.attributes?.find((attr) => attr.name == "tipo-paquete")
+          ?.value["label"] == "UNIZONA",
+    );
+    const isInternational = order.lineItems.some(
+      (item) =>
+        item.variant.attributes?.find((attr) => attr.name == "tipo-paquete")
+          ?.value["label"] == "ZONA INTERNACIONAL",
+    );
 
     if (isUNIZONA || isZONA || isInternational) {
       const mapToObject = (map: Map<any, any>) => {
@@ -562,109 +662,122 @@ export const addPaymentToOrders = async (data: ITransactionEvent, order: Order, 
 
       const plainObjectGuides = mapToObject(mapGuides);
 
-      const addPaymentToOrder = await apiRoot.orders().withId({ ID: order.id }).post({
-        body: {
-          version: order.version,
-          actions: [
-            {
-              action: "addPayment",
-              payment: {
-                id: createPayment.body.id,
-                typeId: "payment"
-              }
-            },
-            {
-              action: "changePaymentState",
-              paymentState: "Paid"
-            },
-            {
-              action: "setCustomField",
-              name: "services",
-              value: JSON.stringify(plainObjectGuides)
-            },
-            {
-              action: "setCustomField",
-              name: "ordenSap",
-              value: codes[0].OrderSAP,
-            },
-            {
-              action: "setCustomField",
-              name: "invoice",
-              value: "No Facturada",
-            },
-            {
-              action: "setOrderNumber",
-              orderNumber: newOrder
-            },
-            {
-              action: "setCustomField",
-              name: "isCombo",
-              value: isUNIZONA ? true : false
-            }
-          ]
-        }
-      }).execute()
+      const addPaymentToOrder = await apiRoot
+        .orders()
+        .withId({ ID: order.id })
+        .post({
+          body: {
+            version: order.version,
+            actions: [
+              {
+                action: "addPayment",
+                payment: {
+                  id: createPayment.body.id,
+                  typeId: "payment",
+                },
+              },
+              {
+                action: "changePaymentState",
+                paymentState: "Paid",
+              },
+              {
+                action: "setCustomField",
+                name: "services",
+                value: JSON.stringify(plainObjectGuides),
+              },
+              {
+                action: "setCustomField",
+                name: "ordenSap",
+                value: codes[0].OrderSAP,
+              },
+              {
+                action: "setCustomField",
+                name: "invoice",
+                value: "No Facturada",
+              },
+              {
+                action: "setOrderNumber",
+                orderNumber: newOrder,
+              },
+              {
+                action: "setCustomField",
+                name: "isCombo",
+                value: isUNIZONA ? true : false,
+              },
+            ],
+          },
+        })
+        .execute();
 
       return {
         orderId: addPaymentToOrder.body.id,
         message: "",
         isUso: false,
         isRecoleccion: false,
-      }
+      };
     } else {
-      const asignarGuias = await asignGuideToOrder(customer, order)
-      const addPaymentToOrder = await apiRoot.orders().withId({ ID: order.id }).post({
-        body: {
-          version: order.version,
-          actions: [
-            {
-              action: "addPayment",
-              payment: {
-                id: createPayment.body.id,
-                typeId: "payment"
-              }
-            },
-            {
-              action: "changePaymentState",
-              paymentState: "Paid"
-            },
-            {
-              action: "setCustomField",
-              name: "services",
-              value: JSON.stringify(asignarGuias)
-            },
-            {
-              action: "setCustomField",
-              name: "ordenSap",
-              value: codes[0].OrderSAP,
-            },
-            {
-              action: "setCustomField",
-              name: "invoice",
-              value: "No Facturada",
-            },
-            {
-              action: "setOrderNumber",
-              orderNumber: newOrder
-            }
-          ]
-        }
-      }).execute()
-      loggerChild.info(`Orden creada: ${addPaymentToOrder?.body?.orderNumber ?? ""}`)
+      const asignarGuias = await asignGuideToOrder(customer, order);
+      const addPaymentToOrder = await apiRoot
+        .orders()
+        .withId({ ID: order.id })
+        .post({
+          body: {
+            version: order.version,
+            actions: [
+              {
+                action: "addPayment",
+                payment: {
+                  id: createPayment.body.id,
+                  typeId: "payment",
+                },
+              },
+              {
+                action: "changePaymentState",
+                paymentState: "Paid",
+              },
+              {
+                action: "setCustomField",
+                name: "services",
+                value: JSON.stringify(asignarGuias),
+              },
+              {
+                action: "setCustomField",
+                name: "ordenSap",
+                value: codes[0].OrderSAP,
+              },
+              {
+                action: "setCustomField",
+                name: "invoice",
+                value: "No Facturada",
+              },
+              {
+                action: "setOrderNumber",
+                orderNumber: newOrder,
+              },
+            ],
+          },
+        })
+        .execute();
+      loggerChild.info(
+        `Orden creada: ${addPaymentToOrder?.body?.orderNumber ?? ""}`,
+      );
       return {
         orderId: addPaymentToOrder.body.id,
         message: "",
         isUso: false,
         isRecoleccion: false,
-      }
+      };
     }
   } catch (err: any) {
-    loggerChild.error(err)
+    loggerChild.error(err);
   }
-}
+};
 
-
-export const createMapGuide = (guides: PurchaseOrder[], order: Order | Cart, folios: any[]) => {
+export const createMapGuide = (
+  guides: PurchaseOrder[],
+  order: Order | Cart,
+  folios: any[],
+) => {
   const lineGuides = new Map<string, ILineGuide>();
   const typeService = new Map<string, string>();
 
@@ -674,8 +787,12 @@ export const createMapGuide = (guides: PurchaseOrder[], order: Order | Cart, fol
   for (const line of order.lineItems) {
     if (line.price.value.centAmount <= 0) continue;
 
-    const type = line?.variant?.attributes?.find(attr => attr.name == "tipo-paquete")?.value["label"];
-    const services = line?.variant?.attributes?.find(attr => attr.name == "servicio")?.value["label"];
+    const type = line?.variant?.attributes?.find(
+      (attr) => attr.name == "tipo-paquete",
+    )?.value["label"];
+    const services = line?.variant?.attributes?.find(
+      (attr) => attr.name == "servicio",
+    )?.value["label"];
 
     if (!type) continue;
 
@@ -705,22 +822,24 @@ export const createMapGuide = (guides: PurchaseOrder[], order: Order | Cart, fol
     } else if (index == "H") {
       id = typeService.get("12:30");
     } else if (index == "G") {
-      id = typeService.get("USA ECONOMICO PREPAGADO")
+      id = typeService.get("USA ECONOMICO PREPAGADO");
     } else {
-      id = typeService.get("SERVICIO GLOBAL EXPRESS PREPAGADO")
+      id = typeService.get("SERVICIO GLOBAL EXPRESS PREPAGADO");
     }
 
     if (id) {
       const lineGuide = lineGuides.get(id);
       if (!lineGuide) continue;
-      const origenDestino = order.lineItems.find(item => item.id == id)
+      const origenDestino = order.lineItems.find((item) => item.id == id);
       // Asegurarse de que guides esté inicializado antes de hacer push
       lineGuide.guides?.push({
         guide: guia.Code,
         trackingCode: guia.TrackingCode,
         QR: folios?.[0]?.folioMD5 ? `Q3SQR${folios[0].folioMD5}` : "0",
-        isItemDimensionsExceeded: origenDestino?.custom?.fields["isItemDimensionsExceeded"],
-        isItemWeightExceeded: origenDestino?.custom?.fields["isItemWeightExceeded"],
+        isItemDimensionsExceeded:
+          origenDestino?.custom?.fields["isItemDimensionsExceeded"],
+        isItemWeightExceeded:
+          origenDestino?.custom?.fields["isItemWeightExceeded"],
         isPackage: origenDestino?.custom?.fields["isPackage"],
         isPudo: origenDestino?.custom?.fields["isPudo"],
         itemHeight: origenDestino?.custom?.fields["itemHeight"],
@@ -729,8 +848,10 @@ export const createMapGuide = (guides: PurchaseOrder[], order: Order | Cart, fol
         itemWeight: origenDestino?.custom?.fields["itemWeight"],
         itemWidth: origenDestino?.custom?.fields["itemWidth"],
         Recoleccion: origenDestino?.custom?.fields["Recoleccion"],
-        address: JSON.parse(origenDestino?.custom?.fields?.["origen-destino"] ?? "{}"),
-        ...getValidityData(false, origenDestino?.custom?.fields["isPudo"])
+        address: JSON.parse(
+          origenDestino?.custom?.fields?.["origen-destino"] ?? "{}",
+        ),
+        ...getValidityData(false, origenDestino?.custom?.fields["isPudo"]),
       });
     }
 
@@ -739,4 +860,4 @@ export const createMapGuide = (guides: PurchaseOrder[], order: Order | Cart, fol
     }
   }
   return lineGuides;
-}
+};

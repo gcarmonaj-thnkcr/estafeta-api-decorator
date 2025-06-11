@@ -23,7 +23,6 @@ const getChargeByTransactionId = (transactionId) => __awaiter(void 0, void 0, vo
                 "Authorization": `Basic ${token}`
             }
         });
-        console.log("Openpay token:", request);
         if (request.status >= 300)
             return request.data.description;
         return request.data;
