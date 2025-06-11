@@ -414,7 +414,9 @@ export const addPaymentToOrders = async (
   order: Order,
   customer: Customer,
 ) => {
-  const loggerChild = logger.child({ requestId: data.transaction.id });
+  const loggerChild = logger.child({
+    requestId: data?.transaction?.id ?? data?.transaction.authorization,
+  });
   loggerChild.info(JSON.stringify(data));
   try {
     const quantityTotalGuides = 0;
@@ -437,8 +439,8 @@ export const addPaymentToOrders = async (
       .payments()
       .post({
         body: {
-          key: data.transaction.id,
-          interfaceId: data.transaction.id,
+          key: data?.transaction?.id ?? data?.transaction.authorization,
+          interfaceId: data?.transaction?.id ?? data?.transaction.authorization,
           amountPlanned: {
             currencyCode: "MXN",
             centAmount: (data.transaction.amount * 100) | 0,
@@ -452,7 +454,8 @@ export const addPaymentToOrders = async (
           },
           transactions: [
             {
-              interactionId: data.transaction.id,
+              interactionId:
+                data?.transaction?.id ?? data?.transaction.authorization,
               type: "Charge",
               amount: {
                 currencyCode: "MXN",
@@ -469,7 +472,8 @@ export const addPaymentToOrders = async (
       const purchaseOrder = await WSPurchaseOrder({
         order: order,
         code: newOrder,
-        idPaymentService: data.transaction.id,
+        idPaymentService:
+          data?.transaction?.id ?? data?.transaction.authorization,
         methodName: "Openpay",
         customer,
         quantityTotalGuides,

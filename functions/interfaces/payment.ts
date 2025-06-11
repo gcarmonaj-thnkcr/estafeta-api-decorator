@@ -1,6 +1,6 @@
 export interface ITransactionEvent {
   type: string;
-  transaction: ITrasactionBody
+  transaction: ITrasactionBody;
 }
 
 interface ITrasactionBody {
@@ -11,8 +11,8 @@ interface ITrasactionBody {
   description: string;
   order_id: string;
   amount: number;
-  payment_method: IPaymentMethod  
-  method: string
+  payment_method: IPaymentMethod;
+  method: string;
 }
 
 interface IPaymentMethod {

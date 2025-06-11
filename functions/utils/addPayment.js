@@ -351,8 +351,10 @@ const addPaymentToOrdersRecoleccion = (data, order, customer) => __awaiter(void 
 });
 exports.addPaymentToOrdersRecoleccion = addPaymentToOrdersRecoleccion;
 const addPaymentToOrders = (data, order, customer) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _0;
-    const loggerChild = logger_1.logger.child({ requestId: data.transaction.id });
+    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _0, _1, _2, _3, _4, _5, _6, _7, _8;
+    const loggerChild = logger_1.logger.child({
+        requestId: (_b = (_a = data === null || data === void 0 ? void 0 : data.transaction) === null || _a === void 0 ? void 0 : _a.id) !== null && _b !== void 0 ? _b : data === null || data === void 0 ? void 0 : data.transaction.authorization,
+    });
     loggerChild.info(JSON.stringify(data));
     try {
         const quantityTotalGuides = 0;
@@ -374,8 +376,8 @@ const addPaymentToOrders = (data, order, customer) => __awaiter(void 0, void 0, 
             .payments()
             .post({
             body: {
-                key: data.transaction.id,
-                interfaceId: data.transaction.id,
+                key: (_d = (_c = data === null || data === void 0 ? void 0 : data.transaction) === null || _c === void 0 ? void 0 : _c.id) !== null && _d !== void 0 ? _d : data === null || data === void 0 ? void 0 : data.transaction.authorization,
+                interfaceId: (_f = (_e = data === null || data === void 0 ? void 0 : data.transaction) === null || _e === void 0 ? void 0 : _e.id) !== null && _f !== void 0 ? _f : data === null || data === void 0 ? void 0 : data.transaction.authorization,
                 amountPlanned: {
                     currencyCode: "MXN",
                     centAmount: (data.transaction.amount * 100) | 0,
@@ -389,7 +391,7 @@ const addPaymentToOrders = (data, order, customer) => __awaiter(void 0, void 0, 
                 },
                 transactions: [
                     {
-                        interactionId: data.transaction.id,
+                        interactionId: (_h = (_g = data === null || data === void 0 ? void 0 : data.transaction) === null || _g === void 0 ? void 0 : _g.id) !== null && _h !== void 0 ? _h : data === null || data === void 0 ? void 0 : data.transaction.authorization,
                         type: "Charge",
                         amount: {
                             currencyCode: "MXN",
@@ -402,10 +404,11 @@ const addPaymentToOrders = (data, order, customer) => __awaiter(void 0, void 0, 
         })
             .execute();
         const createPurchaseOrder = () => __awaiter(void 0, void 0, void 0, function* () {
+            var _a, _b;
             const purchaseOrder = yield (0, purchaseOrder_1.WSPurchaseOrder)({
                 order: order,
                 code: newOrder,
-                idPaymentService: data.transaction.id,
+                idPaymentService: (_b = (_a = data === null || data === void 0 ? void 0 : data.transaction) === null || _a === void 0 ? void 0 : _a.id) !== null && _b !== void 0 ? _b : data === null || data === void 0 ? void 0 : data.transaction.authorization,
                 methodName: "Openpay",
                 customer,
                 quantityTotalGuides,
@@ -445,8 +448,8 @@ const addPaymentToOrders = (data, order, customer) => __awaiter(void 0, void 0, 
         const purchaseOrder = purchaseResult.purchaseOrder;
         const codes = purchaseOrder.resultPurchaseOrder;
         let mapGuides;
-        if (((_b = (_a = codes === null || codes === void 0 ? void 0 : codes[0]) === null || _a === void 0 ? void 0 : _a.WaybillList) === null || _b === void 0 ? void 0 : _b.length) > 0) {
-            const folios = yield (0, folios_1.CreateFolios)((_d = (_c = codes === null || codes === void 0 ? void 0 : codes[0]) === null || _c === void 0 ? void 0 : _c.WaybillList) === null || _d === void 0 ? void 0 : _d.length, loggerChild);
+        if (((_k = (_j = codes === null || codes === void 0 ? void 0 : codes[0]) === null || _j === void 0 ? void 0 : _j.WaybillList) === null || _k === void 0 ? void 0 : _k.length) > 0) {
+            const folios = yield (0, folios_1.CreateFolios)((_m = (_l = codes === null || codes === void 0 ? void 0 : codes[0]) === null || _l === void 0 ? void 0 : _l.WaybillList) === null || _m === void 0 ? void 0 : _m.length, loggerChild);
             loggerChild.info(`Folios creados`);
             mapGuides = (0, exports.createMapGuide)(codes, order, folios.data.folioResult);
         }
@@ -462,14 +465,14 @@ const addPaymentToOrders = (data, order, customer) => __awaiter(void 0, void 0, 
         let objectCustomer = userUpdated.body.results[0];
         //Esto es para agregar items
         for (const line of order.lineItems) {
-            const attrType = (_f = (_e = line.variant.attributes) === null || _e === void 0 ? void 0 : _e.find((item) => item.name == "tipo-paquete")) === null || _f === void 0 ? void 0 : _f.value["label"];
+            const attrType = (_p = (_o = line.variant.attributes) === null || _o === void 0 ? void 0 : _o.find((item) => item.name == "tipo-paquete")) === null || _p === void 0 ? void 0 : _p.value["label"];
             if (attrType != "UNIZONA")
                 continue;
-            const attrQuantity = (_j = (_h = (_g = line.variant.attributes) === null || _g === void 0 ? void 0 : _g.find((item) => item.name == "quantity-items")) === null || _h === void 0 ? void 0 : _h.value) !== null && _j !== void 0 ? _j : 1;
-            const attrService = (_l = (_k = line.variant.attributes) === null || _k === void 0 ? void 0 : _k.find((item) => item.name == "servicio")) === null || _l === void 0 ? void 0 : _l.value["label"];
+            const attrQuantity = (_s = (_r = (_q = line.variant.attributes) === null || _q === void 0 ? void 0 : _q.find((item) => item.name == "quantity-items")) === null || _r === void 0 ? void 0 : _r.value) !== null && _s !== void 0 ? _s : 1;
+            const attrService = (_u = (_t = line.variant.attributes) === null || _t === void 0 ? void 0 : _t.find((item) => item.name == "servicio")) === null || _u === void 0 ? void 0 : _u.value["label"];
             debugger;
             if (attrService == "DIA SIGUIENTE") {
-                const quantityGuideAvailables = (_p = (_o = (_m = objectCustomer.custom) === null || _m === void 0 ? void 0 : _m.fields) === null || _o === void 0 ? void 0 : _o["quantity-guides-dia-siguiente"]) !== null && _p !== void 0 ? _p : 0;
+                const quantityGuideAvailables = (_x = (_w = (_v = objectCustomer.custom) === null || _v === void 0 ? void 0 : _v.fields) === null || _w === void 0 ? void 0 : _w["quantity-guides-dia-siguiente"]) !== null && _x !== void 0 ? _x : 0;
                 const updateQuantityUser = yield client_1.apiRoot
                     .customers()
                     .withId({ ID: customer.id })
@@ -490,7 +493,7 @@ const addPaymentToOrders = (data, order, customer) => __awaiter(void 0, void 0, 
                 objectCustomer = updateQuantityUser.body;
             }
             else if (attrService == "TERRESTRE") {
-                const quantityGuideAvailables = (_s = (_r = (_q = objectCustomer.custom) === null || _q === void 0 ? void 0 : _q.fields) === null || _r === void 0 ? void 0 : _r["quantity-guides-terrestres"]) !== null && _s !== void 0 ? _s : 0;
+                const quantityGuideAvailables = (_0 = (_z = (_y = objectCustomer.custom) === null || _y === void 0 ? void 0 : _y.fields) === null || _z === void 0 ? void 0 : _z["quantity-guides-terrestres"]) !== null && _0 !== void 0 ? _0 : 0;
                 const updateQuantityUser = yield client_1.apiRoot
                     .customers()
                     .withId({ ID: customer.id })
@@ -511,7 +514,7 @@ const addPaymentToOrders = (data, order, customer) => __awaiter(void 0, void 0, 
                 objectCustomer = updateQuantityUser.body;
             }
             else if (attrService == "DOS DIAS") {
-                const quantityGuideAvailables = (_v = (_u = (_t = objectCustomer.custom) === null || _t === void 0 ? void 0 : _t.fields) === null || _u === void 0 ? void 0 : _u["quantity-guides-dos-dias"]) !== null && _v !== void 0 ? _v : 0;
+                const quantityGuideAvailables = (_3 = (_2 = (_1 = objectCustomer.custom) === null || _1 === void 0 ? void 0 : _1.fields) === null || _2 === void 0 ? void 0 : _2["quantity-guides-dos-dias"]) !== null && _3 !== void 0 ? _3 : 0;
                 const updateQuantityUser = yield client_1.apiRoot
                     .customers()
                     .withId({ ID: customer.id })
@@ -532,7 +535,7 @@ const addPaymentToOrders = (data, order, customer) => __awaiter(void 0, void 0, 
                 objectCustomer = updateQuantityUser.body;
             }
             else if (attrService == "12:30") {
-                const quantityGuideAvailables = (_y = (_x = (_w = objectCustomer.custom) === null || _w === void 0 ? void 0 : _w.fields) === null || _x === void 0 ? void 0 : _x["quantity-guides-doce-treinta"]) !== null && _y !== void 0 ? _y : 0;
+                const quantityGuideAvailables = (_6 = (_5 = (_4 = objectCustomer.custom) === null || _4 === void 0 ? void 0 : _4.fields) === null || _5 === void 0 ? void 0 : _5["quantity-guides-doce-treinta"]) !== null && _6 !== void 0 ? _6 : 0;
                 const updateQuantityUser = yield client_1.apiRoot
                     .customers()
                     .withId({ ID: customer.id })
@@ -670,7 +673,7 @@ const addPaymentToOrders = (data, order, customer) => __awaiter(void 0, void 0, 
                 },
             })
                 .execute();
-            loggerChild.info(`Orden creada: ${(_0 = (_z = addPaymentToOrder === null || addPaymentToOrder === void 0 ? void 0 : addPaymentToOrder.body) === null || _z === void 0 ? void 0 : _z.orderNumber) !== null && _0 !== void 0 ? _0 : ""}`);
+            loggerChild.info(`Orden creada: ${(_8 = (_7 = addPaymentToOrder === null || addPaymentToOrder === void 0 ? void 0 : addPaymentToOrder.body) === null || _7 === void 0 ? void 0 : _7.orderNumber) !== null && _8 !== void 0 ? _8 : ""}`);
             return {
                 orderId: addPaymentToOrder.body.id,
                 message: "",
