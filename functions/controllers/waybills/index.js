@@ -14,15 +14,15 @@ const client_1 = require("../../commercetools/client");
 const customObjectsFunction_1 = require("../../utils/customObjectsFunction");
 const router = (0, express_1.Router)();
 const validateWaybillRequest = (waybillService) => {
-    const isValid = waybillService.every((service) => typeof service.storePortalOrder === 'string' &&
-        typeof service.storeFolioOrder === 'string' &&
-        typeof service.eMailClient === 'string' &&
-        typeof service.serviceWarranty === 'string' &&
-        typeof service.serviceModality === 'string' &&
-        typeof service.waybill === 'string' &&
-        typeof service.statusFolioOrder === 'string' &&
-        typeof service.usedDate === 'string' &&
-        typeof service.IsGenerator === 'boolean');
+    const isValid = waybillService.every((service) => typeof service.storePortalOrder === "string" &&
+        typeof service.storeFolioOrder === "string" &&
+        typeof service.eMailClient === "string" &&
+        typeof service.serviceWarranty === "string" &&
+        typeof service.serviceModality === "string" &&
+        typeof service.waybill === "string" &&
+        typeof service.statusFolioOrder === "string" &&
+        typeof service.usedDate === "string" &&
+        typeof service.IsGenerator === "boolean");
     return isValid;
 };
 router.post("/waybills", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -30,22 +30,26 @@ router.post("/waybills", (req, res) => __awaiter(void 0, void 0, void 0, functio
     const { WaybillService } = req.body;
     const isValid = validateWaybillRequest(WaybillService);
     if (!isValid) {
-        return res.status(400).send({ message: 'Invalid WaybillService format.' });
+        return res.status(400).send({ message: "Invalid WaybillService format." });
     }
     let resulWaylBill = [];
     for (const wayBillItem of WaybillService) {
         console.log(wayBillItem.qr);
-        const order = yield client_1.apiRoot.orders().search().post({
+        const order = yield client_1.apiRoot
+            .orders()
+            .search()
+            .post({
             body: {
                 query: {
                     fullText: {
                         field: "custom.services",
                         value: wayBillItem.qr,
-                        customType: "StringType"
-                    }
-                }
-            }
-        }).execute();
+                        customType: "StringType",
+                    },
+                },
+            },
+        })
+            .execute();
         let searchOrder = {};
         let userId = "";
         let idOrder = "";
@@ -57,14 +61,19 @@ router.post("/waybills", (req, res) => __awaiter(void 0, void 0, void 0, functio
             idOrder = order.order.id;
         }
         else {
-            const getOrder = yield client_1.apiRoot.orders().withId({ ID: order.body.hits[0].id }).get().execute();
+            const getOrder = yield client_1.apiRoot
+                .orders()
+                .withId({ ID: order.body.hits[0].id })
+                .get()
+                .execute();
             if (!getOrder.statusCode || getOrder.statusCode >= 300)
                 return res.sendStatus(404);
             searchOrder = getOrder.body;
             userId = (_a = searchOrder === null || searchOrder === void 0 ? void 0 : searchOrder.customerId) !== null && _a !== void 0 ? _a : "";
             idOrder = searchOrder.id;
         }
-        const customObject = ((_b = searchOrder.custom) === null || _b === void 0 ? void 0 : _b.fields["services"]) && JSON.parse(searchOrder.custom.fields["services"]);
+        const customObject = ((_b = searchOrder.custom) === null || _b === void 0 ? void 0 : _b.fields["services"]) &&
+            JSON.parse(searchOrder.custom.fields["services"]);
         let servicesFind;
         let idItem = "";
         try {
@@ -85,53 +94,60 @@ router.post("/waybills", (req, res) => __awaiter(void 0, void 0, void 0, functio
                 break;
             }
         }
+        console.log("Esto actualizare", servicesFind);
         if (!(servicesFind === null || servicesFind === void 0 ? void 0 : servicesFind.status) || (servicesFind === null || servicesFind === void 0 ? void 0 : servicesFind.status) == "DISPONIBLE") {
             servicesFind.status = "EN PROCESO";
         }
         else {
             resulWaylBill.push({
-                "resultCode": "1",
-                "resultDescription": "El estado actual de la guía es En proceso",
+                resultCode: "1",
+                resultDescription: "El estado actual de la guía es En proceso",
             });
             continue;
         }
-        customObject[idItem].guides[0] = servicesFind;
-        console.log("Actualizado", servicesFind);
-        console.log(customObject);
         resulWaylBill.push({
-            "resultCode": "0",
-            "resultDescription": "Proceso completo",
-            "ResultWaybill": servicesFind.guide,
+            resultCode: "0",
+            resultDescription: "Proceso completo",
+            ResultWaybill: servicesFind.guide,
         });
         try {
-            yield client_1.apiRoot.orders().withId({ ID: searchOrder.id }).post({
+            yield client_1.apiRoot
+                .orders()
+                .withId({ ID: searchOrder.id })
+                .post({
                 body: {
                     version: searchOrder.version,
                     actions: [
                         {
                             action: "setCustomField",
                             name: "services",
-                            value: JSON.stringify(customObject)
-                        }
-                    ]
-                }
-            }).execute();
+                            value: JSON.stringify(customObject),
+                        },
+                    ],
+                },
+            })
+                .execute();
         }
         catch (_) {
-            const order = yield client_1.apiRoot.customObjects().get({
+            const order = yield client_1.apiRoot
+                .customObjects()
+                .get({
                 queryArgs: {
-                    where: `value (idOrden in ("${idOrder}"))`
-                }
-            }).execute();
+                    where: `value (idOrden in ("${idOrder}"))`,
+                },
+            })
+                .execute();
             for (const orden of order.body.results) {
                 let ordenN = Object.assign(Object.assign({}, searchOrder), { custom: {
                         type: {
                             id: (_e = (_d = (_c = searchOrder.custom) === null || _c === void 0 ? void 0 : _c.type) === null || _d === void 0 ? void 0 : _d.id) !== null && _e !== void 0 ? _e : "",
-                            typeId: (_h = (_g = (_f = searchOrder.custom) === null || _f === void 0 ? void 0 : _f.type) === null || _g === void 0 ? void 0 : _g.typeId) !== null && _h !== void 0 ? _h : "type"
+                            typeId: (_h = (_g = (_f = searchOrder.custom) === null || _f === void 0 ? void 0 : _f.type) === null || _g === void 0 ? void 0 : _g.typeId) !== null && _h !== void 0 ? _h : "type",
                         },
-                        fields: Object.assign(Object.assign({}, (_j = searchOrder.custom) === null || _j === void 0 ? void 0 : _j.fields), { services: JSON.stringify(customObject) })
+                        fields: Object.assign(Object.assign({}, (_j = searchOrder.custom) === null || _j === void 0 ? void 0 : _j.fields), { services: JSON.stringify(customObject) }),
                     } });
-                const customObjectOrder = yield client_1.apiRoot.customObjects().post({
+                const customObjectOrder = yield client_1.apiRoot
+                    .customObjects()
+                    .post({
                     body: {
                         container: "orders",
                         key: orden.value.qr,
@@ -139,10 +155,11 @@ router.post("/waybills", (req, res) => __awaiter(void 0, void 0, void 0, functio
                             order: ordenN,
                             qr: orden.value.qr,
                             user: orden.value.user,
-                            idOrden: orden.value.orderId
-                        }
-                    }
-                }).execute();
+                            idOrden: orden.value.orderId,
+                        },
+                    },
+                })
+                    .execute();
             }
         }
     }
@@ -157,21 +174,25 @@ router.put("/waybills", (req, res) => __awaiter(void 0, void 0, void 0, function
     const { AsignWaybillOrder } = req.body;
     const isValid = validateWaybillRequest(AsignWaybillOrder);
     if (!isValid) {
-        return res.status(400).send({ message: 'Invalid WaybillService format.' });
+        return res.status(400).send({ message: "Invalid WaybillService format." });
     }
     let resulWaylBill = [];
     for (const wayBillItem of AsignWaybillOrder) {
-        const order = yield client_1.apiRoot.orders().search().post({
+        const order = yield client_1.apiRoot
+            .orders()
+            .search()
+            .post({
             body: {
                 query: {
                     fullText: {
                         field: "custom.services",
                         value: wayBillItem.qr,
-                        customType: "StringType"
-                    }
-                }
-            }
-        }).execute();
+                        customType: "StringType",
+                    },
+                },
+            },
+        })
+            .execute();
         let searchOrder = {};
         let userId = "";
         let idOrder = "";
@@ -179,18 +200,24 @@ router.put("/waybills", (req, res) => __awaiter(void 0, void 0, void 0, function
             //@ts-ignore
             const order = yield (0, customObjectsFunction_1.getCustomObjectByQr)(wayBillItem.qr);
             searchOrder = order.order;
+            console.log(searchOrder);
             userId = order.user;
             idOrder = order.order.id;
         }
         else {
-            const getOrder = yield client_1.apiRoot.orders().withId({ ID: order.body.hits[0].id }).get().execute();
+            const getOrder = yield client_1.apiRoot
+                .orders()
+                .withId({ ID: order.body.hits[0].id })
+                .get()
+                .execute();
             if (!getOrder.statusCode || getOrder.statusCode >= 300)
                 return res.sendStatus(404);
             searchOrder = getOrder.body;
             userId = (_a = searchOrder === null || searchOrder === void 0 ? void 0 : searchOrder.customerId) !== null && _a !== void 0 ? _a : "";
             idOrder = searchOrder.id;
         }
-        const customObject = ((_b = searchOrder.custom) === null || _b === void 0 ? void 0 : _b.fields["services"]) && JSON.parse(searchOrder.custom.fields["services"]);
+        const customObject = ((_b = searchOrder.custom) === null || _b === void 0 ? void 0 : _b.fields["services"]) &&
+            JSON.parse(searchOrder.custom.fields["services"]);
         let servicesFind;
         try {
             for (const id in customObject) {
@@ -223,45 +250,54 @@ router.put("/waybills", (req, res) => __awaiter(void 0, void 0, void 0, function
             }
         }
         resulWaylBill.push({
-            "resultCode": 0,
-            "resultDescription": "Proceso satisfactorio.",
-            "resultAsignWaybill": [
+            resultCode: 0,
+            resultDescription: "Proceso satisfactorio.",
+            resultAsignWaybill: [
                 {
-                    "resultCode": 0,
-                    "resultDescription": "Registro actualizado",
-                    "resultWayBill": servicesFind.guide,
-                }
-            ]
+                    resultCode: 0,
+                    resultDescription: "Registro actualizado",
+                    resultWayBill: servicesFind.guide,
+                },
+            ],
         });
         try {
-            yield client_1.apiRoot.orders().withId({ ID: searchOrder.id }).post({
+            yield client_1.apiRoot
+                .orders()
+                .withId({ ID: searchOrder.id })
+                .post({
                 body: {
                     version: searchOrder.version,
                     actions: [
                         {
                             action: "setCustomField",
                             name: "services",
-                            value: JSON.stringify(customObject)
-                        }
-                    ]
-                }
-            }).execute();
+                            value: JSON.stringify(customObject),
+                        },
+                    ],
+                },
+            })
+                .execute();
         }
         catch (_) {
-            const order = yield client_1.apiRoot.customObjects().get({
+            const order = yield client_1.apiRoot
+                .customObjects()
+                .get({
                 queryArgs: {
-                    where: `value (idOrden in ("${idOrder}"))`
-                }
-            }).execute();
+                    where: `value (idOrden in ("${idOrder}"))`,
+                },
+            })
+                .execute();
             for (const orden of order.body.results) {
                 let ordenN = Object.assign(Object.assign({}, searchOrder), { custom: {
                         type: {
                             id: (_e = (_d = (_c = searchOrder.custom) === null || _c === void 0 ? void 0 : _c.type) === null || _d === void 0 ? void 0 : _d.id) !== null && _e !== void 0 ? _e : "",
-                            typeId: (_h = (_g = (_f = searchOrder.custom) === null || _f === void 0 ? void 0 : _f.type) === null || _g === void 0 ? void 0 : _g.typeId) !== null && _h !== void 0 ? _h : "type"
+                            typeId: (_h = (_g = (_f = searchOrder.custom) === null || _f === void 0 ? void 0 : _f.type) === null || _g === void 0 ? void 0 : _g.typeId) !== null && _h !== void 0 ? _h : "type",
                         },
-                        fields: Object.assign(Object.assign({}, (_j = searchOrder.custom) === null || _j === void 0 ? void 0 : _j.fields), { services: JSON.stringify(customObject) })
+                        fields: Object.assign(Object.assign({}, (_j = searchOrder.custom) === null || _j === void 0 ? void 0 : _j.fields), { services: JSON.stringify(customObject) }),
                     } });
-                const customObjectOrder = yield client_1.apiRoot.customObjects().post({
+                const customObjectOrder = yield client_1.apiRoot
+                    .customObjects()
+                    .post({
                     body: {
                         container: "orders",
                         key: orden.value.qr,
@@ -269,10 +305,11 @@ router.put("/waybills", (req, res) => __awaiter(void 0, void 0, void 0, function
                             order: ordenN,
                             qr: orden.value.qr,
                             user: orden.value.user,
-                            idOrden: orden.value.orderId
-                        }
-                    }
-                }).execute();
+                            idOrden: orden.value.orderId,
+                        },
+                    },
+                })
+                    .execute();
             }
         }
     }
