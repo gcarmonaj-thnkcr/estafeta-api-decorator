@@ -116,6 +116,37 @@ router.post("/waybills", async (req: Request, res: Response): Promise<any> => {
     });
 
     try {
+      let ordenN: Order = {
+        ...searchOrder,
+        custom: {
+          type: {
+            id: searchOrder.custom?.type?.id ?? "",
+            typeId: searchOrder.custom?.type?.typeId ?? "type",
+          },
+          fields: {
+            ...searchOrder.custom?.fields,
+            services: JSON.stringify(customObject),
+          },
+        },
+      };
+
+      await apiRoot
+        .customObjects()
+        .post({
+          body: {
+            container: "orderStatus",
+            key: wayBillItem.qr,
+            value: {
+              order: ordenN,
+              qr: wayBillItem.qr,
+              user: userId,
+              idOrden: idOrder,
+              isOrdenCustom: "No",
+            },
+          },
+        })
+        .execute();
+
       await apiRoot
         .orders()
         .withId({ ID: searchOrder.id })
@@ -137,26 +168,44 @@ router.post("/waybills", async (req: Request, res: Response): Promise<any> => {
         .customObjects()
         .get({
           queryArgs: {
-            where: `value (idOrden in ("${idOrder}"))`,
+            where: `value (order (id in ("7301432903824787")))`,
+          },
+        })
+        .execute();
+
+      let ordenN: Order = {
+        ...searchOrder,
+        custom: {
+          type: {
+            id: searchOrder.custom?.type?.id ?? "",
+            typeId: searchOrder.custom?.type?.typeId ?? "type",
+          },
+          fields: {
+            ...searchOrder.custom?.fields,
+            services: JSON.stringify(customObject),
+          },
+        },
+      };
+
+      await apiRoot
+        .customObjects()
+        .post({
+          body: {
+            container: "orderStatus",
+            key: wayBillItem.qr,
+            value: {
+              order: ordenN,
+              qr: wayBillItem.qr,
+              user: userId,
+              idOrden: idOrder,
+              isOrdenCustom: "Si",
+            },
           },
         })
         .execute();
 
       for (const orden of order.body.results) {
-        let ordenN: Order = {
-          ...searchOrder,
-          custom: {
-            type: {
-              id: searchOrder.custom?.type?.id ?? "",
-              typeId: searchOrder.custom?.type?.typeId ?? "type",
-            },
-            fields: {
-              ...searchOrder.custom?.fields,
-              services: JSON.stringify(customObject),
-            },
-          },
-        };
-        const customObjectOrder = await apiRoot
+        await apiRoot
           .customObjects()
           .post({
             body: {
@@ -282,7 +331,39 @@ router.put("/waybills", async (req: Request, res: Response): Promise<any> => {
       ],
     });
 
+    console.log(servicesFind);
+
     try {
+      let ordenN: Order = {
+        ...searchOrder,
+        custom: {
+          type: {
+            id: searchOrder.custom?.type?.id ?? "",
+            typeId: searchOrder.custom?.type?.typeId ?? "type",
+          },
+          fields: {
+            ...searchOrder.custom?.fields,
+            services: JSON.stringify(customObject),
+          },
+        },
+      };
+
+      await apiRoot
+        .customObjects()
+        .post({
+          body: {
+            container: "orderStatus",
+            key: wayBillItem.qr,
+            value: {
+              order: ordenN,
+              qr: wayBillItem.qr,
+              user: userId,
+              idOrden: idOrder,
+              isOrdenCustom: "No",
+            },
+          },
+        })
+        .execute();
       await apiRoot
         .orders()
         .withId({ ID: searchOrder.id })
@@ -300,30 +381,67 @@ router.put("/waybills", async (req: Request, res: Response): Promise<any> => {
         })
         .execute();
     } catch (_) {
+      console.log(idOrder);
       const order = await apiRoot
         .customObjects()
+        .withContainer({ container: "orders" })
         .get({
           queryArgs: {
-            where: `value (idOrden in ("${idOrder}"))`,
+            where: `value (order (id in ("${idOrder}")))`,
           },
         })
         .execute();
+      console.log(order.body.results.length);
+      await apiRoot
+        .customObjects()
+        .withContainer({ container: "orderStatus" })
+        .get({
+          queryArgs: {
+            where: `key in ("${wayBillItem.qr}")`,
+          },
+        })
+        .execute();
+      let ordenN: Order = {
+        ...searchOrder,
+        custom: {
+          type: {
+            id: searchOrder.custom?.type?.id ?? "",
+            typeId: searchOrder.custom?.type?.typeId ?? "type",
+          },
+          fields: {
+            ...searchOrder.custom?.fields,
+            services: JSON.stringify(customObject),
+          },
+        },
+      };
+
+      try {
+        const statusO = await apiRoot
+          .customObjects()
+          .withContainer({ container: "orderStatus" })
+          .get({
+            queryArgs: {
+              where: `value (order (id in ("${idOrder}")))`,
+            },
+          })
+          .execute();
+        await apiRoot
+          .customObjects()
+          .withContainerAndKey({
+            container: "orderStatus",
+            key: wayBillItem.key,
+          })
+          .delete({
+            queryArgs: {
+              version: statusO.body.results[0].version,
+            },
+          })
+          .execute();
+      } catch (_) {}
 
       for (const orden of order.body.results) {
-        let ordenN: Order = {
-          ...searchOrder,
-          custom: {
-            type: {
-              id: searchOrder.custom?.type?.id ?? "",
-              typeId: searchOrder.custom?.type?.typeId ?? "type",
-            },
-            fields: {
-              ...searchOrder.custom?.fields,
-              services: JSON.stringify(customObject),
-            },
-          },
-        };
-        const customObjectOrder = await apiRoot
+        console.log("Actualizando");
+        await apiRoot
           .customObjects()
           .post({
             body: {
