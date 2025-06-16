@@ -34,7 +34,6 @@ router.post("/waybills", (req, res) => __awaiter(void 0, void 0, void 0, functio
     }
     let resulWaylBill = [];
     for (const wayBillItem of WaybillService) {
-        console.log(wayBillItem.qr);
         const order = yield client_1.apiRoot
             .orders()
             .search()
@@ -72,6 +71,7 @@ router.post("/waybills", (req, res) => __awaiter(void 0, void 0, void 0, functio
             userId = (_a = searchOrder === null || searchOrder === void 0 ? void 0 : searchOrder.customerId) !== null && _a !== void 0 ? _a : "";
             idOrder = searchOrder.id;
         }
+        console.log(searchOrder);
         const customObject = ((_b = searchOrder.custom) === null || _b === void 0 ? void 0 : _b.fields["services"]) &&
             JSON.parse(searchOrder.custom.fields["services"]);
         let servicesFind;
@@ -121,22 +121,6 @@ router.post("/waybills", (req, res) => __awaiter(void 0, void 0, void 0, functio
                     fields: Object.assign(Object.assign({}, (_j = searchOrder.custom) === null || _j === void 0 ? void 0 : _j.fields), { services: JSON.stringify(customObject) }),
                 } });
             yield client_1.apiRoot
-                .customObjects()
-                .post({
-                body: {
-                    container: "orderStatus",
-                    key: wayBillItem.qr,
-                    value: {
-                        order: ordenN,
-                        qr: wayBillItem.qr,
-                        user: userId,
-                        idOrden: idOrder,
-                        isOrdenCustom: "No",
-                    },
-                },
-            })
-                .execute();
-            yield client_1.apiRoot
                 .orders()
                 .withId({ ID: searchOrder.id })
                 .post({
@@ -149,6 +133,22 @@ router.post("/waybills", (req, res) => __awaiter(void 0, void 0, void 0, functio
                             value: JSON.stringify(customObject),
                         },
                     ],
+                },
+            })
+                .execute();
+            yield client_1.apiRoot
+                .customObjects()
+                .post({
+                body: {
+                    container: "orderStatus",
+                    key: wayBillItem.qr,
+                    value: {
+                        order: ordenN,
+                        qr: wayBillItem.qr,
+                        user: userId,
+                        idOrden: idOrder,
+                        isOrdenCustom: "Si",
+                    },
                 },
             })
                 .execute();
@@ -241,7 +241,6 @@ router.put("/waybills", (req, res) => __awaiter(void 0, void 0, void 0, function
             //@ts-ignore
             const order = yield (0, customObjectsFunction_1.getCustomObjectByQr)(wayBillItem.qr);
             searchOrder = order.order;
-            console.log(searchOrder);
             userId = order.user;
             idOrder = order.order.id;
         }
@@ -301,7 +300,6 @@ router.put("/waybills", (req, res) => __awaiter(void 0, void 0, void 0, function
                 },
             ],
         });
-        console.log(servicesFind);
         try {
             let ordenN = Object.assign(Object.assign({}, searchOrder), { custom: {
                     type: {
@@ -344,7 +342,6 @@ router.put("/waybills", (req, res) => __awaiter(void 0, void 0, void 0, function
                 .execute();
         }
         catch (_) {
-            console.log(idOrder);
             const order = yield client_1.apiRoot
                 .customObjects()
                 .withContainer({ container: "orders" })
@@ -354,7 +351,6 @@ router.put("/waybills", (req, res) => __awaiter(void 0, void 0, void 0, function
                 },
             })
                 .execute();
-            console.log(order.body.results.length);
             yield client_1.apiRoot
                 .customObjects()
                 .withContainer({ container: "orderStatus" })
@@ -396,7 +392,6 @@ router.put("/waybills", (req, res) => __awaiter(void 0, void 0, void 0, function
             }
             catch (_) { }
             for (const orden of order.body.results) {
-                console.log("Actualizando");
                 yield client_1.apiRoot
                     .customObjects()
                     .post({

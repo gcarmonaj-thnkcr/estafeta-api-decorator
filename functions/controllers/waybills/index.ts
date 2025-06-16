@@ -33,7 +33,6 @@ router.post("/waybills", async (req: Request, res: Response): Promise<any> => {
   }
   let resulWaylBill = [];
   for (const wayBillItem of WaybillService) {
-    console.log(wayBillItem.qr);
     const order = await apiRoot
       .orders()
       .search()
@@ -73,6 +72,7 @@ router.post("/waybills", async (req: Request, res: Response): Promise<any> => {
       idOrder = searchOrder.id;
     }
 
+    console.log(searchOrder);
     const customObject =
       searchOrder.custom?.fields["services"] &&
       JSON.parse(searchOrder.custom.fields["services"]);
@@ -131,23 +131,6 @@ router.post("/waybills", async (req: Request, res: Response): Promise<any> => {
       };
 
       await apiRoot
-        .customObjects()
-        .post({
-          body: {
-            container: "orderStatus",
-            key: wayBillItem.qr,
-            value: {
-              order: ordenN,
-              qr: wayBillItem.qr,
-              user: userId,
-              idOrden: idOrder,
-              isOrdenCustom: "No",
-            },
-          },
-        })
-        .execute();
-
-      await apiRoot
         .orders()
         .withId({ ID: searchOrder.id })
         .post({
@@ -160,6 +143,23 @@ router.post("/waybills", async (req: Request, res: Response): Promise<any> => {
                 value: JSON.stringify(customObject),
               },
             ],
+          },
+        })
+        .execute();
+
+      await apiRoot
+        .customObjects()
+        .post({
+          body: {
+            container: "orderStatus",
+            key: wayBillItem.qr,
+            value: {
+              order: ordenN,
+              qr: wayBillItem.qr,
+              user: userId,
+              idOrden: idOrder,
+              isOrdenCustom: "Si",
+            },
           },
         })
         .execute();
@@ -268,7 +268,6 @@ router.put("/waybills", async (req: Request, res: Response): Promise<any> => {
       //@ts-ignore
       const order = await getCustomObjectByQr(wayBillItem.qr);
       searchOrder = order.order;
-      console.log(searchOrder);
       userId = order.user;
       idOrder = order.order.id;
     } else {
@@ -331,8 +330,6 @@ router.put("/waybills", async (req: Request, res: Response): Promise<any> => {
       ],
     });
 
-    console.log(servicesFind);
-
     try {
       let ordenN: Order = {
         ...searchOrder,
@@ -381,7 +378,6 @@ router.put("/waybills", async (req: Request, res: Response): Promise<any> => {
         })
         .execute();
     } catch (_) {
-      console.log(idOrder);
       const order = await apiRoot
         .customObjects()
         .withContainer({ container: "orders" })
@@ -391,7 +387,6 @@ router.put("/waybills", async (req: Request, res: Response): Promise<any> => {
           },
         })
         .execute();
-      console.log(order.body.results.length);
       await apiRoot
         .customObjects()
         .withContainer({ container: "orderStatus" })
@@ -440,7 +435,6 @@ router.put("/waybills", async (req: Request, res: Response): Promise<any> => {
       } catch (_) {}
 
       for (const orden of order.body.results) {
-        console.log("Actualizando");
         await apiRoot
           .customObjects()
           .post({
