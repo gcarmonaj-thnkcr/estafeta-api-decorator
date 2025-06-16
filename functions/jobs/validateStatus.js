@@ -33,7 +33,7 @@ exports.validateStatus = node_cron_1.default.schedule("*/1 * * * *", () => __awa
         const dateNow = new Date();
         const diffInMilliseconds = dateNow.getTime() - dateOrder.getTime();
         const diffInMinutes = diffInMilliseconds / (1000 * 60);
-        if (diffInMinutes < 2) {
+        if (diffInMinutes < 15) {
             console.log("Esta orden aun no tiene los 15 minutos");
             continue;
         }

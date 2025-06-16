@@ -168,7 +168,7 @@ router.post("/waybills", async (req: Request, res: Response): Promise<any> => {
         .customObjects()
         .get({
           queryArgs: {
-            where: `value (order (id in ("7301432903824787")))`,
+            where: `value (order (id in ("${idOrder}")))`,
           },
         })
         .execute();
