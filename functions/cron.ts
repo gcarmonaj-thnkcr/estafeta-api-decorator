@@ -2,7 +2,7 @@ import { schedule } from "@netlify/functions";
 import { apiRoot } from "./commercetools/client";
 import { Order } from "@commercetools/platform-sdk";
 
-export const handler = schedule("*/1 * * * *", async () => {
+const handler = schedule("*/1 * * * *", async () => {
   console.log("Ejecutando cron job");
 
   const customOStatus = await apiRoot
@@ -129,3 +129,5 @@ export const handler = schedule("*/1 * * * *", async () => {
 
   return { statusCode: 200, body: "Proceso finalizado" };
 });
+
+export { handler };

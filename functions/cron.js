@@ -12,7 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.handler = void 0;
 const functions_1 = require("@netlify/functions");
 const client_1 = require("./commercetools/client");
-exports.handler = (0, functions_1.schedule)("*/1 * * * *", () => __awaiter(void 0, void 0, void 0, function* () {
+const handler = (0, functions_1.schedule)("*/1 * * * *", () => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b, _c, _d, _e, _f, _g;
     console.log("Ejecutando cron job");
     const customOStatus = yield client_1.apiRoot
@@ -115,3 +115,4 @@ exports.handler = (0, functions_1.schedule)("*/1 * * * *", () => __awaiter(void 
     }
     return { statusCode: 200, body: "Proceso finalizado" };
 }));
+exports.handler = handler;
