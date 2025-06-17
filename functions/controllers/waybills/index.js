@@ -180,7 +180,7 @@ router.post("/waybills", (req, res) => __awaiter(void 0, void 0, void 0, functio
                         qr: wayBillItem.qr,
                         user: userId,
                         idOrden: idOrder,
-                        isOrdenCustom: "Si",
+                        isOrdenCustom: "No",
                     },
                 },
             })

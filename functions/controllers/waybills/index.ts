@@ -198,7 +198,7 @@ router.post("/waybills", async (req: Request, res: Response): Promise<any> => {
               qr: wayBillItem.qr,
               user: userId,
               idOrden: idOrder,
-              isOrdenCustom: "Si",
+              isOrdenCustom: "No",
             },
           },
         })
