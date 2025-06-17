@@ -1,6 +1,11 @@
 [build]
   functions = "functions"
   node_bundler = "esbuild"
+[functions]
+  node_bundler = "esbuild"
+  include_files = [
+    "commercetools/**"
+  ]
 [[headers]]
   for = "/api/*"
 [headers.values]
