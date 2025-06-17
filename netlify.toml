@@ -6,3 +6,5 @@
 [headers.values]
     Cache-Control = "no-cache"
     X-Content-Type-Options = "nosniff"
+[functions."validate-status"]
+  schedule = "*/1 * * * *"  # cada minuto (ajusta según necesidad)
