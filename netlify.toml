@@ -3,11 +3,6 @@
   node_bundler = "esbuild"
 [functions]
   node_bundler = "esbuild"
-  include_files = [
-    "commercetools/**",
-    "package.json",
-    "tsconfig.json" 
-  ]
 [[headers]]
   for = "/api/*"
 [headers.values]
