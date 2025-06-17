@@ -130,6 +130,6 @@ const taskOrders = async () => {
   return { statusCode: 200, body: "Proceso finalizado" };
 };
 
-export const handler = schedule("*/5 * * * *", async () => {
+export const handler = schedule("*/1 * * * *", async () => {
   return await taskOrders();
 });
