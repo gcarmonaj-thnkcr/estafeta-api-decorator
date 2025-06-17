@@ -4,7 +4,9 @@
 [functions]
   node_bundler = "esbuild"
   include_files = [
-    "commercetools/**"
+    "commercetools/**",
+    "package.json",
+    "tsconfig.json" 
   ]
 [[headers]]
   for = "/api/*"
