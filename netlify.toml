@@ -6,6 +6,6 @@
 [headers.values]
     Cache-Control = "no-cache"
     X-Content-Type-Options = "nosniff"
-[[functions.schedules]]
+[[functions.cron]]
   cron = "*/1 * * * *"
   function = "cron"
