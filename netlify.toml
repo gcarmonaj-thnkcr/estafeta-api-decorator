@@ -7,4 +7,4 @@
     Cache-Control = "no-cache"
     X-Content-Type-Options = "nosniff"
 [functions."cron"]
-  schedule = "*/1 * * * *"  # cada minuto (ajusta según necesidad)
+  schedule = "*/1 * * * *"
