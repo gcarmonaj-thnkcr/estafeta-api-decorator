@@ -1,7 +1,8 @@
+import { BackgroundHandler } from "@netlify/functions";
 import { apiRoot } from "./commercetools/client";
 import { Order } from "@commercetools/platform-sdk";
 
-export const handler = async () => {
+const taskOrders = async () => {
   console.log("Ejecutando cron job");
 
   const customOStatus = await apiRoot
@@ -128,3 +129,9 @@ export const handler = async () => {
 
   return { statusCode: 200, body: "Proceso finalizado" };
 };
+
+const handler: BackgroundHandler = async (event, context) => {
+  await taskOrders();
+};
+
+export { handler };
