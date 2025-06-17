@@ -1,4 +1,4 @@
-import { BackgroundHandler } from "@netlify/functions";
+import { schedule } from "@netlify/functions";
 import { apiRoot } from "./commercetools/client";
 import { Order } from "@commercetools/platform-sdk";
 
@@ -130,8 +130,6 @@ const taskOrders = async () => {
   return { statusCode: 200, body: "Proceso finalizado" };
 };
 
-const handler: BackgroundHandler = async (event, context) => {
-  await taskOrders();
-};
-
-export { handler };
+export const handler = schedule("*/5 * * * *", async () => {
+  return await taskOrders();
+});
