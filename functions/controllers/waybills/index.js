@@ -309,22 +309,6 @@ router.put("/waybills", (req, res) => __awaiter(void 0, void 0, void 0, function
                     fields: Object.assign(Object.assign({}, (_j = searchOrder.custom) === null || _j === void 0 ? void 0 : _j.fields), { services: JSON.stringify(customObject) }),
                 } });
             yield client_1.apiRoot
-                .customObjects()
-                .post({
-                body: {
-                    container: "orderStatus",
-                    key: wayBillItem.qr,
-                    value: {
-                        order: ordenN,
-                        qr: wayBillItem.qr,
-                        user: userId,
-                        idOrden: idOrder,
-                        isOrdenCustom: "No",
-                    },
-                },
-            })
-                .execute();
-            yield client_1.apiRoot
                 .orders()
                 .withId({ ID: searchOrder.id })
                 .post({
@@ -337,6 +321,27 @@ router.put("/waybills", (req, res) => __awaiter(void 0, void 0, void 0, function
                             value: JSON.stringify(customObject),
                         },
                     ],
+                },
+            })
+                .execute();
+            const statusO = yield client_1.apiRoot
+                .customObjects()
+                .withContainer({ container: "orderStatus" })
+                .get({
+                queryArgs: {
+                    where: `value (order (id in ("${idOrder}")))`,
+                },
+            })
+                .execute();
+            yield client_1.apiRoot
+                .customObjects()
+                .withContainerAndKey({
+                container: "orderStatus",
+                key: wayBillItem.key,
+            })
+                .delete({
+                queryArgs: {
+                    version: statusO.body.results[0].version,
                 },
             })
                 .execute();

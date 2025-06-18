@@ -21,7 +21,11 @@ exports.validateStatus = node_cron_1.default.schedule("*/1 * * * *", () => __awa
     const customOStatus = yield client_1.apiRoot
         .customObjects()
         .withContainer({ container: "orderStatus" })
-        .get()
+        .get({
+        queryArgs: {
+            limit: 500,
+        },
+    })
         .execute();
     if (!customOStatus.statusCode || customOStatus.statusCode >= 300)
         return console.error("No hay ordenes a actualizar");
@@ -44,7 +48,7 @@ exports.validateStatus = node_cron_1.default.schedule("*/1 * * * *", () => __awa
                     guide.status = "DISPONIBLE";
             }
         }
-        if (statusOrders.value.isOrdenCustom == "No") {
+        try {
             const orden = yield client_1.apiRoot
                 .orders()
                 .withId({ ID: statusOrders.value.order.id })
@@ -67,7 +71,7 @@ exports.validateStatus = node_cron_1.default.schedule("*/1 * * * *", () => __awa
             })
                 .execute();
         }
-        else {
+        catch (_) {
             console.log("Llegue");
             const orders = yield client_1.apiRoot
                 .customObjects()

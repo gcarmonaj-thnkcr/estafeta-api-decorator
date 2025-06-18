@@ -346,22 +346,6 @@ router.put("/waybills", async (req: Request, res: Response): Promise<any> => {
       };
 
       await apiRoot
-        .customObjects()
-        .post({
-          body: {
-            container: "orderStatus",
-            key: wayBillItem.qr,
-            value: {
-              order: ordenN,
-              qr: wayBillItem.qr,
-              user: userId,
-              idOrden: idOrder,
-              isOrdenCustom: "No",
-            },
-          },
-        })
-        .execute();
-      await apiRoot
         .orders()
         .withId({ ID: searchOrder.id })
         .post({
@@ -374,6 +358,29 @@ router.put("/waybills", async (req: Request, res: Response): Promise<any> => {
                 value: JSON.stringify(customObject),
               },
             ],
+          },
+        })
+        .execute();
+
+      const statusO = await apiRoot
+        .customObjects()
+        .withContainer({ container: "orderStatus" })
+        .get({
+          queryArgs: {
+            where: `value (order (id in ("${idOrder}")))`,
+          },
+        })
+        .execute();
+
+      await apiRoot
+        .customObjects()
+        .withContainerAndKey({
+          container: "orderStatus",
+          key: wayBillItem.key,
+        })
+        .delete({
+          queryArgs: {
+            version: statusO.body.results[0].version,
           },
         })
         .execute();

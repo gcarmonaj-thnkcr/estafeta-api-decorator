@@ -7,7 +7,11 @@ export const validateStatus = cron.schedule("*/1 * * * *", async () => {
   const customOStatus = await apiRoot
     .customObjects()
     .withContainer({ container: "orderStatus" })
-    .get()
+    .get({
+      queryArgs: {
+        limit: 500,
+      },
+    })
     .execute();
   if (!customOStatus.statusCode || customOStatus.statusCode >= 300)
     return console.error("No hay ordenes a actualizar");
@@ -36,7 +40,7 @@ export const validateStatus = cron.schedule("*/1 * * * *", async () => {
         if (guide.status == "EN PROCESO") guide.status = "DISPONIBLE";
       }
     }
-    if (statusOrders.value.isOrdenCustom == "No") {
+    try {
       const orden = await apiRoot
         .orders()
         .withId({ ID: statusOrders.value.order.id })
@@ -59,7 +63,7 @@ export const validateStatus = cron.schedule("*/1 * * * *", async () => {
           },
         })
         .execute();
-    } else {
+    } catch (_) {
       console.log("Llegue");
       const orders = await apiRoot
         .customObjects()
