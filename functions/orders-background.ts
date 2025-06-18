@@ -5,46 +5,44 @@ import { Order } from "@commercetools/platform-sdk";
 const taskOrders = async () => {
   try {
     console.log("Ejecutando cron job");
-
     const customOStatus = await apiRoot
       .customObjects()
       .withContainer({ container: "orderStatus" })
-      .get()
+      .get({
+        queryArgs: {
+          limit: 500,
+        },
+      })
       .execute();
-
     if (!customOStatus.statusCode || customOStatus.statusCode >= 300)
-      return { statusCode: 500, body: "No hay órdenes a actualizar" };
-
+      return { statusCode: 200, body: "Proceso finalizado" };
     if (customOStatus.body.results.length <= 0)
-      return { statusCode: 200, body: "Sin órdenes pendientes" };
-
+      return { statusCode: 200, body: "Proceso finalizado" };
     console.log(
-      "Órdenes a ejecutar encontradas:",
+      "Ordenes a ejecutar encontradas:",
       customOStatus.body.results.length,
     );
-
     for (const statusOrders of customOStatus.body.results) {
       const dateOrder = new Date(statusOrders.lastModifiedAt);
       const dateNow = new Date();
-      const diffInMinutes =
-        (dateNow.getTime() - dateOrder.getTime()) / (1000 * 60);
+      const diffInMilliseconds: number =
+        dateNow.getTime() - dateOrder.getTime();
+
+      const diffInMinutes = diffInMilliseconds / (1000 * 60);
 
       if (diffInMinutes < 15) {
-        console.log("Esta orden aún no tiene los 15 minutos");
+        console.log("Esta orden aun no tiene los 15 minutos");
         continue;
       }
-
       const services = JSON.parse(
         statusOrders.value.order.custom.fields["services"],
       );
-
       for (const item of statusOrders.value.order.lineItems) {
         for (const guide of services[item.id].guides) {
-          if (guide.status === "EN PROCESO") guide.status = "DISPONIBLE";
+          if (guide.status == "EN PROCESO") guide.status = "DISPONIBLE";
         }
       }
-
-      if (statusOrders.value.isOrdenCustom === "No") {
+      try {
         const orden = await apiRoot
           .orders()
           .withId({ ID: statusOrders.value.order.id })
@@ -67,7 +65,8 @@ const taskOrders = async () => {
             },
           })
           .execute();
-      } else {
+      } catch (_) {
+        console.log("Llegue");
         const orders = await apiRoot
           .customObjects()
           .withContainer({ container: "orders" })
@@ -77,9 +76,9 @@ const taskOrders = async () => {
             },
           })
           .execute();
-
+        console.log(orders.body.results.length);
         for (const order of orders.body.results) {
-          const ordenN: Order = {
+          let ordenN: Order = {
             ...order.value.order,
             custom: {
               type: {
@@ -111,7 +110,6 @@ const taskOrders = async () => {
             .execute();
         }
       }
-
       await apiRoot
         .customObjects()
         .withContainerAndKey({
@@ -124,10 +122,8 @@ const taskOrders = async () => {
           },
         })
         .execute();
-
-      console.log("Orden procesada y eliminada");
+      console.log("Eliminado");
     }
-
     return { statusCode: 200, body: "Proceso finalizado" };
   } catch (e: any) {
     console.error(e);
