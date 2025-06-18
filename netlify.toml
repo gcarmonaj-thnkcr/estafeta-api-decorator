@@ -1,6 +1,8 @@
 [build]
   functions = "functions"
   node_bundler = "esbuild"
+[functions]
+  node_bundler = "esbuild"
 [[headers]]
   for = "/api/*"
 [headers.values]
