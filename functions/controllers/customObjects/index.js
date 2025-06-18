@@ -12,12 +12,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const client_1 = require("../../commercetools/client");
 const router = (0, express_1.Router)();
-router.post('/order', (request, reply) => __awaiter(void 0, void 0, void 0, function* () {
+router.post("/order", (request, reply) => __awaiter(void 0, void 0, void 0, function* () {
     const { order, qr, user, idOrden } = request.body;
     if (!order || !qr || !user) {
-        return reply.status(400).send({ error: 'Faltan datos requeridos' });
+        return reply.status(400).send({ error: "Faltan datos requeridos" });
     }
-    const customObjectOrder = yield client_1.apiRoot.customObjects().post({
+    const customObjectOrder = yield client_1.apiRoot
+        .customObjects()
+        .post({
         body: {
             container: "orders",
             key: qr,
@@ -25,18 +27,21 @@ router.post('/order', (request, reply) => __awaiter(void 0, void 0, void 0, func
                 order,
                 qr,
                 user,
-                idOrden
-            }
-        }
-    }).execute();
+                idOrden,
+            },
+        },
+    })
+        .execute();
     reply.status(201).send({ id: customObjectOrder.body.id });
 }));
-router.put('/order', (request, reply) => __awaiter(void 0, void 0, void 0, function* () {
+router.put("/order", (request, reply) => __awaiter(void 0, void 0, void 0, function* () {
     const { order, qr, user, idOrden } = request.body;
     if (!order || !qr || !user || !idOrden) {
-        return reply.status(400).send({ error: 'Faltan datos requeridos' });
+        return reply.status(400).send({ error: "Faltan datos requeridos" });
     }
-    const customObjectOrder = yield client_1.apiRoot.customObjects().post({
+    const customObjectOrder = yield client_1.apiRoot
+        .customObjects()
+        .post({
         body: {
             container: "orders",
             key: qr,
@@ -44,40 +49,53 @@ router.put('/order', (request, reply) => __awaiter(void 0, void 0, void 0, funct
                 order,
                 qr,
                 user,
-                idOrden
-            }
-        }
-    }).execute();
+                idOrden,
+            },
+        },
+    })
+        .execute();
     reply.status(200).send({ id: customObjectOrder.body.id });
     return;
 }));
-router.get('/order/:id', (request, reply) => __awaiter(void 0, void 0, void 0, function* () {
+router.get("/order/:id", (request, reply) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         console.log(request.params.id);
-        const order = yield client_1.apiRoot.customObjects().get({
+        const order = yield client_1.apiRoot
+            .customObjects()
+            .get({
             queryArgs: {
-                where: `value (idOrden in ("${request.params.id}"))`
-            }
-        }).execute();
-        if (!order.statusCode || order.statusCode >= 300 || order.body.results.length <= 0) {
-            return reply.status(404).send({ error: 'Orden no encontrada' });
+                where: `value (idOrden in ("${request.params.id}"))`,
+            },
+        })
+            .execute();
+        if (!order.statusCode ||
+            order.statusCode >= 300 ||
+            order.body.results.length <= 0) {
+            return reply.status(404).send({ error: "Orden no encontrada" });
         }
+        order.body.results[0].value.order.createdAt =
+            order.body.results[0].createdAt;
         reply.send(order.body.results[0].value);
     }
     catch (error) {
         reply.status(400).send({ error: error.message });
     }
 }));
-router.get('/orders/:id', (request, reply) => __awaiter(void 0, void 0, void 0, function* () {
+router.get("/orders/:id", (request, reply) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         console.log(request.params.id);
-        const customObjectsOrders = yield client_1.apiRoot.customObjects().get({
+        const customObjectsOrders = yield client_1.apiRoot
+            .customObjects()
+            .get({
             queryArgs: {
-                where: `value (idOrden in ("${request.params.id}"))`
-            }
-        }).execute();
-        if (!customObjectsOrders.statusCode || customObjectsOrders.statusCode >= 300 || customObjectsOrders.body.results.length <= 0) {
-            return reply.status(404).send({ error: 'Orden no encontrada' });
+                where: `value (idOrden in ("${request.params.id}"))`,
+            },
+        })
+            .execute();
+        if (!customObjectsOrders.statusCode ||
+            customObjectsOrders.statusCode >= 300 ||
+            customObjectsOrders.body.results.length <= 0) {
+            return reply.status(404).send({ error: "Orden no encontrada" });
         }
         const orders = [];
         for (const order of customObjectsOrders.body.results) {
@@ -90,16 +108,23 @@ router.get('/orders/:id', (request, reply) => __awaiter(void 0, void 0, void 0, 
         reply.status(400).send({ error: error.message });
     }
 }));
-router.get('/order/qr/:qr', (request, reply) => __awaiter(void 0, void 0, void 0, function* () {
+router.get("/order/qr/:qr", (request, reply) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const customObjectsOrders = yield client_1.apiRoot.customObjects().withContainerAndKey({
+        const customObjectsOrders = yield client_1.apiRoot
+            .customObjects()
+            .withContainerAndKey({
             container: "orders",
-            key: request.params.qr
-        }).get().execute();
-        if (!customObjectsOrders.statusCode || customObjectsOrders.statusCode >= 300 || !customObjectsOrders.body) {
-            return reply.status(404).send({ error: 'Orden no encontrada' });
+            key: request.params.qr,
+        })
+            .get()
+            .execute();
+        if (!customObjectsOrders.statusCode ||
+            customObjectsOrders.statusCode >= 300 ||
+            !customObjectsOrders.body) {
+            return reply.status(404).send({ error: "Orden no encontrada" });
         }
-        customObjectsOrders.body.value.order.createdAt = customObjectsOrders.body.createdAt;
+        customObjectsOrders.body.value.order.createdAt =
+            customObjectsOrders.body.createdAt;
         console.log(customObjectsOrders.body.value.order);
         reply.send(customObjectsOrders.body.value);
     }
@@ -107,15 +132,20 @@ router.get('/order/qr/:qr', (request, reply) => __awaiter(void 0, void 0, void 0
         reply.status(400).send({ error: error.message });
     }
 }));
-router.get('/order/user/:id', (request, reply) => __awaiter(void 0, void 0, void 0, function* () {
+router.get("/order/user/:id", (request, reply) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const customObjectsOrders = yield client_1.apiRoot.customObjects().get({
+        const customObjectsOrders = yield client_1.apiRoot
+            .customObjects()
+            .get({
             queryArgs: {
-                where: `value (user in ("${request.params.id}"))`
-            }
-        }).execute();
-        if (!customObjectsOrders.statusCode || customObjectsOrders.statusCode >= 300 || customObjectsOrders.body.results.length <= 0) {
-            return reply.status(404).send({ error: 'Orden no encontrada' });
+                where: `value (user in ("${request.params.id}"))`,
+            },
+        })
+            .execute();
+        if (!customObjectsOrders.statusCode ||
+            customObjectsOrders.statusCode >= 300 ||
+            customObjectsOrders.body.results.length <= 0) {
+            return reply.status(404).send({ error: "Orden no encontrada" });
         }
         const orders = [];
         for (const order of customObjectsOrders.body.results) {
