@@ -57,7 +57,7 @@ router.get("/order/:id", async (request, reply): Promise<any> => {
       .customObjects()
       .get({
         queryArgs: {
-          where: `value (idOrden in ("${request.params.id}"))`,
+          where: `value (order ( id in ("${request.params.id}")))`,
         },
       })
       .execute();

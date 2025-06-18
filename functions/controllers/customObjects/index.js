@@ -64,7 +64,7 @@ router.get("/order/:id", (request, reply) => __awaiter(void 0, void 0, void 0, f
             .customObjects()
             .get({
             queryArgs: {
-                where: `value (idOrden in ("${request.params.id}"))`,
+                where: `value (order ( id in ("${request.params.id}")))`,
             },
         })
             .execute();
