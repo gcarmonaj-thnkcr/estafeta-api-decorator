@@ -136,6 +136,5 @@ const taskOrders = async () => {
 };
 
 export const handler = schedule("*/1 * * * *", async () => {
-  console.log("Netlify Scheduled Function is running!");
-  return { statusCode: 200, body: "Test cron ran" };
+  return await taskOrders();
 });
