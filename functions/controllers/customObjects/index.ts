@@ -132,25 +132,31 @@ router.get("/order/qr/:qr", async (request, reply): Promise<any> => {
 });
 
 router.get("/order/user/:id", async (request, reply): Promise<any> => {
+  let customObjectsOrders = [];
+  let done = false;
+  let total = 10000;
+  let offset = 0;
+  console.log("Entre aqui");
   try {
-    const customObjectsOrders = await apiRoot
-      .customObjects()
-      .get({
-        queryArgs: {
-          limit: 500,
-          where: `value (user in ("${request.params.id}"))`,
-        },
-      })
-      .execute();
-    if (
-      !customObjectsOrders.statusCode ||
-      customObjectsOrders.statusCode >= 300 ||
-      customObjectsOrders.body.results.length <= 0
-    ) {
-      return reply.status(404).send({ error: "Orden no encontrada" });
-    }
+    do {
+      const customObjectsGet = await apiRoot
+        .customObjects()
+        .get({
+          queryArgs: {
+            limit: 500,
+            where: `value (user in ("${request.params.id}"))`,
+            offset,
+          },
+        })
+        .execute();
+      const { results } = customObjectsGet.body;
+      customObjectsOrders.push(...results);
+      offset += 500;
+      console.log(offset);
+      if (offset >= total) done = true;
+    } while (!done);
     const orders = [];
-    for (const order of customObjectsOrders.body.results) {
+    for (const order of customObjectsOrders) {
       order.value.order.createdAt = order.createdAt;
       orders.push(order.value);
     }

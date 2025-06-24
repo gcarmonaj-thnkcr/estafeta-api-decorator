@@ -133,23 +133,32 @@ router.get("/order/qr/:qr", (request, reply) => __awaiter(void 0, void 0, void 0
     }
 }));
 router.get("/order/user/:id", (request, reply) => __awaiter(void 0, void 0, void 0, function* () {
+    let customObjectsOrders = [];
+    let done = false;
+    let total = 10000;
+    let offset = 0;
+    console.log("Entre aqui");
     try {
-        const customObjectsOrders = yield client_1.apiRoot
-            .customObjects()
-            .get({
-            queryArgs: {
-                limit: 500,
-                where: `value (user in ("${request.params.id}"))`,
-            },
-        })
-            .execute();
-        if (!customObjectsOrders.statusCode ||
-            customObjectsOrders.statusCode >= 300 ||
-            customObjectsOrders.body.results.length <= 0) {
-            return reply.status(404).send({ error: "Orden no encontrada" });
-        }
+        do {
+            const customObjectsGet = yield client_1.apiRoot
+                .customObjects()
+                .get({
+                queryArgs: {
+                    limit: 500,
+                    where: `value (user in ("${request.params.id}"))`,
+                    offset,
+                },
+            })
+                .execute();
+            const { results } = customObjectsGet.body;
+            customObjectsOrders.push(...results);
+            offset += 500;
+            console.log(offset);
+            if (offset >= total)
+                done = true;
+        } while (!done);
         const orders = [];
-        for (const order of customObjectsOrders.body.results) {
+        for (const order of customObjectsOrders) {
             order.value.order.createdAt = order.createdAt;
             orders.push(order.value);
         }
