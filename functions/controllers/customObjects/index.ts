@@ -137,6 +137,7 @@ router.get("/order/user/:id", async (request, reply): Promise<any> => {
       .customObjects()
       .get({
         queryArgs: {
+          limit: 500,
           where: `value (user in ("${request.params.id}"))`,
         },
       })

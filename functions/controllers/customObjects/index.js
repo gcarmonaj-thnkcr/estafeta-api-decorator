@@ -138,6 +138,7 @@ router.get("/order/user/:id", (request, reply) => __awaiter(void 0, void 0, void
             .customObjects()
             .get({
             queryArgs: {
+                limit: 500,
                 where: `value (user in ("${request.params.id}"))`,
             },
         })
