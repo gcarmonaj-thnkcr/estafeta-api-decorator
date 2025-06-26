@@ -91,7 +91,7 @@ router.get("/pdv-services", token_1.validateToken, (req, res) => __awaiter(void 
     let destinationZipCode = destination.postalCode;
     if (destination.countryCodeAlfa3 === "CAN" &&
         !regex.test(destinationZipCode)) {
-        destinationZipCode = "T8E1J3";
+        destinationZipCode = "A1A1A1";
     }
     const responseObject = {
         pdvService: {
