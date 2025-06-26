@@ -87,6 +87,12 @@ router.get("/pdv-services", token_1.validateToken, (req, res) => __awaiter(void 
     const betweenRoadsDestination = ((_d = destination === null || destination === void 0 ? void 0 : destination.optionalAddress1) === null || _d === void 0 ? void 0 : _d.includes("?"))
         ? destination.optionalAddress1.split("?")
         : [destination.optionalAddress1];
+    const regex = /^[ABCEGHJ-NPRSTVXY]\d[ABCEGHJ-NPRSTV-Z]\d[ABCEGHJ-NPRSTV-Z]\d$/;
+    let destinationZipCode = destination.postalCode;
+    if (destination.countryCodeAlfa3 === "CAN" &&
+        !regex.test(destinationZipCode)) {
+        destinationZipCode = "A1A1A1";
+    }
     const responseObject = {
         pdvService: {
             storeServiceOrder: searchOrder.id,
@@ -169,7 +175,7 @@ router.get("/pdv-services", token_1.validateToken, (req, res) => __awaiter(void 
                     Alias: destination.alias,
                     TaxPayer: "",
                     CompleteName: `${(_5 = destination === null || destination === void 0 ? void 0 : destination.firstName) !== null && _5 !== void 0 ? _5 : ""} ${(_6 = destination === null || destination === void 0 ? void 0 : destination.lastName) !== null && _6 !== void 0 ? _6 : ""} ${(_7 = destination === null || destination === void 0 ? void 0 : destination.middleName) !== null && _7 !== void 0 ? _7 : ""}`,
-                    zipCode: destination.postalCode,
+                    zipCode: destinationZipCode,
                     roadTypeCode: "",
                     roadTypeName: destination.road,
                     street: destination.street,
