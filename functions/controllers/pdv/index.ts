@@ -85,6 +85,18 @@ router.get(
       ? destination.optionalAddress1.split("?")
       : [destination.optionalAddress1];
 
+    const regex =
+      /^[ABCEGHJ-NPRSTVXY]\d[ABCEGHJ-NPRSTV-Z]\d[ABCEGHJ-NPRSTV-Z]\d$/;
+
+    let destinationZipCode = destination.postalCode;
+
+    if (
+      destination.countryCodeAlfa3 === "CAN" &&
+      !regex.test(destinationZipCode)
+    ) {
+      destinationZipCode = "T8E1J3";
+    }
+
     const responseObject = {
       pdvService: {
         storeServiceOrder: searchOrder.id,
@@ -173,7 +185,7 @@ router.get(
             Alias: destination.alias,
             TaxPayer: "",
             CompleteName: `${destination?.firstName ?? ""} ${destination?.lastName ?? ""} ${destination?.middleName ?? ""}`,
-            zipCode: destination.postalCode,
+            zipCode: destinationZipCode,
             roadTypeCode: "",
             roadTypeName: destination.road,
             street: destination.street,
